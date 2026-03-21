@@ -113,7 +113,7 @@ export default function Personal() {
               </div>
               <img
                 src="/avatar.jpg"
-                alt="王美杰"
+                alt="王美洁"
                 className="relative z-10 h-full w-full object-cover"
                 onError={(event) => {
                   event.currentTarget.style.display = 'none'
@@ -343,7 +343,7 @@ export default function Personal() {
         transition={TRANSITION_SECTION}
       >
         <h3 className="mb-3 text-lg font-medium">Blog</h3>
-        <div className="flex flex-col space-y-0">
+        <div className="flex flex-col space-y-2">
           <AnimatedBackground
             enableHover
             className="h-full w-full rounded-lg bg-zinc-100 dark:bg-zinc-900/80"
@@ -356,7 +356,7 @@ export default function Personal() {
             {FEATURED_BLOG_POSTS.map((post) => (
               <Link
                 key={post.uid}
-                className="-mx-3 rounded-xl px-3 py-3"
+                className="rounded-xl border border-zinc-200 px-4 py-3 dark:border-zinc-800"
                 href={post.link}
                 data-id={post.uid}
               >
