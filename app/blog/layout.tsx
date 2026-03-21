@@ -1,6 +1,7 @@
 'use client'
 import { TextMorph } from '@/components/ui/text-morph'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 function CopyButton() {
@@ -33,6 +34,12 @@ export default function LayoutBlogPost({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+
+  if (pathname === '/blog') {
+    return <main className="pb-8">{children}</main>
+  }
+
   return (
     <>
       <div className="pointer-events-none fixed left-0 top-0 z-10 h-12 w-full bg-gray-100 to-transparent backdrop-blur-xl [-webkit-mask-image:linear-gradient(to_bottom,black,transparent)] dark:bg-zinc-950" />

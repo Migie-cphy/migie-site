@@ -21,6 +21,12 @@ import {
   SOCIAL_LINKS,
 } from './data'
 
+const FEATURED_PUBLICATIONS = PUBLICATIONS.filter(
+  (publication) => publication.group === 'first_author'
+).sort((a, b) => b.order - a.order)
+
+const FEATURED_BLOG_POSTS = BLOG_POSTS.slice(0, 5)
+
 const VARIANTS_CONTAINER = {
   hidden: { opacity: 0 },
   visible: {
@@ -84,7 +90,7 @@ function MagneticSocialLink({
 export default function Personal() {
   return (
     <motion.main
-      className="space-y-24"
+      className="space-y-16"
       variants={VARIANTS_CONTAINER}
       initial="hidden"
       animate="visible"
@@ -95,7 +101,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-10">
+        <div className="flex flex-col items-start gap-8 md:flex-row md:items-start md:gap-10">
           <div className="relative shrink-0">
             <div className="relative h-32 w-32 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 shadow-sm sm:h-36 sm:w-36 dark:border-zinc-800 dark:bg-zinc-900">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.95),_rgba(228,228,231,0.72)_45%,_rgba(212,212,216,0.95)_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(63,63,70,0.85),_rgba(39,39,42,0.92)_55%,_rgba(24,24,27,1)_100%)]" />
@@ -116,7 +122,7 @@ export default function Personal() {
             </div>
           </div>
 
-          <div className="flex max-w-2xl flex-1 flex-col items-center text-center md:items-start md:text-left">
+          <div className="flex max-w-2xl flex-1 flex-col items-start text-left">
             <h1 className="text-4xl font-bold tracking-tight text-zinc-950 sm:text-5xl dark:text-zinc-50">
               王美洁
             </h1>
@@ -138,8 +144,7 @@ export default function Personal() {
                 </strong>
                 <br />
                 - <strong>Computational Materials & Catalysis</strong>
-                ：基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系。
-                代表工作：
+                ：基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
                 <a
                   href="https://doi.org/10.1016/j.apsusc.2023.158724"
                   target="_blank"
@@ -166,7 +171,7 @@ export default function Personal() {
                 >
                   J. Phys. Chem. Lett. 2026
                 </a>
-                。
+                ）。
                 <br />
                 - <strong>AI for Science</strong>
                 ：构建 OCP → DFT 的 Δ-learning 框架，结合 GNN 与 LLM
@@ -175,7 +180,7 @@ export default function Personal() {
               </p>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+            <div className="mt-6 flex flex-wrap items-center justify-start gap-3">
               {SOCIAL_LINKS.map((link) => (
                 <MagneticSocialLink key={link.label} link={link.link}>
                   {link.label}
@@ -273,7 +278,7 @@ export default function Personal() {
       >
         <h3 className="mb-5 text-lg font-medium">Selected Publications</h3>
         <div className="flex flex-col space-y-3">
-          {PUBLICATIONS.map((pub, i) => (
+          {FEATURED_PUBLICATIONS.map((pub, i) => (
             <div
               key={i}
               className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800"
@@ -306,6 +311,30 @@ export default function Personal() {
             </div>
           ))}
         </div>
+        <div className="mt-5 flex justify-center">
+          <Link
+            href="/publications"
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
+          >
+            完整论文列表
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 15 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-3.5 w-3.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                fill="currentColor"
+                fillRule="evenodd"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Link>
+        </div>
       </motion.section>
 
       {/* Blog */}
@@ -324,7 +353,7 @@ export default function Personal() {
               duration: 0.2,
             }}
           >
-            {BLOG_POSTS.map((post) => (
+            {FEATURED_BLOG_POSTS.map((post) => (
               <Link
                 key={post.uid}
                 className="-mx-3 rounded-xl px-3 py-3"
@@ -343,26 +372,29 @@ export default function Personal() {
             ))}
           </AnimatedBackground>
         </div>
-      </motion.section>
-
-      {/* Connect */}
-      <motion.section
-        variants={VARIANTS_SECTION}
-        transition={TRANSITION_SECTION}
-      >
-        <h3 className="mb-5 text-lg font-medium">Connect</h3>
-        <p className="mb-5 text-zinc-600 dark:text-zinc-400">
-          Feel free to contact me at{' '}
-          <a className="underline dark:text-zinc-300" href={`mailto:${EMAIL}`}>
-            {EMAIL}
-          </a>
-        </p>
-        <div className="flex items-center justify-start space-x-3">
-          {SOCIAL_LINKS.map((link) => (
-            <MagneticSocialLink key={link.label} link={link.link}>
-              {link.label}
-            </MagneticSocialLink>
-          ))}
+        <div className="mt-5 flex justify-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
+          >
+            完整博客列表
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 15 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-3.5 w-3.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                fill="currentColor"
+                fillRule="evenodd"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Link>
         </div>
       </motion.section>
     </motion.main>

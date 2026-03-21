@@ -27,13 +27,16 @@ type SocialLink = {
 }
 
 type Publication = {
+  order: number
   title: string
   authors: string
   journal: string
   year: number
   volume?: number
+  issue?: number
   pages?: string
   doi?: string
+  pdf?: string
   group: 'first_author' | 'co_author'
 }
 
@@ -201,6 +204,7 @@ export const BLOG_POSTS: BlogPost[] = [
 
 export const PUBLICATIONS: Publication[] = [
   {
+    order: 6,
     title: 'A geometric-electronic principle for curvature-driven catalysis',
     authors: '**Meijie Wang** et al.',
     journal: 'J. Am. Chem. Soc.',
@@ -209,6 +213,7 @@ export const PUBLICATIONS: Publication[] = [
     group: 'first_author',
   },
   {
+    order: 4,
     title:
       'Curvature Engineering of SiFe Dual-Atom Catalysts for Enhanced CO₂ Electroreduction',
     authors:
@@ -218,9 +223,11 @@ export const PUBLICATIONS: Publication[] = [
     volume: 17,
     pages: '1227-1234',
     doi: '10.1021/acs.jpclett.5c03896',
+    pdf: 'curvature-engineering.pdf',
     group: 'first_author',
   },
   {
+    order: 3,
     title:
       'p-d Orbital coupling in silicon-based dual-atom catalysts for enhanced CO₂ reduction',
     authors:
@@ -228,11 +235,14 @@ export const PUBLICATIONS: Publication[] = [
     journal: 'J. Mater. Chem. A',
     year: 2024,
     volume: 12,
+    issue: 46,
     pages: '31902-31913',
     doi: '10.1039/D4TA06642A',
+    pdf: 'p_d_orbital.pdf',
     group: 'first_author',
   },
   {
+    order: 2,
     title:
       'SiFeN₆-graphene: A Promising Dual-Atom Catalyst for Enhanced CO₂-to-CH₄ Conversion',
     authors:
@@ -242,7 +252,93 @@ export const PUBLICATIONS: Publication[] = [
     volume: 643,
     pages: '158724',
     doi: '10.1016/j.apsusc.2023.158724',
+    pdf: 'SiFeN6_graphene.pdf',
     group: 'first_author',
+  },
+  {
+    order: 6,
+    title:
+      'MoS2 Grain Boundary-Supported Single-Atom Catalysts for Efficient Electrocatalytic CO2 Conversion to CO',
+    authors:
+      'Yuxing Lin, **Meijie Wang**, Yaowei Xiang, Lei Li, Xing Chen, Yameng Li, Rao Huang, Yuhua Wen',
+    journal: 'J. Phys. Chem. Lett.',
+    year: 2026,
+    volume: 17,
+    pages: '1805-1814',
+    doi: '10.1021/acs.jpclett.5c03749',
+    pdf: 'mos2-grain.pdf',
+    group: 'co_author',
+  },
+  {
+    order: 5,
+    title:
+      'Theoretical Investigation of Two-Dimensional FeC4 Structures with Surface Van Hove Singularity for Electrochemical Nitric Oxide Reduction Reaction',
+    authors:
+      'Yaowei Xiang, **Meijie Wang**, Yuxing Lin, Yaxin Zhao, Shunqing Wu, Yang Sun, Zi-Zhong Zhu, Xinrui Cao',
+    journal: 'J. Phys. Chem. Lett.',
+    year: 2025,
+    volume: 16,
+    issue: 2,
+    pages: '475-482',
+    doi: '10.1021/acs.jpclett.4c03349',
+    pdf: 'FeC4_NO_Reduction.pdf.pdf',
+    group: 'co_author',
+  },
+  {
+    order: 4,
+    title:
+      'Electrochemical synthesis of urea at cooperative active sites on Mo2C grain boundary',
+    authors:
+      'Yuxing Lin, Weihua Yang, **Meijie Wang**, Lei Li, Yameng Li, Xing Chen, Rao Huang, Yuhua Wen',
+    journal: 'J. Catal.',
+    year: 2025,
+    volume: 447,
+    pages: '116139',
+    doi: '10.1016/j.jcat.2025.116139',
+    pdf: 'Electrochemical_synthesis.pdf',
+    group: 'co_author',
+  },
+  {
+    order: 3,
+    title:
+      '2D-Mn2C12: An Optimal Electrocatalyst with Nonbonding Multiple Single Centers for CO2-to-CH4 Conversion',
+    authors:
+      'Yaowei Xiang, Wengeng Chen, **Meijie Wang**, Zi-Zhong Zhu, Shunqing Wu, Xinrui Cao',
+    journal: 'ACS Appl. Mater. Interfaces',
+    year: 2024,
+    volume: 16,
+    pages: '23199-23208',
+    doi: '10.1021/acsami.4c00973',
+    pdf: '2D_Mn2C12_CO2_to_CH4.pdf',
+    group: 'co_author',
+  },
+  {
+    order: 2,
+    title:
+      'NiB Monolayer: A Topological Metal with High NORR Electrocatalytic Performance',
+    authors:
+      'Wengeng Chen, Yaowei Xiang, Zepeng Wu, **Meijie Wang**, Yimei Fang, Zi-Zhong Zhu, Shunqing Wu, Xinrui Cao',
+    journal: 'Appl. Surf. Sci.',
+    year: 2023,
+    volume: 637,
+    pages: '157887',
+    doi: '10.1016/j.apsusc.2023.157887',
+    pdf: 'NiB_Monolayer_NORR.pdf',
+    group: 'co_author',
+  },
+  {
+    order: 1,
+    title:
+      'Room-temperature ferromagnetism in a beta-prime FeB monolayer with pentacoordinate boron',
+    authors:
+      'YaoWei Xiang, Yimei Fang, Ruotong Zhang, **Meijie Wang**, Zi-Zhong Zhu, Shunqing Wu, Xinrui Cao',
+    journal: 'Phys. Rev. B',
+    year: 2025,
+    volume: 111,
+    pages: '104406',
+    doi: '10.1103/PhysRevB.111.104406',
+    pdf: 'Room_temperature.pdf',
+    group: 'co_author',
   },
 ]
 

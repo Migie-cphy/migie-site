@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Header } from './header'
 import { Footer } from './footer'
@@ -23,11 +22,6 @@ export const metadata: Metadata = {
   description: '王美洁 (Meijie Wang) | AI4S 算法工程师（实习）. ',
 }
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,9 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body
-        className={`${geistMono.variable} bg-white tracking-tight antialiased dark:bg-zinc-950`}
-      >
+      <body className="bg-white tracking-tight antialiased dark:bg-zinc-950">
         <ThemeProvider
           enableSystem={true}
           attribute="class"
