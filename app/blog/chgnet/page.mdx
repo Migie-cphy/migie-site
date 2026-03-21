@@ -1,0 +1,156 @@
+export const metadata = {
+  title: '使用预训练大模型 CHGNet 对结构进行粗优化',
+  description: '介绍如何使用 CHGNet 预训练模型对不合理结构进行粗优化，加速DFT计算的收敛速度',
+}
+
+# 使用预训练大模型 CHGNet 对结构进行粗优化
+
+现有很多的预训练大模型，他们的计算速度非常快。[CHGNet](https://chgnet.lbl.gov)是预训练模型的一种，其基于python开发，非常简单易用，适合用于不合理结构的粗优化，加速DFT计算的收敛速度。
+
+## 安装 CHGNet
+使用 conda 创建新环境
+```shell
+conda create -n chgnet python=3.9 # 创建名为chgnet的conda虚拟环境，并且安装3.9版本的python
+conda activate chgnet # 激活创建的 chgnet 环境
+pip install chgnet # 使用 pip 直接安装 chgnet 及其依赖
+
+# 可能会遇到 numpy 版本不兼容的问题
+pip uninstall numpy # 卸载 numpy
+pip install numpy=1.26.4 # 安装 numpy 1.26.4
+```
+如果使用 NVIDIA 的显卡跑，默认下载的 pytorch 的版本也会比较新，可以根据自己服务器 CUDA 版本下载合适的 pytorch 版本，个人电脑也是可以跑的，但对内存的要求比较高。
+
+## 使用 CHGNet 进行优化
+将下列代码保存到 CHGNet_Relax.py
+```python
+import sys
+import numpy as np
+from pymatgen.core import Structure
+from chgnet.model import CHGNet
+from chgnet.model import StructOptimizer
+from pymatgen.io.vasp import Poscar
+
+input_file = sys.argv[1]
+np.set_printoptions(precision=4, suppress=True)
+
+# 读取 Poscar 文件并提取结构和 selective_dynamics 信息
+poscar_in = Poscar.from_file(input_file)
+structure = poscar_in.structure
+selective_dynamics = poscar_in.selective_dynamics  # 提取固定原子信息
+
+# 加载 CHGNet 模型
+chgnet = CHGNet.load()
+
+# 创建结构优化器
+relaxer = StructOptimizer(optimizer_class='BFGS')
+
+# 优化结构
+result = relaxer.relax(structure, verbose=True, steps=1000, fmax=0.05, relax_cell=False,  save_path='./relax.pkl')
+structure = result["final_structure"]
+
+# 在新的 Poscar 文件中保留原有的 selective_dynamics 信息
+poscar_out = Poscar(structure, selective_dynamics=selective_dynamics, comment=None, true_names=True, velocities=None)
+poscar_out.write_file(f"{input_file.split('.')[0]}_out.vasp")
+```
+
+```shell
+python CHGNet_Relax.py [structure].cif # 支持 pymatgen 支持的所有格式，不仅仅局限于 .cif 文件
+```
+
+计算完成后，目录下将会多出相应的 `[input_file_out].vasp`
+
+## 例子
+CHGNet 的计算速度非常快，使用 Macbook Pro 14 inch M2 Pro 计算73个原子，32步中共花了10s不到，如果使用NVIDIA显卡将会更快。
+
+```shell
+CHGNet v0.3.0 initialized with 412,525 parameters
+CHGNet will run on mps
+      Step     Time          Energy          fmax
+BFGS:    0 10:13:58     -650.826047       10.674175
+BFGS:    1 10:13:58     -653.005515        4.993981
+BFGS:    2 10:13:59     -654.066149        3.508497
+BFGS:    3 10:13:59     -654.533078        4.773487
+BFGS:    4 10:14:00     -654.963597        3.034478
+BFGS:    5 10:14:00     -655.139383        9.115479
+BFGS:    6 10:14:01     -655.479259        1.874195
+BFGS:    7 10:14:01     -655.595800        1.062697
+BFGS:    8 10:14:01     -655.902399        0.658357
+BFGS:    9 10:14:02     -655.938044        1.853250
+BFGS:   10 10:14:02     -656.014972        0.934139
+BFGS:   11 10:14:03     -656.051243        0.462437
+BFGS:   12 10:14:03     -656.088001        0.475853
+BFGS:   13 10:14:03     -656.112925        0.447241
+BFGS:   14 10:14:03     -656.135620        0.618541
+BFGS:   15 10:14:04     -656.164999        0.425302
+BFGS:   16 10:14:04     -656.189783        0.353426
+BFGS:   17 10:14:04     -656.211713        0.320385
+BFGS:   18 10:14:04     -656.224383        0.304589
+BFGS:   19 10:14:04     -656.236845        0.180711
+BFGS:   20 10:14:05     -656.243737        0.178956
+BFGS:   21 10:14:05     -656.251186        0.182129
+BFGS:   22 10:14:05     -656.257382        0.147223
+BFGS:   23 10:14:05     -656.262882        0.130799
+BFGS:   24 10:14:06     -656.266363        0.103959
+BFGS:   25 10:14:06     -656.270471        0.132597
+BFGS:   26 10:14:06     -656.273534        0.140389
+BFGS:   27 10:14:06     -656.277084        0.139191
+BFGS:   28 10:14:07     -656.281749        0.122242
+BFGS:   29 10:14:07     -656.284812        0.157107
+BFGS:   30 10:14:08     -656.288014        0.104879
+BFGS:   31 10:14:08     -656.291426        0.085972
+```
+这是优化前后的对比，可以看到可以快速的将手动搭建的结构，构建为更合理的结构。
+
+## 可视化弛豫的过程
+
+CHGNet Relaxer 可以输出每一步的信息以`.pkl`的格式保存，根据之前的设置目录下还会多出一个 `relax.pkl`的文件，通过下列代码转换为`ase .traj`格式，便可以使用`ase gui`读取
+
+将下面的代码保存为 `pkl2traj.py`
+```python
+import pickle
+import numpy as np
+from ase import Atoms
+from ase.io import Trajectory
+
+# 加载 CHGNet 轨迹文件
+with open("relax.pkl", "rb") as file:
+    data = pickle.load(file)
+
+# 获取原子信息
+atomic_numbers = data['atomic_number']
+positions = data['atom_positions']
+cell = data['cell']
+energies = data['energy']
+forces = data['forces']
+stresses = data['stresses']
+magmoms = data.get('magmoms', None)  # 磁矩信息可能是可选的
+
+# 创建 ASE Trajectory 文件
+with Trajectory("output_trajectory.traj", "w") as traj:
+    for i in range(len(energies)):
+        atoms = Atoms(
+            numbers=atomic_numbers,           # 原子编号
+            positions=positions[i],           # 每帧的原子坐标
+            cell=cell[i],                     # 晶胞
+            pbc=True                          # 周期性边界条件
+        )
+
+        # 设置附加属性，例如能量、力和应力
+        atoms.info['energy'] = energies[i]
+        atoms.set_array('forces', np.array(forces[i]))  # 使用 set_array 设置力
+        atoms.info['stress'] = stresses[i]
+
+        # 如果存在磁矩，设置磁矩
+        if magmoms is not None:
+            atoms.set_initial_magnetic_moments(magmoms[i])
+
+        # 写入每一帧到 .traj 文件
+        traj.write(atoms)
+
+print("Trajectory has been successfully written to 'output_trajectory.traj'.")
+```
+在当前目录下运行
+```shell
+python pkl2traj.py
+```
+运行后便会得到`output_trajectory.traj`。

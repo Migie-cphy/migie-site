@@ -1,0 +1,302 @@
+export const metadata = {
+  title: 'macOS 配置',
+  description: '个人 macOS 配置记录，包括 Homebrew、iTerm2、Oh My Zsh、快捷键等',
+}
+
+# 一些系统设置
+
+## 光标响应速度
+System Preferences -> Keyboard
+
+## 三指拖移
+System Preferences -> Accessibility -> Pointer Control -> Trackpad Options
+
+## Homebrew
+
+Homebrew 是 macos 和 Linux 中的软件和包（Package）管理软件，类似于 centOS 的 yum 和 ubuntu 的 apt-get。
+
+首先在 terminal 中运行
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+用[Homebrew官网](https://brew.sh)的话说就是"Homebrew安装了你需要的东西，而 macos（或你的Linux系统）没有。"
+
+介绍一些基本用法：
+```shell
+brew install <package> # 安装软件
+brew install <package> --cask # 安装软件（GUI）有时候会有同名的 fomule 和 cask，需要指定
+
+brew uninstall <package> # 卸载软件
+
+brew list # 列出已安装的软件
+brew list --cask # 列出已安装的软件（GUI）
+
+brew search <package> # 搜索软件
+brew info <package> # 查看软件信息
+
+brew update # 更新软件
+brew upgrade # 升级软件
+brew cleanup # 清理缓存
+```
+
+## iTerm2
+
+[iTerm2](https://iterm2.com) 是一个终端模拟器，比 macos 自带的终端功能更强大。
+
+```shell
+brew install --cask iterm2
+```
+
+### 终端快捷键
+- `Command + A` 光标移动到行首
+- `Command + E` 光标移动到行尾
+- `Command + U` 删除光标前的所有字符
+- `Command + K` 删除光标后的所有字符
+- `Command + W` 删除光标前的一个单词
+- `Command + R` 搜索历史命令 (安装fzf后,直接模糊搜索)
+- `Command + L` 清屏
+
+### iterm2 快捷键
+- `Command + D` 垂直分屏
+- `Command + Shift + D` 水平分屏
+- `Command + Option + 方向键` 切换分屏
+- `Command + Option + Shift + 方向键` 调整分屏大小
+- `Command + Option + F` 切换全屏
+
+## Oh My Zsh
+
+[Oh My Zsh](https://ohmyz.sh) 是一个开源的终端工具，提供了丰富的插件和主题。
+
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+oh-my-zsh 的配置文件是 `~/.zshrc`，可以通过修改这个文件来配置 oh-my-zsh。
+
+自动补全插件：
+### zsh-autosuggestions
+zsh-autosuggestions 是一个 zsh 的自动补全插件，可以根据你的输入自动提示，通过方向键 > 补全。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `zsh-autosuggestions` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+###  zsh-syntax-highlighting
+zsh-syntax-highlighting 是一个 zsh 的语法高亮插件，可以根据你的输入高亮显示。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `zsh-syntax-highlighting` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+### macos
+macos 是一个基于 zsh 的 macos 系统配置工具，可以通过简单的命令来配置 macos 系统。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `macos` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+
+### fzf
+fzf 是一个命令行模糊搜索工具，可以通过模糊搜索来快速找到你想要的文件。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `fzf` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+brew install fzf
+```
+
+### autojump
+autojump 是一个命令行工具，可以通过简单的命令来快速跳转到你想要的目录。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `autojump` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+brew install autojump
+```
+###  extract
+extract 是一个命令行工具，帮助识别压缩文件的格式，并解压文件。
+```shell
+extract <file>.zip
+extract <file>.tar.gz
+extract <file>.tar.bz2
+extract -r <file>.tar.bz2 # -r 解压后,删除原来的压缩文件
+```
+
+## 服务器的使用
+### 连接
+在终端连接服务器的命令一般是`ssh <username>@<hostname> -p <port>`，如果你经常连接同一个服务器，可以通过`~/.ssh/config`文件来简化连接服务器的命令。
+
+编辑 `~/.ssh/config` 文件，如果没有这个文件或者目录，可以自己手动创建一个。
+
+```shell
+Host <alias>
+    HostName <hostname>
+    User <username>
+    Port <port>
+    IdentityFile <path/to/private/key>
+```
+这里的`<>`是要删除的，不需要保留，你想设置某个服务器别名为`hpc`，直接填`Host hpc`，不用填`Host <hpc>`，其他参数也一样。
+
+设置好之后，可以通过`ssh <alias>`来连接服务器，而不用记住`Ip` `User` `Port`等信息，这是非常方便的，除了适用于 `ssh` 命令，其他的用于本地与服务器通讯的命令都可以使用别名代替。
+
+另外， `IdentityFile` 是私钥的路径,默认是 `~/.ssh/id_rsa`，可以通过 `ssh-keygen` 生成，然后将公钥添加到服务器的 `~/.ssh/authorized_keys` 文件中。
+
+### 密钥的配置
+#### 使用 ssh-keygen 生成密钥对
+
+```
+(base) migie:~/ $ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/Users/migie/.ssh/id_rsa):
+Enter passphrase for "/Users/migie/.ssh/id_rsa" (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /Users/migie/.ssh/id_rsa
+Your public key has been saved in /Users/migie/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:vUwLVBpC+BjZpb8Ox75PD1pBlr+AuqKDu5v2FXY0bgM migie@MigieMacBook-Pro.local
+The key's randomart image is:
++--[ED25519 256]--+
+|     =o.o .      |
+|    + .o + .     |
+|     E.oo +      |
+|    . =o.= .     |
+|     o =S = .    |
+|    . +o.= = .   |
+| .   .o + B .    |
+|.o. o  * + o     |
+|*+o+ .. =o. .    |
++----[SHA256]-----+
+```
+
+#### 使用 `ssh-copy-id` 复制公钥到服务器
+```
+(base) migie:.ssh/ $ ssh-copy-id <alias>
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/Users/migie/.ssh/id_rsa.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+mjwang@xx.xx.xx.xx's password:
+
+Number of key(s) added:        1
+
+Now try logging into the machine, with:   "ssh '<alias>'"
+and check to make sure that only the key(s) you wanted were added.
+```
+
+#### 手动复制公钥到服务器
+复制`id_rsa.pub`中的内容，到服务器`~/.ssh/authorized_keys`中，如果里面已经有内容就另起一行添加即可。
+
+设置之后，`ssh <alias>` 就会通过密钥连接服务器，即可不用输入用户名和密码，除了适用于 `ssh` 命令，其他的用于本地与服务器通讯的命令都可以使用别名代替。
+
+### 传输文件
+实际上操作系统中有很多传输文件的命令，比如`scp`，`rsync`等。我使用的是`scp`，`scp`是一个用于在两台计算机之间传输文件的命令，类似于`cp`命令，但是`scp`可以在两台计算机之间传输文件。
+```shell
+# 从本地传输文件到服务器
+scp <file> <username>@<hostname>:<path>
+# 比如传输本地的test.txt文件到服务器的/home/user目录下
+scp test.txt user@hostname:/home/user
+
+# 从服务器传输文件到本地
+scp <username>@<hostname>:<path> <file>
+# 比如传输服务器的/home/user/test.txt文件到本地
+scp user@hostname:/home/user/test.txt .
+```
+这个命令可以传输文件，也可以传输目录，传输目录时需要加上`-r`参数。
+`scp` 命令一般是在本地系统的终端使用， 观察到`scp`命令的使用方式是`scp <source> <destination>`，在本地很难知道服务器上的文件路径，而服务器上的终端也不方便查看本地文件路径。
+因此我设置了一个非常简单的脚本 `put`，可以在服务器上使用`put` 命令生成相应的填入参数的`scp`命令，并复制到本地剪贴板中。
+```shell
+#!/bin/bash
+echo "scp -r <alias>:$PWD/$1 ." | pbcopy
+```
+这个脚本的作用是将`scp -r mu012:$PWD/$1 .`命令复制到剪贴板中，然后在本地粘贴即可。
+其中`<alias>`是服务器的别名，要修改与本地`~/.ssh/config`中对应的别名，`$PWD`表示当前目录，`$1`是传入的参数，即要传输的文件或目录。
+
+pbcopy 是一个macos的命令，可以将内容复制到剪贴板中，类似的还有`pbpaste`，可以将剪贴板的内容粘贴到终端中。
+但是在服务器上没有`pbcopy`命令，但是可以使用 `python` 脚本来实现相同的功能。
+```python
+#!/usr/bin/env python
+import sys
+import base64
+
+buffer=[]
+for line in sys.stdin:
+    buffer.append(line)
+    content = ''.join(buffer)
+content = content.strip()
+print('\033]52;c;' + base64.b64encode(content.encode()).decode() + '\007')
+```
+这样在服务器上就可以使用`put`命令来生成`scp`命令，并复制到本地剪贴板中。回到本地终端，粘贴即可运行即可将服务器文件下载到本地。
+
+在本地我们也可以设计一个脚本`put`，用于上传文件到服务器。
+```shell
+#!/bin/zsh
+scp -r $1 <alias>:~
+```
+这个脚本的作用是将本地文件上传到服务器的`~`目录下，`<alias>`是服务器的别名，要修改与本地`~/.ssh/config`中对应的别名，`$1`是传入的参数，即要传输的文件或目录。
+先将文件上传到服务器的`~`目录下，然后在服务器上使用`mv`命令将文件移动到指定目录。
+
+
+## Latex
+### MacTex
+
+[MacTex](https://www.tug.org/mactex/) 是一个基于 macos 的 Latex 发行版，可以帮助你在 macos 上编写 Latex 文档。
+
+basicTex 是一个基于 MacTex 的轻量级 Latex 发行版，可以帮助你在 macos 上编写 Latex 文档。Mactex 比较臃肿，basicTex 只包含了最基本的 Latex 工具，可以根据需要安装其他工具。
+
+```shell
+brew install --cask mactex
+```
+使用
+```shell
+xelatex <file>.tex
+```
+即可编译生成 pdf 文件。当然可以下载一些编辑器来提高撰写文本的效率，这些编辑器都支持 Latex 语法高亮，自动补全等功能。
+
+## 快捷键
+### Macos快捷键
+- `Command + Space` 打开 Spotlight 搜索 用于快速搜索打开应用
+- `Command + Tab` 切换应用
+- `Control + Tab` 切换页面,比如现在有很多个网页可以通过该快捷键切换
+- `Control + Shift + Tab` 倒着切换页面
+- `Command + 数字` 选择页面
+- `Command + Q` 退出应用
+
+- `Command + W` 关闭当前页面 比如当前网页 或者当前终端页面
+- `Command + ,` 打开当前软件的设置
+- `Command + Shift + 3` 截屏 整个屏幕
+- `Command + Shift + 4` 截屏 手动滑动选择框的大小
+- `Command + Shift + 5` 截屏 打开截屏菜单用于更复杂的操作,包括录像等
+
+- `Control + Command + W` 隐藏/显示微信
+- `Control + Command + X` 隐藏/显示QQ
+
+## 触控板手势
+macos 的触控板支持多种手势，可以通过手势来控制 macos。详情可以看[官网](https://support.apple.com/zh-cn/102482)
+
+## 使用终端控制Mac OS
+macos是基于unix的操作系统，可以通过终端来控制macos系统。
+大部分语法与linux相同,极少数有一点点区别，
+```shell
+ls # 列出当前目录下的文件
+cd # 切换目录
+...
+```
+与大部分没有图形界面的linux不同，macos是有图形界面的，可以通过终端来控制图形界面。
+```shell
+open . # 使用访达打开当前目录
+open dirs # 使用访达打开 dirs 目录
+open <file> # 打开文件
+open -a <app> # 打开应用
+open -a <app> <file> # 指定使用某软件打开文件
+```
+同时很多软件都支持命令行:
+```shell
+subl <file> # 使用sublime text打开文件
+```
+
+
+## Shadowsocks
+[Shadowsocks](https://shadowsocks.org) 是一个代理工具，可以帮助你访问被墙的网站。
+
+## Bob
+
+[Bob](https://bobtranslate.com) 是一款 macOS 平台的翻译和 OCR 软件，您可以在任何应用程序中使用 Bob 进行翻译和 OCR，即用即走，简单、快捷、高效！
+该软件目前已经上架 App Store，有免费版本和付费版本。
+可以直接使用 `Homebrew` 下载社区版
+```shell
+brew install --cask bob
+```
+该软件需要配置不同的翻译 api和OCR api，[Bob官网](https://bobtranslate.com)有非常详细的教程。
+
+
+
+实际上,不管是windows还是macos都有很多快捷键和快捷操作,帮助我们更快的完成工作,提高效率。如果感觉某些操作不太方便,可以上网搜一下看看是否有某些快捷操作。

@@ -1,0 +1,55 @@
+export const metadata = {
+  title: 'Oh My Zsh 的使用',
+  description: '在没有 root 权限的 Linux 服务器上编译安装 zsh 和 oh-my-zsh',
+}
+
+# Oh My Zsh 的使用
+
+## 下载最新的zsh安装包
+```bash
+wget -O zsh.tar.xz https://sourceforge.net/projects/zsh/files/latest/download --no-check-certificate
+mkdir zsh && unxz zsh.tar.xz && tar -xvf zsh.tar -C zsh --strip-components 1
+cd zsh
+```
+
+## 编译zsh
+```bash
+./configure --prefix=$HOME/zsh
+make && make install
+```
+
+## 安装完成后，加入环境变量.bashrc
+```bash
+export PATH=$HOME/zsh/bin:$PATH
+# 生效
+source ~/.bashrc
+```
+
+
+## 可能会报错 This is probably a library called 'curses' or 'ncurses'
+```bash
+wget http://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.0.tar.gz
+mkdir ncurses
+tar -xvf ncurses-6.0.tar.gz
+cd ncurses-6.0
+./configure --prefix=$HOME/ncurses --with-shared --without-debug --enable-widec
+make && make install
+```
+
+## 安装完成后
+```bash
+export CXXFLAGS="-fPIC"
+export CFLAGS="-fPIC"
+export NCURSES_HOME=$HOME/ncurses  # 这里表示家目录的ncurses目录，可以自己设置一个想要的路径
+export PATH=$NCURSES_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$NCURSES_HOME/lib:$LD_LIBRARY_PATH
+export CPPFLAGS="-I$NCURSES_HOME/include" LDFLAGS="-L$NCURSES_HOME/lib"
+```
+加入~/.bashrc
+
+```bash
+source ~/.bashrc
+# 然后编译zsh即可
+```
+
+参考：[安装zsh&oh-my-zsh（没有root权限）](https://blog.csdn.net/weixin_42262721/article/details/123531486)

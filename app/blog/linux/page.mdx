@@ -1,0 +1,76 @@
+export const metadata = {
+  title: 'Linux 服务器配置',
+  description: '对 Linux 服务器进行 Oh My Zsh、插件和 SSH 连接等配置',
+}
+
+# Linux 服务器配置
+
+"我们塑造工具，工具反过来塑造我们。"
+
+对 Linux 进行一些简单的配置可以大大增加我们平时的效率，下面是我在平时服务器中使用的一些配置。
+
+## Oh My Zsh
+首先检查一下当前服务器是否已经安装了 `zsh`
+
+[Oh My Zsh](https://ohmyz.sh) 是一个开源的终端工具，提供了丰富的插件和主题。
+
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+oh-my-zsh 的配置文件是 `~/.zshrc`，可以通过修改这个文件来配置 oh-my-zsh。
+
+自动补全插件：
+### zsh-autosuggestions
+zsh-autosuggestions 是一个 zsh 的自动补全插件，可以根据你的输入自动提示，通过方向键 > 补全。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `zsh-autosuggestions` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+###  zsh-syntax-highlighting
+zsh-syntax-highlighting 是一个 zsh 的语法高亮插件，可以根据你的输入高亮显示。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `zsh-syntax-highlighting` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+
+
+### fzf
+fzf 是一个命令行模糊搜索工具，可以通过模糊搜索来快速找到你想要的文件和历史命令。
+安装命令如下
+```shell
+# linux 系统中，conda 支持 fzf的下载
+conda install -c conda-forge fzf
+```
+安装完成后对进行简单的配置
+```
+vim ~/.zshrc
+# 找到 plugins=(git ....) 在括号中添加 fzf
+plugins=(git extract zsh-autosuggestions zsh-syntax-highlighting fzf)
+# 并且添加新的一行写入 fzf 安装目录
+FZF_BASE=[env_path]/share/fzf/shell
+# 比如我的就是这样的
+FZF_BASE=/public/home/mjw/software/miniconda3/envs/default/share/fzf/shell
+
+```
+然后保存退出重新登录服务器就生效了。
+
+###  extract
+extract 是一个命令行工具，可以通过简单的命令来解压文件。
+
+## 服务器的连接
+设置 config 文件
+```shell
+Host <alias>
+    HostName <hostname>
+    User <username>
+    Port <port>
+    IdentityFile <path/to/private/key>
+```
+然后通过 `ssh <alias>` 来连接服务器。
+
+与服务器设置密钥连接
+```shell
+ssh-keygen
+```
+然后将公钥添加到服务器的 `~/.ssh/authorized_keys` 文件中。

@@ -1,0 +1,62 @@
+export const metadata = {
+  title: '并行！！！',
+  description: '记录各种并行操作，包括多线程解压缩、多线程下载和 GNU Parallel 的使用',
+}
+
+# 并行！！！
+
+人只有1个"核心"，一次只能干一件事，串行。但是电脑有好几个核心，可以一次干很多事，也可以把一件事拆成几份一起干，并行。
+这篇文章用以记录各种并行操作。
+
+
+## 多线程解压缩
+日常我们会往服务器上传或者下载一些大文件，进行压缩，可以减少文件大小，加快传输速度，减少流量的损耗。 如果压缩文件很大，解压缩的时间也会很长。这时候我们可以使用并行的方式解压缩，加快速度。
+下面是 `tar` 和 `pigz` 的结合使用，tar 用来打包，pigz 用来压缩。
+```bash
+# 将文件夹 folder 打包成 archive.tar.gz
+tar -cf - folder/ | pigz > archive.tar.gz
+# 解压缩
+pigz -d -c archive.tar.gz | tar -xf -
+# 或者
+tar -I pigz xvf archive.tar.gz
+```
+## 多线程下载
+有时候我们需要下载一些大文件，比如数据集，软件包等，这时候我们可以使用多线程下载，加快下载速度。
+```bash
+# 使用 axel
+axel -n 10 http://example.com/file.zip
+# 使用 aria2
+aria2c -x 10 http://example.com/file.zip
+```
+## 多线程上传
+有时候我们需要上传一些大文件，比如数据集，软件包等，这时候我们可以使用多线程上传，加快上传速度。
+```bash
+# 使用 lftp
+lftp -e "set ftp:sync-mode off; put -O /path/to/remote/dir file.zip; exit" -u user,pass ftp://example.com
+```
+## Parallel
+`parallel` 是一个并行处理工具，可以用来并行执行命令，加快处理速度。
+```bash
+# 安装
+sudo apt install parallel
+# 如果没有超级用户权限
+wget https://mirrors.nju.edu.cn/gnu/parallel/parallel-latest.tar.bz2
+tar -xvf parallel-latest.tar.bz2
+cd parallel-*
+./configure --prefix=$HOME
+make
+make install
+# 添加到环境变量
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+source ~/.bashrc
+```
+
+```bash
+# 使用
+# 平时我们使用串行执行命令
+for i in 1 2 3; do echo $i; done
+# 使用 parallel
+parallel ::: "echo 1" "echo 2" "echo 3"
+# 或者
+echo -e "echo 1\n echo 2\n echo 3" | parallel
+```

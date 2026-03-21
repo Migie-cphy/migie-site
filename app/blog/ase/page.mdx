@@ -1,0 +1,25 @@
+export const metadata = {
+  title: '我的ase日常',
+  description: 'ASE (Atomic Simulation Environment) 的日常使用记录，包括安装和读写结构文件',
+}
+
+# 我的ase日常
+
+个人记录贴，持续更新中
+[Atomic Simulation Environment](https://wiki.fysik.dtu.dk/ase/) (ASE) 是一组用于设置、操纵、运行、可视化和分析原子模拟的工具和 Python 模块。该代码在GNU LGPL许可证下免费提供。
+
+目前我主要使用还是其构建结构的功能。
+## 安装
+```bash
+pip install ase
+```
+
+
+## read and write
+```
+from ase.io import read, write
+from ase import Atoms
+
+atoms = read('POSCAR', format='vasp')
+write('POSCAR', atoms, format='vasp', direct=True) # direct=True 表示输出分数坐标 默认是笛卡尔坐标
+```

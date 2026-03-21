@@ -1,0 +1,205 @@
+export const metadata = {
+  title: 'Python 绘图',
+  description: '使用 Matplotlib 进行科研绘图的教程，以态密度图为例',
+}
+
+# Python 绘图
+
+个人记录贴，持续更新中
+
+python 可以绘制出非常精美的图形，其操作也是比较简单的，稍微了解一下就可以使用了，完全可以应付科研工作中的绘图需求。
+
+## 安装
+
+先介绍一下用到的几个库：
+
+### Numpy
+
+[Numpy](https://numpy.org) 是 Python 的一个科学计算库，提供了大量的数学函数和矩阵运算等功能。在这里我们主要使用numpy来读取包含大量数据的数据文件。
+
+### Pandas
+
+[pandas](https://pandas.pydata.org) 是一个强大的数据分析库，提供了大量的数据结构和数据处理工具，可以方便地处理数据文件。Pandas
+根据我的习惯，主要用来读取包含少量数据的数据文件。提供了 DataFrame 数据结构，可以方便地处理数据。
+
+### Matplotlib
+
+[matplotlib](https://matplotlib.org) 是一个 Python 2D 绘图库，可以生成各种格式的图形，包括线图、散点图、等高线图、柱状图、饼图等。
+
+conda 安装这些库：
+
+```shell
+conda install numpy pandas matplotlib
+```
+
+pip 安装这些库：
+
+```shell
+pip install numpy pandas matplotlib
+```
+
+## 以绘制态密度图为例
+
+先介绍一下这个例子要完成的事情，就是有4张态密度图，每张图有4个轨道的态密度，每个轨道有两个自旋态密度，所以一共有8个态密度曲线。这个例子的数据文件是由 `vaspkit 115` 功能处理得到的，具体格式如下：
+
+```shell
+(default) migie:dos/ $ pwd                                           [22:54:02]
+/Users/migie/workplace/work003/data/dos
+(default) migie:dos/ $ ls                                            [22:54:03]
+3_out.dat 4_out.dat 5_out.dat 6_out.dat
+(default) migie:dos/ $ head 3_out.dat                                [22:54:05]
+     #Energy up_Si_px&py dw_Si_px&py up_Fe_dxy&d dw_Fe_dxy&d
+   -24.26538     0.00000     0.00000     0.00000     0.00000
+   -24.24938     0.00000     0.00000     0.00000     0.00000
+   -24.23238     0.00000     0.00000     0.00000     0.00000
+   -24.21638     0.00000     0.00000     0.00000     0.00000
+   -24.19938     0.00000     0.00000     0.00000     0.00000
+   -24.18238     0.00000     0.00000     0.00000     0.00000
+   -24.16638     0.00000     0.00000     0.00000     0.00000
+   -24.14938     0.00000     0.00000     0.00000     0.00000
+   -24.13238     0.00000     0.00000     0.00000     0.00000
+(default) migie:dos/ $                                               [22:54:06]
+```
+
+有4个数据文件，每个数据文件有5列，第一列是能量，后面4列是态密度。
+
+在科研绘图中我们会有把单幅图绘制成多幅图的需求，我们可以将这些图合并到一张图里。
+
+其实只要画一幅图，其他几幅都是一样的，只是数据文件不同而已。所以我们可以写一个函数，然后循环调用这个函数，就可以得到我们想要的图了。
+
+首先直接上完整的代码，再每一行代码做解释，代码如下：
+
+```python
+# 倒入必要的库
+import numpy as np
+import matplotlib.pyplot as plt
+# 从 scipy.ndimage 库中导入 gaussian_filter 函数, 这个函数是用来平滑数据的
+from scipy.ndimage import gaussian_filter
+
+
+# 定义一个画图函数，方便调用，函数跟数学里的函数一样，是一个黑盒子，输入一些东西，输出一些东西，在这里我们输入一个 ax 对象和一个整数 n，输出一个态密度图，ax 对象就是表示画在哪一幅图里，n 表示读取哪一个数据文件
+def plot(ax, n):
+	'''
+    ax: matplotlib.pyplot.Axes 对象
+    n: int, 数据文件编号
+    '''
+	# 使用 numpy 读取数据文件
+	data = np.loadtxt(f'../data/dos/{n}_out.dat')
+	# 定义一些所需的数据在列表里，方便后面调用
+	# 储存轨道信息
+	orbitals = ['Si $p$', 'Fe $d$']
+	# 储存颜色
+	color = ['r', 'b', 'brown', 'y']
+	# 储存吸附能
+	ads = [-1.10, -1.34, -1.80, -1.22]
+
+	for i in range(1, 3):
+		# 创建一个循环，循环次数是 1 到 3，也就是 1 和 2，用以画两个轨道的态密度
+		# 画图，data[:, 0] 是能量，data[:, 2 *i - 1] 是态密度，gaussian_filter 是平滑数据，sigma 是平滑参数，越大越平滑，label 是图例，alpha 是透明度，color 是颜色，下面两行第一行画自旋向上，第二行画自旋向下
+		ax.plot(data[:, 0], gaussian_filter(data[:, 2 * i - 1], sigma=2), label=orbitals[i-1], alpha=0.3,
+		        color=color[i])
+		ax.plot(data[:, 0], gaussian_filter(data[:, 2 * i], sigma=2), alpha=0.3, color=color[i])
+		# 画辅助线 x=0 和 y=0
+		ax.axvline(x=0, color='gray', linestyle='--', alpha=0.6)
+		ax.axhline(y=0, color='gray', linestyle='--', alpha=0.6)
+		# 设置坐标轴范围
+		ax.set_xlim(-3, 3)
+		ax.set_ylim(-2, 2)
+		# 添加文本，显示吸附能和序列号，前面的数字是位置，第三个是显示的文本，transform 表示按比例放置在 ax 中，ha 是水平对齐方式，va 是垂直对齐方式
+		ax.text(0.95, 0.95, f'{n}', fontsize=12, transform=ax.transAxes, ha='right', va='top')
+		ax.text(0.95, 0.88, '$E_\mathrm{^*CO_2}= ' + f'{ads[int(n) - 3]:.2f}$ eV', fontsize=12, transform=ax.transAxes,
+		        ha='right', va='top')
+
+
+	# 设置坐标轴标签，fontsize 是字体大小
+	ax.set_xlabel(r'Energy (eV)', fontsize=12)
+	ax.set_ylabel(r'DOS (states $\mathrm{Hartee^{-1}\cdot u.c.^{-1}}$)', fontsize=12)
+	# 显示图例
+	ax.legend(loc='lower left', fontsize=10, frameon=False)
+
+# 主函数，程序的入口
+if __name__ == "__main__":
+	# 设置字体，这里是启用 latex 渲染，导入一些 latex 包，设置字体，电脑需要安装 latex 才能使用这个功能，如果没有请注释，不过如果打算用到文章中，建议安装latex，启用这个功能，让图形更加美观
+	# 启用 latex 渲染
+	plt.rcParams["text.usetex"] = True
+	# 导入一些 latex 包
+	plt.rcParams["text.latex.preamble"] = r"\usepackage{amsmath} \usepackage{amssymb} \usepackage{bm}"
+	# 设置字体
+	plt.rcParams['font.family'] = 'serif'
+	plt.rcParams['font.serif'] = ['Times New Roman']
+
+	# 创建一个画布和一个坐标轴对象, figsize 是画布大小, 单位是英寸
+	fig, ax = plt.subplots(figsize=(6, 4))
+
+	# 调用我们上面定义的画图函数，画一幅图，画在 ax 上，数据文件是 3_out.dat
+	plot(ax, 3)
+
+	# 保存图片，第一个参数是保存的名字和路径，matplotlib 会根据后缀自动生成对应格式的图片，常见的包括.png, .jpg等都支持bbox_inches 是保存图片的边界，tight 表示紧凑保存，dpi 是指定位图分辨率，矢量图不需要设置，建议在文章中插入矢量图，比如 .pdf，不会失真。
+	plt.savefig(f'../figure/{3}.pdf', bbox_inches='tight', dpi=330)
+```
+上面的代码用于生成绘制一幅图，我们可以通过循环调用这个函数，生成我们想要的图。上面的代码保存为 `dos.py`，下面我们创建一个 `dos_merge.py` 文件，用于调用 `dos.py` 文件，代码如下：
+
+```python
+import matplotlib.pyplot as plt
+# 从 dos.py 文件中导入 plot 函数, 就是我们刚刚定义的函数
+from dos import plot
+
+# 主函数
+if __name__ == "__main__":
+    # 设置字体，这里是启用 latex 渲染，导入一些 latex 包，设置字体，电脑需要安装 latex 才能使用这个功能，如果没有请注释，不过如果打算用到文章中，建议安装latex，启用这个功能，让图形更加美观
+	# 启用 latex 渲染
+	plt.rcParams["text.usetex"] = True
+	# 导入一些 latex 包
+	plt.rcParams["text.latex.preamble"] = r"\usepackage{amsmath} \usepackage{amssymb} \usepackage{bm}"
+	# 设置字体
+	plt.rcParams['font.family'] = 'serif'
+	plt.rcParams['font.serif'] = ['Times New Roman']
+
+    # 创建一个画布和一个坐标轴对象, figsize 是画布大小, nrows 是行数，ncols 是列数, 这里是 4 行 1 列
+	fig, ax = plt.subplots(figsize=(5, 10), nrows=4, ncols=1)
+    # 调用我们上面定义的画图函数，画四幅图，画在 ax 上，数据文件是 3_out.dat, 4_out.dat, 5_out.dat, 6_out.dat，如果要画更多的图，可以用循环
+	plot(ax[0], '3')
+	plot(ax[1], '4')
+	plot(ax[2], '5')
+	plot(ax[3], '6')
+
+	# 下面的代码其实就是设置一些图的样式，比如坐标轴标签，图例，坐标轴范围等等
+	for i in range(3):
+        # 设置上面三幅图的样式下坐标和下边框不显示
+		ax[i].spines['bottom'].set_visible(False)
+		ax[i].xaxis.set_visible(False)
+        # 设置ylabel
+		ax[i].set_ylabel(r'DOS ($\mathrm{states}\cdot\mathrm{eV^{-1}\cdot u.c.^{-1}}$)', fontsize=12)
+        # 设置图例
+		ax[i].legend(fontsize=10, frameon=False, loc='upper left')
+        # 设置坐标轴范围
+		ax[i].set_xlim(-4, 4)
+		ax[i].set_ylim(-2, 2)
+	# 设置第2幅图和第4幅图的样式y轴的坐标和label在右边
+	ax[1].yaxis.set_ticks_position('right')
+	ax[1].yaxis.set_label_position('right')
+	ax[3].yaxis.set_ticks_position('right')
+	ax[3].yaxis.set_label_position('right')
+    # 设置第4幅图的xlabel 和 ylabel
+	ax[3].set_xlabel(r'Energy (eV)', fontsize=12)
+	ax[3].set_ylabel(r'DOS ($\mathrm{states}\cdot\mathrm{eV^{-1}\cdot u.c.^{-1}}$)', fontsize=12)
+    # 设置图例
+	ax[3].legend(fontsize=10, frameon=False, loc='upper left')
+    # 设置坐标轴范围
+	ax[3].set_xlim(-3, 3)
+	ax[3].set_ylim(-2, 2)
+
+    # 为每一幅图添加标号
+	ax[0].text(-0.30, 0.95, '$\mathbf{(a)}$', fontsize=20, transform=ax[0].transAxes)
+	ax[1].text(-0.30, 0.95, '$\mathbf{(b)}$', fontsize=20, transform=ax[1].transAxes)
+	ax[2].text(-0.30, 0.95, '$\mathbf{(c)}$', fontsize=20, transform=ax[2].transAxes)
+	ax[3].text(-0.30, 0.95, '$\mathbf{(d)}$', fontsize=20, transform=ax[3].transAxes)
+
+    # 调整图间距
+	plt.subplots_adjust(hspace=0.0, wspace=0.35)
+    # 保存图片
+	plt.savefig('../figure/dos_merge.pdf', bbox_inches='tight')
+```
+运行 `dos_merge.py` 文件，就可以得到我们想要的图了。
+
+个人学习matplotlib的感觉，其实整体代码没有很多复杂性就是用文字的形式设置一些图形的属性，比如坐标轴标签，图例，坐标轴范围等等，matplotlib的文档也是非常全面的，如果有不懂的地方，可以查看文档，或者上网搜索，基本上都能找到答案。再结合一点 python 基础就可以非常便捷的画出我们想要的各种图了。我基本没有使用过 Origin 之类的绘图软件，但是图形化的工具包装好了，交互方便了但是也复杂了，不如直接用代码来的简单灵活，而且代码可以保存下来，方便以后修改，循环调用。

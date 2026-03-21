@@ -1,0 +1,330 @@
+export const metadata = {
+  title: '在Linux上建立多用户科学计算服务器',
+  description: '从零配置 Linux 科学计算服务器：oh-my-zsh、Anaconda、SLURM、CUDA 和 JDFTx',
+}
+
+# 在Linux上建立多用户科学计算服务器
+
+本次的机子是centos 7
+
+
+## Part 1: 为所有用户配置 zsh + oh-my-zsh
+
+> **目标：** 每个用户一登录就是花里胡哨的 zsh，别再面对 bash 那个老年模式。
+
+### 步骤：
+
+#### 1. 安装 zsh
+
+```bash
+apt update && apt install -y zsh git curl   # Ubuntu/Debian 系列
+# 或者
+yum install -y zsh git curl                 # CentOS/RHEL 系列
+```
+
+#### 2. 创建公共 oh-my-zsh 安装目录（推荐共享安装）
+
+```bash
+mkdir -p /opt/oh-my-zsh
+chmod 755 /opt/oh-my-zsh
+```
+
+#### 3. 作为 root 下载 oh-my-zsh 到共享目录
+
+```bash
+git clone https://github.com/ohmyzsh/ohmyzsh.git /opt/oh-my-zsh
+```
+
+#### 4. 为每个用户设置默认 shell 为 zsh（批量脚本可后续写）
+
+```bash
+chsh -s /bin/zsh username
+```
+
+#### 5. 为每个用户配置 `.zshrc`（可放在 `/etc/skel` 中供新用户自动复制）
+
+```bash
+cp /opt/oh-my-zsh/templates/zshrc.zsh-template /etc/skel/.zshrc
+# 修改 oh-my-zsh 目录
+sed -i 's|ZSH=.*|ZSH=/opt/oh-my-zsh|' /etc/skel/.zshrc
+```
+
+
+---
+
+## Part 2: 安装 Anaconda3
+
+给所有用户配置 **Anaconda**，让他们在科研和机器学习路上如虎添翼（也别再 pip 装得一地鸡毛），最推荐的方式是：
+
+> 以 root 安装 Anaconda 到共享路径（如 `/opt/anaconda3`），然后配置所有用户的 PATH。
+
+---
+
+### 安装策略一览：
+
+| 项目      | 推荐设置                         |
+| ------- | ---------------------------- |
+| 安装路径    | `/opt/anaconda3`             |
+| 所有权     | `root:root`（或一个专用组）          |
+| PATH 设置 | `/etc/profile.d/conda.sh`    |
+| 环境共享    | 用 `conda create --prefix` 管理 |
+| 权限控制    | 用户不能乱删 base 环境               |
+
+---
+
+### 1. 下载 Anaconda 安装脚本（x86\_64）
+
+```bash
+curl -O https://repo.anaconda.com/archive/Anaconda3-2025.06-0-Linux-x86_64.sh
+```
+
+（根据实际版本更新，或者去官网拿最新版）
+
+---
+
+### 2. 安装到 `/opt/anaconda3`
+
+```bash
+bash Anaconda3-2024.02-1-Linux-x86_64.sh
+
+# 手动指定安装路径为 /opt/anaconda3
+```
+
+**安装过程注意：**
+
+* 不要选择 "初始化 shell（yes）"，我们统一用 `/etc/profile.d/conda.sh` 管理 PATH。
+* 安装完成后，给其他用户加读执行权限：
+
+```bash
+chown -R root:root /opt/anaconda3
+chmod -R o+rx /opt/anaconda3
+```
+
+---
+
+### 3. 配置所有用户的环境变量（关键）
+
+在 `/etc/profile.d/conda.sh` 写入：
+
+```bash
+export PATH=/opt/anaconda3/bin:$PATH
+```
+
+也可以手动创建：
+
+```bash
+echo 'export PATH=/opt/anaconda3/bin:$PATH' > /etc/profile.d/conda.sh
+chmod +x /etc/profile.d/conda.sh
+```
+
+所有用户登录后都会自动拥有 `conda` 命令。
+
+---
+
+### 4. 测试
+
+让一个非 root 用户登录，输入：
+
+```bash
+conda --version
+which python
+```
+
+应该会看到 `/opt/anaconda3/bin/python`，说明生效了。
+
+---
+
+### 附加高级功能
+
+#### 限制用户不能破坏 base 环境
+
+```bash
+conda config --system --set auto_activate_base false
+chmod -R 555 /opt/anaconda3/envs /opt/anaconda3/pkgs
+```
+
+然后建议让大家创建自己的环境：
+
+```bash
+conda create -p ~/myenv python=3.11 numpy pandas
+conda activate ~/myenv
+```
+
+
+## Part 3: 安装 SLURM 作业调度系统（单节点）
+
+> **目标：** 支持作业提交、资源调度
+
+### 步骤（单机版简化流程）：
+
+#### 1. 安装依赖项
+```bash
+yum install -y epel-release
+yum groupinstall -y "Development Tools"
+yum install -y munge munge-devel \
+    readline readline-devel \
+    openssl openssl-devel \
+    pam pam-devel \
+    hwloc hwloc-devel \
+    wget
+```
+
+### 二、配置 Munge（Slurm 安全认证）
+
+```bash
+create-munge-key
+chown -R munge:munge /etc/munge
+chmod 0700 /etc/munge
+chmod 400 /etc/munge/munge.key
+
+systemctl enable munge
+systemctl start munge
+```
+
+
+检查一下：
+
+```bash
+munge -n | unmunge
+```
+
+能解码就说明 OK。
+
+---
+
+### 三、下载并编译 Slurm
+
+```bash
+cd /usr/local/src
+wget https://download.schedmd.com/slurm/slurm-25.05.0.tar.bz2
+tar -xjf slurm-25.05.0.tar.bz2
+cd slurm-25.05.0
+
+./configure --prefix=/opt/slurm
+make -j$(nproc)
+make install
+```
+
+---
+
+### 四、添加 Slurm 用户 & 文件夹
+
+```bash
+useradd -r slurm
+mkdir -p /opt/slurm/etc /opt/slurm/log /opt/slurm/spool
+chown -R slurm:slurm /opt/slurm
+```
+---
+
+### 五、配置最简 `slurm.conf`
+
+直接贴一份能跑的最简单节点配置：
+
+```bash
+cat > /opt/slurm/etc/slurm.conf <<EOF
+ClusterName=local
+ControlMachine=$(hostname)
+SlurmUser=slurm
+SlurmdUser=root
+
+StateSaveLocation=/opt/slurm/log
+SlurmdSpoolDir=/opt/slurm/spool
+SlurmctldLogFile=/opt/slurm/log/slurmctld.log
+SlurmdLogFile=/opt/slurm/log/slurmd.log
+
+SchedulerType=sched/backfill
+SelectType=select/linear
+
+NodeName=localhost CPUs=$(nproc) State=UNKNOWN
+PartitionName=debug Nodes=ALL Default=YES MaxTime=INFINITE State=UP
+EOF
+```
+
+确保 hostname 正确（`hostname` 显示的必须是 `localhost` 或匹配 `NodeName` 字段）。
+
+---
+
+### 六、启动服务（手动运行）
+
+```bash
+/opt/slurm/sbin/slurmctld
+/opt/slurm/sbin/slurmd
+```
+
+第一次运行建议开两个终端分别运行看看有没有报错。
+
+---
+
+### 七、测试任务
+
+```bash
+sinfo               # 查看节点状态
+srun -N1 -n1 hostname  # 看是否调度并输出
+```
+
+如果成功，说明一切 OK！
+
+---
+
+### 可选：加到 PATH
+
+```bash
+echo 'export PATH=/opt/slurm/bin:/opt/slurm/sbin:$PATH' > /etc/profile.d/slurm.sh
+chmod +x /etc/profile.d/slurm.sh
+source /etc/profile.d/slurm.sh
+```
+
+---
+
+
+## CUDA Toolkit
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/12.3.2/local_installers/cuda-repo-rhel7-12-3-local-12.3.2_545.23.08-1.x86_64.rpm
+sudo rpm -i cuda-repo-rhel7-12-3-local-12.3.2_545.23.08-1.x86_64.rpm
+sudo yum clean all
+sudo yum -y install cuda-toolkit-12-3
+```
+
+---
+
+## Part 4: 安装 JDFTx（开源的第一性原理软件）
+
+建议更新gcc版本到9.3 4.8.5跟cuda不兼容
+
+> **目标：** 编译安装 JDFTx 并配置环境变量供用户使用
+
+### 步骤：
+
+#### 1. 安装依赖项
+
+```bash
+apt install -y cmake g++ libopenblas-dev liblapack-dev \
+    libfftw3-dev libgsl-dev libeigen3-dev git
+```
+
+#### 2. 克隆 JDFTx 源码
+
+```bash
+git clone https://github.com/shankar1729/jdftx.git
+cd jdftx
+mkdir build && cd build
+```
+
+#### 3. 编译安装
+
+```bash
+mkdir /opt/jdftx
+cd /opt/jdftx
+cmake -D EnableCUDA=yes -D CUDA_ARCH=compute_70 -D CUDA_CODE=sm_70 -D CudaAwareMPI=yes -D ForceFFTW=yes /usr/local/src/jdftx-1.7.0/jdftx/ # 这个目录是你解压jdftx的目录
+# CUDA_ARCH=compute_70 -D CUDA_CODE=sm_70 去官网查 写大了 即使编译成功也会报错
+make -j$(nproc)
+make install
+```
+
+
+#### 4. 设置环境变量（推荐写入 `/etc/profile.d/jdftx.sh`）
+
+```bash
+echo 'export PATH=/opt/jdftx/bin:$PATH' > /etc/profile.d/jdftx.sh
+chmod +x /etc/profile.d/jdftx.sh
+```

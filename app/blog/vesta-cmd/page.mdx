@@ -1,0 +1,245 @@
+export const metadata = {
+  title: 'VESTA 的命令行用法',
+  description: '介绍 VESTA 的命令行接口，包括格式转换、批量处理和图片导出',
+}
+
+# VESTA 的命令行用法
+
+[VESTA](https://jp-minerals.org/vesta/en/) (Visualization for Electronic and STructural Analysis) 是一款用于晶体结构可视化和分析的开源软件。VESTA在Windows、Mac OS X和Linux上运行。它是为非商业用户免费提供的。下载地址：[Download](https://jp-minerals.org/vesta/en/download.html)
+
+VESTA 本身提供了丰富的图形界面，但是它也提供了命令行接口，可以通过命令行来进行一些操作。这里简单介绍一下 VESTA 的命令行用法。通过命令行可以批量处理一些操作，比如批量格式转换、批量导出图片等等。
+
+## VESTA 环境配置
+想要在命令行界面使用VESTA需要配置环境变量。同时，需要强调的是 Windows 和 Linux 提供了不调用图形化界面的方法，而 Mac OS 只支持图形界面，我的理解就是通过控制图形化的窗口来实现功能。其中图片导出功能由于 Windows 和 Mac OS 本身带有可视化界面不需要额外安装依赖，Linux 系统需要安装 GTK 3.22 或者更新的版本，笔者没有 Linux 系统的物理机（wsl 依赖一直报错），下文中，关于图形化界面的使用仅考虑 Windows 与 Mac OS，若有人感兴趣可自行探索。
+
+| 系统      | -nogui |            导出图片            |
+| :------ | :----: | :------------------------: |
+| Linux   |  Yes   | Requires GTK 3.22 or newer |
+| Windows |  Yes   |            Yes             |
+| Mac OS  |   No   |            Yes             |
+
+### Linux
+在 Linux 上，可以通过[官网](https://jp-minerals.org/vesta/en/download.html)下载安装包进行安装。
+#### 使用 wget 下载安装包
+
+```shell
+wget --no-check-certificate https://jp-minerals.org/vesta/archives/3.5.8/VESTA-gtk3.tar.bz2
+```
+
+#### 解压安装包
+
+```shell
+tar -xvf VESTA-gtk3.tar.bz2
+```
+
+#### 添加环境变量
+
+在.bashrc 或者 .zshrc 文件（根据使用的Shell）中添加 VESTA 的安装目录到 PATH 环境变量中。
+
+```shell
+export PATH=$PATH:/path/to/VESTA-gtk3
+```
+
+这样即可在 Terminal 中使用 VESTA 的命令行接口。
+
+```shell
+VESTA -nogui [options]
+```
+
+这里的 [options] 指的是控制 VESTA 的命令，下同。
+
+
+### Windows
+
+#### 下载并解压安装包
+在 Windows 上，可以通过[官网](https://jp-minerals.org/vesta/en/download.html)下载[VESTA-win64.zip](https://jp-minerals.org/vesta/archives/3.5.8/VESTA-win64.zip)安装包直接解压进行安装。
+
+#### 添加环境变量
+安装完成后，需要将 VESTA 的安装目录添加到环境变量中。
+
+##### CMD 添加环境变量
+喜欢使用 CMD 的人可以打开 CMD 窗口，输入以下命令：
+
+```CMD
+setx PATH "%PATH%;C:\Program Files\VESTA-win64"
+```
+##### 图形化界面添加环境变量
+
+1. 在windows搜索栏中搜索编辑系统环境变量，点击打开
+2. 在系统属性面板，点击环境变量
+3. 在变量名中选择 PATH，点击编辑
+4. 在编辑环境变量面板中，点击新建，添加 VESTA 的安装目录
+5. 点击前面几个面板中的确定，关闭所有面板。
+这样即可在Windows CMD、PowerShell 或者 WSL 中使用 VESTA 的命令行接口。
+
+```
+VESTA.exe [options]
+```
+
+### Mac OS
+
+#### Homebrew 安装
+在 Mac OS 上，可以通过 Homebrew 来安装 VESTA。安装命令如下：
+
+```shell
+brew install vesta
+```
+
+#### .dmg 安装
+
+当然也可以通过[官网](https://jp-minerals.org/vesta/en/download.html)下载安装包进行安装。官网提供了[VESTA.dmg](https://jp-minerals.org/vesta/archives/3.5.8/VESTA.dmg)文件，跟其他 .dmg的
+安装包一样打开拖到 Applications 文件夹即可完成安装。
+
+完成安装后即可通过 Mac OS 的命令行工具 Terminal 来使用 VESTA 的命令行接口。
+
+```shell
+open -a VESTA
+```
+
+该命令表示打开 VESTA 的图形界面。在 Mac OS 下，open 表示使用 shell 打开文件。默认情况下，使用每个文件的默认应用程序打开该文件。 -a 使用指定的应用程序打开。（open 在 Terminal 中用以打开文件非常便捷！！！）
+
+```shell
+open -a -n VESTA --args [options]
+```
+
+其中 --args 表示传递参数给 VESTA。-n 表示打开新的一个应用进程，这应该是 Mac OS 系统的一个bug，必须打开新窗口才可以接受 options 控制。
+
+## VESTA 的命令行用法
+VESTA 接受命令行的参数实现一些简单的功能，
+- -open _file_
+    - Value _file_: Path of a file to input.
+    - Description: Read a _file_ and visualize.
+- -save _options_ _file_
+    - Value: _file_
+    - Options: format, option
+        - format=rietan: When extension of the file name is *.ins, the default output format will be SHELX format. Specify this option to output a file with RIETAN-FP format.
+        - option=cartesian,pcell,reduced,as_displayed: When saving a file with VASP format.
+    - Description: Save data to a _file_. Image format will be automatically recognized by file extension.
+
+这里是两个最简单的命令 -open 表示打开一个文件，-save表示输出文件，支持图形化界面中所有的格式。
+
+完整的命令行参数见：[VESTA 的命令行用法](https://jp-minerals.org/vesta/en/doc/VESTAch17.html#x36-23700017)
+
+目前笔者能想到的有输出结构信息、对VESTA 支持的文件进行格式转换、导出图片。下面提供一些笔者常用的例子。
+
+
+## 使用 VESTA 命令行进行格式转换
+
+VESTA 支持.vasp、 .cif等多种格式的文件，可以通过命令行将这些文件进行格式转换。笔者将通过格式转换，详细介绍Linux、Windows、Mac OS 下的 VESTA 命令行用法。后续的用法将简略带过，有需要的读者可以根据自己的需要编写脚本。
+
+### Linux
+首先，我们以 Linux 为例，介绍一下 VESTA 的命令行用法。
+
+```shell
+VESTA -nogui -i test.cif -o test.vasp
+```
+
+这是最简单的用法，表示将 test.cif 文件转换为 test.vasp 文件。-i 表示输入文件，-o 表示输出文件。其中 test.cif 和 test.vasp 是文件名，可以根据实际情况进行替换。VESTA 会根据后缀名自动识别。
+我们可以写一个脚本 all2vasp，将该功能包装起来，这样方便与shell的循环语句结合。
+
+```shell
+#!/bin/bash
+# all2vasp
+file=$1
+VESTA -nogui -i $PWD/$file  -o ${file%.*}.vasp
+```
+
+如果目录下有一堆.cif文件，可以使用如下命令将所有.cif文件（所有VESTA 可识别的文件）转换为.vasp文件。
+
+```shell
+for i in *.cif;do all2vasp $i;done
+```
+
+### Windows
+
+在 Windows 中，也可以实现类似的功能，
+
+```
+VESTA.exe -nogui -i test.cif -o test.vasp
+```
+
+```
+VESTA.exe -open test.cif -save test.vasp -close
+```
+
+两者的区别在于 -nogui 不调用图形化窗口，而使用第二行代码，将会看到 VESTA 的图形化窗口打开（类似于，手动打开test.cif，然后选择File-Export Data...-.vasp）。
+
+关于批量导出，由于笔者不会 cmd 的语法，在这里是使用WSL，使用shell语法实现。 经过笔者测试，WSL 不支持 -nogui，并且不支持打开.exe 文件。需要提前将 VESTA 图形化界面打开。（explorer.exe 支持打开文件，可以先执行 explorer.exe test.cif）
+
+```shell
+#!/bin/bash
+# all2vasp
+file=$1
+VESTA.exe -open $file -save ${file%.*}.vasp -close
+```
+
+就可以看到 VESTA的图形界面在自己动了！
+
+### Mac OS
+
+在 Mac OS 中，同样可以实现相同的功能，需要指出的是Mac OS 中必须指明输入的文件绝对路径。
+```shell
+open -n -a VESTA --args -i $PWD/test.cif -o test.vasp
+```
+
+由于在Mac OS中必须指定 -n 如果直接使用下列命令进行 for 循环，
+
+```shell
+#!/bin/bash
+# all2vasp
+file=$1
+open -n -a VESTA --args -i $PWD/test.cif -o test.vasp -open $file -save ${file%.*}.vasp -close
+```
+
+将会导致一下子打开n个实例，导致报错。因此在 Mac OS 中，我们需要修改相应的脚本。
+
+```shell
+#!/bin/zsh
+# all2vasp
+# Mac OS
+command='open -n -a VESTA --args '
+file_arr=()
+while read i; do
+  file_arr+=("$i")
+done
+
+for file in "${file_arr[@]}"; do
+  echo "Processing file $file"  command+="-open $PWD/$file  -o ${file%.*}.vasp -close "done
+eval $command
+```
+
+该命令的思路是将所有文件名一次传递，将命令拼接，使用 eval 只调用一次实例。
+
+```shell
+open -n -a VESTA --args -open $PWD/$file_1  -o ${file_1%.*}.vasp -close -open $PWD/$file_2  -o ${file2%.*}.vasp -close ... -open $PWD/$file_n  -o ${file_n%.*}.vasp -close
+```
+
+具体使用方法为：
+
+```shell
+for i in *.cif;do echo $i;done | all2vasp
+```
+
+## 导出图片
+VESTA 命令行还支持通过 -save 或者 -export_img 导出图片，并且可以通过 -rotare_x(yz) 旋转结构的角度，批量导出各种角度的结构图。（这在催化研究中观察不同反应中间体的吸附构型特别有用）
+
+### Mac OS
+
+```shell
+#!/bin/zsh
+# vgtv
+# Mac OS
+file=$PWD/$1
+open -n -a VESTA.app --args -open $file -rotate_z 120 -flush -export_img scale=1 ${1/%.*}_top.png -rotate_x -90 -flush -export_img scale=1 ${1/%.*}_front.png -rotate_y 90 -flush -export_img scale=1 ${1/%.*}_side.png -close
+```
+
+具体使用方法为：
+
+```shell
+vgtv test.vasp
+```
+
+可以快速的分别导出一个结构的三个角度的图片。同时，我们可以图片处理工具[imageMagick](https://imagemagick.org/index.php)、[Python Pillow(PIL)库](https://pillow.readthedocs.io/en/latest/)等，根据对图片进行裁剪以及拼接。
+
+## 导出结构信息
+VESTA 命令行还支持打印结构的原子间的键长键角等信息，感兴趣的读者可以详细阅读[VESTA 的命令行用法](https://jp-minerals.org/vesta/en/doc/VESTAch17.html#x36-23700017)。

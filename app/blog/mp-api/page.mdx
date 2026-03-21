@@ -1,0 +1,120 @@
+export const metadata = {
+  title: '使用 mp_api 下载 Materials Project 上的结构',
+  description: '介绍如何使用 mp_api Python 包通过 API 批量下载 Materials Project 上的材料结构数据',
+}
+
+# 使用 mp_api 下载 Materials Project 上的结构
+
+[Materials Project](https://next-gen.materialsproject.org) 是一个提供材料数据的数据库，其中包含了大量的材料结构数据。Materials Project 提供了一个 API，可以通过 API 获取 Materials Project 上的数据。`mp_api` 是一个 Python 包，可以通过 API 下载 Materials Project 上的数据。本文介绍如何使用 `mp_api` 下载 Materials Project 上的结构数据。
+
+## 安装 mp_api
+
+首先需要安装 `mp_api`。可以通过 pip 安装：
+```shell
+pip install mp-api
+```
+
+## 使用 mp_api
+
+### 获取 Materials Project API Key
+在使用 Materials Project API 之前，需要获取 Materials Project API Key。可以在 [Materials Project](https://next-gen.materialsproject.org) 上注册账号，然后在 [API Key](https://next-gen.materialsproject.org/dashboard) 页面获取 API Key。
+
+### 使用 mp_api 下载结构数据
+下面是一个使用 `mp_api` 下载 Materials Project 上的结构数据的例子：
+```python
+from mp_api.client import MPRester
+from pymatgen.io.cif import CifWriter
+
+# 替换成你自己的API_KEY
+API_KEY = "YOUR_API_KEY"
+
+# 初始化 MPRester 客户端
+with MPRester(API_KEY) as mpr:
+    # 我们可以使用 mpr.materials.search 方法搜索 Materials Project 上的材料，
+    # 下面是mpr.materials.search的文档，可以通过 material_ids, chemsys, crystal_system, density,
+    # deprecated, elements, exclude_elements, formula, num_elements, num_sites, spacegroup_number,
+    # spacegroup_symbol, task_ids, volume, num_chunks, chunk_size, all_fields, fields 参数搜索材料，可以
+    # 根据自己的需求选择参数
+    """Query core material docs using a variety of search criteria.
+
+        Arguments:
+            material_ids (str, List[str]): A single Material ID string or list of strings
+                (e.g., mp-149, [mp-149, mp-13]).
+            chemsys (str, List[str]): A chemical system or list of chemical systems
+                (e.g., Li-Fe-O, Si-*, [Si-O, Li-Fe-P]).
+            crystal_system (CrystalSystem): Crystal system of material.
+            density (Tuple[float,float]): Minimum and maximum density to consider.
+            deprecated (bool): Whether the material is tagged as deprecated.
+            elements (List[str]): A list of elements.
+            exclude_elements (List[str]): A list of elements to exclude.
+            formula (str, List[str]): A formula including anonymized formula
+                or wild cards (e.g., Fe2O3, ABO3, Si*). A list of chemical formulas can also be passed
+                (e.g., [Fe2O3, ABO3]).
+            num_elements (Tuple[int,int]): Minimum and maximum number of elements to consider.
+            num_sites (Tuple[int,int]): Minimum and maximum number of sites to consider.
+            spacegroup_number (int): Space group number of material.
+            spacegroup_symbol (str): Space group symbol of the material in international short symbol notation.
+            task_ids (List[str]): List of Materials Project IDs to return data for.
+            volume (Tuple[float,float]): Minimum and maximum volume to consider.
+            num_chunks (int): Maximum number of chunks of data to yield. None will yield all possible.
+            chunk_size (int): Number of data entries per chunk.
+            all_fields (bool): Whether to return all fields in the document. Defaults to True.
+            fields (List[str]): List of fields in MaterialsCoreDoc to return data for.
+                Default is material_id, last_updated, and formula_pretty if all_fields is False.
+
+        Returns:
+            ([MaterialsDoc], [dict]) List of material documents or dictionaries.
+        """
+    # 在这里通过 chemsys 搜索 Fe-Si 化合物
+    results = mpr.materials.search(chemsys='Fe-Si', deprecated=False)  # 使用列表格式传递元素
+
+# 所有符合搜索条件的材料都会被保存在 results 中
+# 下面打印每个材料的mp-id和保存晶体结构信息
+for material in results:
+    print(f"Material ID: {material.material_id}")
+    print(f"Formula: {material.formula_pretty}")
+    structure = material.structure
+    cif_writer = CifWriter(structure)
+    cif_writer.write_file(f"{material.material_id}.cif")  # 使用材料的 mp-id 作为文件名
+```
+将上述代码保存运行，会下载 Materials Project 上的 Fe-Si 化合物的结构数据，并保存为 CIF 文件，如下所示：
+```shell
+(default) migie:mp/ $ ls                                             [13:24:29]
+mp.py
+(default) migie:mp/ $ python mp.py                                   [13:24:30]
+Retrieving MaterialsDoc documents: 100%|xxxx| 13/13 [00:00<00:00, 271273.39it/s]
+Material ID: mp-20738
+Formula: FeSi2
+Material ID: mp-1714
+Formula: FeSi2
+Material ID: mp-1225177
+Formula: Fe2Si
+Material ID: mp-22787
+Formula: Fe2Si
+Material ID: mp-1225186
+Formula: Fe2Si
+Material ID: mp-1196624
+Formula: Fe5Si3
+Material ID: mp-449
+Formula: Fe5Si3
+Material ID: mp-19800
+Formula: Fe11Si5
+Material ID: mp-2199
+Formula: Fe3Si
+Material ID: mp-1225210
+Formula: Fe3Si
+Material ID: mp-871
+Formula: FeSi
+Material ID: mp-1225170
+Formula: Fe2Si5
+Material ID: mp-1225135
+Formula: Fe4Si
+(default) migie:mp/ $ ls                                             [13:24:41]
+mp-1196624.cif mp-1225177.cif mp-1714.cif    mp-2199.cif    mp-871.cif
+mp-1225135.cif mp-1225186.cif mp-19800.cif   mp-22787.cif   mp.py
+mp-1225170.cif mp-1225210.cif mp-20738.cif   mp-449.cif
+```
+这与直接在 Materials Project 网站上搜索的结构数据是一致的。
+
+## 总结
+本文介绍了如何使用 `mp_api` 下载 Materials Project 上的结构数据。`mp_api` 提供了丰富的搜索参数，可以根据自己的需求搜索 Materials Project 上的材料，并批量下载。
