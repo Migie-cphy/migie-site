@@ -215,7 +215,7 @@ export const PUBLICATIONS: Publication[] = [
     order: 6,
     title: 'A geometric-electronic principle for curvature-driven catalysis',
     authors:
-      '**Meijie Wang** Yuxing Lin, Zhulin Huang, Yang Sun, Zi-zhong Zhu, Shunqing Wu, Xinrui Cao',
+      '**Meijie Wang**, Yuxing Lin, Zhulin Huang, Yang Sun, Zi-zhong Zhu, Shunqing Wu, Xinrui Cao',
     journal: 'J. Am. Chem. Soc.',
     year: 2026,
     pages: 'In Peer Review',
