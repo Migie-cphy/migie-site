@@ -3,6 +3,8 @@ type Project = {
   description: string
   link: string
   id: string
+  start: string
+  end: string
 }
 
 type Experience = {
@@ -47,13 +49,17 @@ export const PROJECTS: Project[] = [
       '基于 Open Catalyst Project 的催化剂高通量筛选工作流，利用 EquiformerV2 预训练势函数替代 DFT 进行结构弛豫。',
     link: '/blog/chgnet',
     id: 'project1',
+    start: '2024.09',
+    end: '至今',
   },
   {
-    name: '物理特征驱动的 ML 描述符',
+    name: '物理特征驱动的描述符和催化剂筛选',
     description:
-      '针对双原子催化剂构建 GBR 预测模型，提出曲率描述符解决传统几何指纹失效问题。',
+      '针对单双原子催化剂体系构建 GBR 预测模型，提出曲率描述符解决传统描述符失效问题，提供机理解释，加速材料筛选。',
     link: '/blog/matplotlib',
     id: 'project2',
+    start: '2022.09',
+    end: '至今',
   },
   {
     name: '神经网络液体光谱识别',
@@ -61,6 +67,8 @@ export const PROJECTS: Project[] = [
       '基于 NumPy 独立实现多层感知机，完成矩阵乘法、激活函数及梯度下降算法，获得专利授权。',
     link: '#',
     id: 'project3',
+    start: '2020.05',
+    end: '2020.11',
   },
 ]
 
@@ -206,7 +214,8 @@ export const PUBLICATIONS: Publication[] = [
   {
     order: 6,
     title: 'A geometric-electronic principle for curvature-driven catalysis',
-    authors: '**Meijie Wang** et al.',
+    authors:
+      '**Meijie Wang** Yuxing Lin, Zhulin Huang, Yang Sun, Zi-zhong Zhu, Shunqing Wu, Xinrui Cao',
     journal: 'J. Am. Chem. Soc.',
     year: 2026,
     pages: 'In Peer Review',
@@ -353,7 +362,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     label: 'Google Scholar',
-    link: 'https://scholar.google.com/citations?user=YOUR_ID',
+    link: 'https://scholar.google.com/citations?user=dqEWMxgAAAAJ&hl',
   },
   {
     label: 'Email',

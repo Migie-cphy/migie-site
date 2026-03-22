@@ -216,9 +216,14 @@ export default function Personal() {
                 size={64}
               />
               <div className="relative h-full w-full rounded-[15px] bg-white p-4 dark:bg-zinc-950">
-                <h4 className="font-normal dark:text-zinc-100">
-                  {project.name}
-                </h4>
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="font-normal dark:text-zinc-100">
+                    {project.name}
+                  </h4>
+                  <p className="shrink-0 text-sm text-zinc-600 dark:text-zinc-400">
+                    {project.start} - {project.end}
+                  </p>
+                </div>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                   {project.description}
                 </p>
