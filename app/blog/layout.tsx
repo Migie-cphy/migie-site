@@ -1,5 +1,6 @@
 'use client'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
+import { TableOfContents } from '@/components/ui/toc'
 import { usePathname } from 'next/navigation'
 
 export default function LayoutBlogPost({
@@ -8,8 +9,10 @@ export default function LayoutBlogPost({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const isIndexPage =
+    pathname === '/blog' || pathname === '/blog/tutorials'
 
-  if (pathname === '/blog') {
+  if (isIndexPage) {
     return <main className="pb-8">{children}</main>
   }
 
@@ -22,9 +25,17 @@ export default function LayoutBlogPost({
           bounce: 0,
         }}
       />
-      <main className="prose prose-gray mt-24 max-w-none pb-20 prose-h4:prose-base dark:prose-invert prose-h1:text-xl prose-h1:font-medium prose-h2:mt-12 prose-h2:scroll-m-20 prose-h2:text-lg prose-h2:font-medium prose-h3:text-base prose-h3:font-medium prose-h4:font-medium prose-h5:text-base prose-h5:font-medium prose-h6:text-base prose-h6:font-medium prose-strong:font-medium">
-        {children}
-      </main>
+      <div className="mt-24 pb-20 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_240px] xl:gap-12">
+        <main id="top">
+          <article
+            data-blog-article
+            className="prose prose-gray max-w-none prose-h4:prose-base dark:prose-invert prose-h1:text-xl prose-h1:font-medium prose-h2:mt-12 prose-h2:scroll-m-20 prose-h2:text-lg prose-h2:font-medium prose-h3:text-base prose-h3:font-medium prose-h4:font-medium prose-h5:text-base prose-h5:font-medium prose-h6:text-base prose-h6:font-medium prose-strong:font-medium"
+          >
+            {children}
+          </article>
+        </main>
+        <TableOfContents />
+      </div>
     </>
   )
 }

@@ -16,7 +16,7 @@ const BLOG_GROUPS = [
 
 export default function BlogIndexPage() {
   return (
-    <main className="space-y-8">
+    <main className="space-y-10">
       <section className="space-y-4">
         <p className="text-sm text-zinc-500 dark:text-zinc-500">Blog</p>
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
@@ -25,6 +25,28 @@ export default function BlogIndexPage() {
         <p className="max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
           这里汇总我在计算材料、AI4S、科研工具链与开发环境方面的完整博客文章。
         </p>
+      </section>
+
+      <section className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
+            教程目录
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-500">
+            先按学习路径搭框架，再逐步把旧文章整合进去并补全专题教程。
+          </p>
+        </div>
+        <Link
+          href="/blog/tutorials"
+          className="block rounded-2xl border border-zinc-200/80 bg-zinc-50 px-5 py-4 transition-colors duration-200 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
+        >
+          <h3 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
+            打开教程目录
+          </h3>
+          <p className="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            按 Phase 展示 DFT、机器学习、科研工具与项目实战主题，并挂接已有博客文章。
+          </p>
+        </Link>
       </section>
 
       {BLOG_GROUPS.map((group) => {

@@ -34,6 +34,10 @@
     'Noto Sans SC', 'Microsoft YaHei', sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .font-sans-apple {
   font-family: var(--font-sans-apple);
 }

@@ -57,20 +57,3 @@ FZF_BASE=/public/home/mjw/software/miniconda3/envs/default/share/fzf/shell
 
 ###  extract
 extract 是一个命令行工具，可以通过简单的命令来解压文件。
-
-## 服务器的连接
-设置 config 文件
-```shell
-Host <alias>
-    HostName <hostname>
-    User <username>
-    Port <port>
-    IdentityFile <path/to/private/key>
-```
-然后通过 `ssh <alias>` 来连接服务器。
-
-与服务器设置密钥连接
-```shell
-ssh-keygen
-```
-然后将公钥添加到服务器的 `~/.ssh/authorized_keys` 文件中。
