@@ -22,14 +22,20 @@ export const TUTORIAL_PHASES: Array<{
     topics: [
       {
         slug: 'linux-command-line',
-        title: 'Linux 与命令行',
-        summary: '覆盖 shell、权限、环境变量、SSH、tmux 与常见文本处理命令。',
+        title: 'Linux 与命令行：入门必备',
+        summary: '聚焦 SSH、文件操作、查看输出和基础文件传输，先建立最小闭环。',
         phase: 'Phase 1 · 入门基础',
         relatedPosts: [
           { title: 'Linux 服务器配置指南', href: '/blog/linux' },
           { title: 'Shell 常用命令手册', href: '/blog/shell' },
           { title: '命令行日常使用', href: '/blog/command-line' },
         ],
+      },
+      {
+        slug: 'linux-command-line-advanced',
+        title: 'Linux 与命令行：进阶与高效工作流',
+        summary: '整理权限、日志排查、进程管理、批处理、环境优化与长任务工作流。',
+        phase: 'Phase 1 · 入门基础',
       },
       {
         slug: 'python-basics',

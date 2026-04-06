@@ -132,18 +132,15 @@ export default function Personal() {
 
             <div className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 [&_p]:mb-4 [&_p:last-child]:mb-0">
               <p>
-                厦门大学凝聚态物理博士生（博二在读），研究聚焦 AI for
-                Science，致力于将机器学习方法应用于材料体系的建模与预测问题。目前在
-                DeepPrinciple
-                实习，围绕原子尺度体系的性质预测与模拟，构建数据驱动的建模与分析
-                pipeline。
+                厦门大学凝聚态物理博士生（博二在读），目前研究聚焦 AI for
+                Science，围绕原子尺度体系的性质预测与模拟，构建数据驱动的建模与分析
+                pipeline。目前在 DeepPrinciple 实习，参与构建分子性质预测 Foundation Model.
               </p>
               <p>
                 <strong className="font-semibold text-zinc-950 dark:text-zinc-50">
                   研究方向：
                 </strong>
-                <br />
-                - <strong>Computational Materials & Catalysis</strong>
+                <br />- <strong>Computational Materials & Catalysis</strong>
                 ：基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
                 <a
                   href="https://doi.org/10.1016/j.apsusc.2023.158724"
@@ -172,8 +169,7 @@ export default function Personal() {
                   J. Phys. Chem. Lett. 2026
                 </a>
                 ）。
-                <br />
-                - <strong>AI for Science</strong>
+                <br />- <strong>AI for Science</strong>
                 ：构建 OCP → DFT 的 Δ-learning 框架，结合 GNN 与 LLM
                 表征，探索低高精度模拟之间的误差修正与泛化能力，逐步形成面向原子尺度体系的建模与预测
                 pipeline。

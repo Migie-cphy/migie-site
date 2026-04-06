@@ -39,7 +39,21 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           ? children.props['data-raw']
           : ''
 
-      return <CodeBlock code={rawCode}>{children}</CodeBlock>
+      const className =
+        isValidElement<{ className?: string }>(children) &&
+        typeof children.props.className === 'string'
+          ? children.props.className
+          : ''
+
+      const language = className.startsWith('language-')
+        ? className.replace('language-', '')
+        : undefined
+
+      return (
+        <CodeBlock code={rawCode} language={language}>
+          {children}
+        </CodeBlock>
+      )
     },
   }
 }

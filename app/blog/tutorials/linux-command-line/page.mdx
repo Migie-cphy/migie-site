@@ -1,12 +1,12 @@
 export const metadata = {
-  title: 'Linux 与命令行',
+  title: 'Linux 与命令行：入门必备',
   description:
-    '面向组内新生的 Linux 与命令行教程，帮助快速具备服务器使用、文件处理、日志排查和批量操作能力。',
+    '面向组内新生的 Linux 入门教程，帮助快速具备服务器登录、文件操作、查看输出和基础传输能力。',
 }
 
-# Linux 与命令行
+# Linux 与命令行：入门必备
 
-目标：帮助你尽快具备独立使用命令行控制 Linux 服务器的能力。
+目标：帮助你尽快具备独立使用命令行控制 Linux 服务器的基础能力。
 
 ## 前言
 
@@ -33,19 +33,15 @@ export const metadata = {
 - 记录和复现完整流程
 
 
-### 基础和进阶
-我把内容分成两部分：
+这一篇只保留最核心的入门内容：先让你能正常登录服务器、整理文件、查看输出、完成基础传输。
 
-- **基础**：这是入门的最小闭环，后面基本都会用到。
-- **进阶**：不是第一天必须全会，但建议先知道有这些工具。很多时候效率上不去，不是因为命令难，而是不知道 shell 原来可以这样做。
-
-如果你完全没用过 Linux，我建议你先把“基础”过一遍，并亲自操作。不要试图一口气背下来，重点是知道这些命令分别在干什么。
+如果你完全没用过 Linux，我建议你先把这一篇过一遍，并亲自操作。不要试图一口气背下来，重点是先知道这些命令分别在干什么。
 
 ---
 
 ## 第一部分：基础
 
-### 1. 登录服务器：`ssh`
+### 1. 登录服务器
 
 第一件事是登录服务器。
 
@@ -140,17 +136,9 @@ ssh-copy-id alias # 将本地公钥复制到服务器 authorized_keys
 
 配置完成后，`ssh alias` 一般就可以直接通过密钥连接，不用每次重新输入密码。
 
-这一节最少要做到：
-
-- 能独立登录服务器
-- 知道本地终端和远程终端不是一回事
-- 知道 `config` 文件能显著减少重复输入
-- 知道私钥和公钥分别是什么
-- 知道 `authorized_keys` 的作用
-
 ### 2. 文件和目录操作
 
-这些命令是日常频率最高的一组。这里后续只给出简单的例子，如果感兴趣可以问 LLM Model，应该会更有收获。
+这些命令是日常频率最高的一组。这里只给出简单的例子，如果感兴趣可以问 LLM Model，应该会更有收获。
 
 这里是文件和目录操作最经典的一些命令：
 
@@ -243,9 +231,9 @@ rm -rf dir # 强制递归删除目录，危险
 
 这比直接在外面敲一条大而危险的 `rm -rf some_dir` 要稳很多。
 
-### 3. 查看文件内容：`cat` `less` `head` `tail`
+### 3. 查看文件内容
 
-做计算科研时，你每天都在看输入文件和输出文件。
+做科学计算时，你每天都在看输入文件和输出文件。
 
 | 命令 | 全称 | 主要作用 |
 | --- | --- | --- |
@@ -278,7 +266,7 @@ tail -n 1 */result # 查看多个 result 文件的最后一行
 
 它可以直接查看当前目录下一批结果文件的最后一行，在批量计算里很常见。
 
-### 4. 文件传输：`scp` 和 `rsync`
+### 4. 文件传输
 
 本地电脑和服务器是不能直接互相读取的对方的文件的，所以有时候需要把计算任务上传到服务器，然后把计算完的数据下载到本地做数据分析处理。
 
@@ -374,9 +362,7 @@ echo "scp -r alias:$PWD/$1 ." | pbcopy # 生成下载命令并复制到本地剪
 
 然后你回到本地终端，直接粘贴执行就行。
 
-这里的 `pbcopy` 是 macOS 自带的剪贴板命令。如果你本地是 macOS，这种用法会很顺手。记得打开终端工具允许写入剪贴板的功能。
-
-如果你使用的是 `iTerm2`，或者其他支持 `OSC 52` 的终端，也可以直接用下面这种写法：
+这里的 `pbcopy` 是 macOS 自带的剪贴板命令。如果是 Linux Windows 系统可以基于 `OSC 52` 做一个简单的脚本：
 
 ```bash
 #!/bin/bash
@@ -385,15 +371,13 @@ ENCODED=$(printf "%s" "$CMD" | base64 | tr -d '\n') # 将命令做 base64 编码
 printf '\e]52;c;%s\a' "$ENCODED"                     # 通过 OSC 52 协议把内容发送到本地剪贴板
 ```
 
-这里多解释一句：
+这里：
 
 - `CMD=...`：先把整条命令存到一个变量里
 - `ENCODED=...`：把这条命令编码成终端可安全传输的格式
 - `printf '\e]52;c;%s\a' ...`：通过 `OSC 52` 协议请求终端写入本地剪贴板
 
-这个方法的好处是不依赖服务器上有没有 `pbcopy`。只要你的本地终端支持 `OSC 52`，就可以直接把远程输出送回本地剪贴板。
-
-如果服务器端没有 `pbcopy`，也可以用一个简单的 Python 脚本实现类似效果：
+或者
 
 ```python
 #!/usr/bin/env python
@@ -407,6 +391,9 @@ for line in sys.stdin:
 content = ''.join(buffer).strip()  # 拼成完整字符串并去掉首尾空白
 print('\033]52;c;' + base64.b64encode(content.encode()).decode() + '\007')  # 发送到本地剪贴板
 ```
+
+这个方法的好处是不依赖服务器上有没有 `pbcopy`。只要你的本地终端支持 `OSC 52`，就可以直接把远程输出送回本地剪贴板。
+记得打开终端工具允许写入剪贴板的功能。
 
 这个思路的重点不在于“必须这样做”，而在于你要开始意识到：
 
@@ -424,429 +411,7 @@ scp -r $1 alias:~ # 将本地文件或目录上传到服务器家目录
 
 最后补充一句：文件传输当然也有很多图形化界面工具，比如一些 SSH 客户端自带的文件面板、SFTP 文件浏览器之类。常见的 Windows 工具包括 [Xshell](https://www.netsarang.com/en/xshell/) 和 [MobaXterm](https://mobaxterm.mobatek.net/)。它们用起来更直观，但底层本质上还是这些远程传输协议和命令的封装。
 
-另外还有一些在服务器环境里常见的工具，比如 [`lrzsz`](https://ohse.de/uwe/software/lrzsz.html)（`rz` / `sz`），也可以做文件上传下载。这里只先知道有这些东西就够了，不展开讲。感兴趣的话可以自己再查。
-
-### 5. 权限和环境变量：`chmod` `which` `echo $PATH` `export`
-
-很多“命令不能执行”的问题，本质上不是程序本身有 bug，而是权限或环境变量没配对。
-
-#### 权限
-
-```bash
-ls -l            # 查看文件权限
-chmod +x run.sh  # 给脚本增加可执行权限
-```
-
-如果一个脚本没有执行权限，通常需要：
-
-```bash
-chmod +x run.sh # 给脚本增加可执行权限
-./run.sh        # 直接执行脚本
-```
-
-#### 环境变量
-
-```bash
-echo $PATH                 # 查看当前 PATH 环境变量
-which python               # 查看 python 命令实际来自哪里
-which jdftx                # 查看 jdftx 命令实际来自哪里
-export OMP_NUM_THREADS=4   # 给当前 shell 设置环境变量
-```
-
-这一节你至少要理解：
-
-- `PATH` 决定了系统去哪找命令
-- `which` 可以告诉你一个命令实际来自哪里
-- `export` 可以给当前 shell 设置环境变量
-
-### 6. 搜索、日志和报错排查：`grep` `tail -f`
-
-看输出文件时，最有效的方式通常不是从头读到尾，而是先搜关键词。
-
-#### `grep`
-
-```bash
-grep "pattern" file      # 在文件中搜索指定字符串
-grep -r "pattern" dir    # 递归搜索目录中的文件
-grep -i error job.out    # 忽略大小写搜索 error
-grep -i warning OUTCAR   # 忽略大小写搜索 warning
-```
-
-#### `tail -f`
-
-```bash
-tail -f job.out # 实时追踪日志新输出
-```
-
-这很适合实时看日志。
-
-一个常见场景是：
-
-```bash
-grep -i error OUTCAR  # 先搜索报错关键词
-tail -n 50 OUTCAR     # 再看最后 50 行上下文
-```
-
-先搜关键词，再看最后几十行，通常就能快速判断任务有没有出问题。
-
-### 7. 进程和任务管理：`ps` `top` `kill` `jobs`
-
-当你怀疑程序卡住、重复运行、占满资源时，需要知道怎么查。
-
-```bash
-ps -ef | grep python # 查看和 python 相关的进程
-top                  # 查看系统资源占用
-kill 12345           # 终止进程号为 12345 的进程
-jobs                 # 查看当前 shell 的后台任务
-```
-
-分别解决的问题：
-
-- `ps -ef | grep xxx`：查某个程序是否在运行
-- `top`：看系统资源占用
-- `kill PID`：终止指定进程
-- `jobs`：查看当前 shell 的后台任务
-
-### 8. 长任务保活：`tmux`
-
-这一条非常重要。
-
-如果你在服务器上直接跑长任务，结果本地断网、终端关闭、SSH 断开，任务很可能也跟着断掉。
-
-最简单有效的解决方案是 `tmux`。
-
-```bash
-tmux new -s work # 创建一个名为 work 的 tmux 会话
-```
-
-进入会话后运行任务。要暂时离开时，按：
-
-```text
-Ctrl-b d
-```
-
-重新连接：
-
-```bash
-tmux attach -t work # 重新连接名为 work 的会话
-```
-
-查看已有会话：
-
-```bash
-tmux ls # 查看当前已有的 tmux 会话
-```
-
-一句话记住：
-
-> 只要任务可能跑很久，就先开 `tmux`。
-
-### 9. 重定向和管道：`>` `>>` `|`
-
-这是命令行真正开始“组合起来工作”的地方。
-
-```bash
-python script.py > output.log  # 覆盖写入日志
-python script.py >> output.log # 追加写入日志
-```
-
-- `>`：覆盖写入
-- `>>`：追加写入
-
-管道示例：
-
-```bash
-tail -n 100 job.out | grep energy # 查看最后 100 行并筛选 energy
-cat job.out | grep error          # 输出文件内容并筛选 error
-```
-
-虽然很多时候可以直接写成：
-
-```bash
-grep error job.out # 直接在文件里搜索 error
-```
-
-但理解管道依然很重要，因为后面很多工作流都是把小命令串起来完成的。
-
-### 10. 最常见的压缩与解压：`tar`
-
-这也是高频操作。结果文件很多的时候，经常需要打包、传输和备份。
-
-```bash
-tar -czvf dir.tar.gz dir # 将目录压缩成 tar.gz
-tar -xzvf dir.tar.gz     # 解压 tar.gz 文件
-```
-
-如果你现在完全是新手，先把这两条记住就够了。
-
----
-
-## 第二部分：进阶掌握
-
-这一部分不是第一天必须全会，但建议你尽早知道有这些工具。真正拉开效率差距的，往往不是“会不会 `ls`”，而是会不会把重复工作慢慢自动化。
-
-### 1. 批量查找与处理文件：`find` `xargs` 通配符
-
-当目录结构一复杂，`find` 就会变得非常有用。
-
-```bash
-find . -name "*.out"         # 查找当前目录下所有 out 文件
-find . -type d -name "calc*" # 查找名字以 calc 开头的目录
-```
-
-通配符也很常用：
-
-```bash
-ls *.vasp              # 列出当前目录下所有 vasp 文件
-cp */CONTCAR summary/  # 复制各子目录中的 CONTCAR 到 summary 目录
-```
-
-如果要把查找到的文件继续交给别的命令处理，就可以配合 `xargs`：
-
-```bash
-find . -name "*.out" | xargs grep error # 查找所有 out 文件并搜索 error
-```
-
-### 2. 文本处理：`awk` `sed`
-
-这两个命令是提取结果和批量替换参数的利器。
-
-#### `awk`
-
-```bash
-awk '{print $1}' file      # 输出文件的第一列
-awk -F: '{print $1}' file  # 以冒号为分隔符输出第一列
-```
-
-#### `sed`
-
-```bash
-sed 's/old/new/g' file # 将文件中的 old 替换成 new
-```
-
-你现在不需要把它们学得很深，但至少要知道：
-
-- `awk` 很适合取列
-- `sed` 很适合替换文本
-
-很多结果提取脚本，其实就是这两个命令在干活。
-
-### 3. 批处理脚本：`for`
-
-Shell 真正强大的地方，是它很适合做批处理。
-
-```bash
-for i in {01..10}; do
-  echo $i  # 逐个输出 01 到 10
-done       # 循环结束
-```
-
-在科研里更常见的是遍历文件或目录：
-
-```bash
-for i in *; do
-  cp $i/CONTCAR zzz/$i.vasp # 复制每个目录下的 CONTCAR 并重命名
-done                        # 循环结束
-```
-
-```bash
-for i in *.vasp; do
-  mkdir ${i/.vasp}          # 用文件名创建同名目录
-  mv $i ${i/.vasp}/POSCAR   # 把文件移动进去并改名为 POSCAR
-done                        # 循环结束
-```
-
-```bash
-for i in *; do
-  echo -n "$i "                          # 先输出目录名，不换行
-  tail -n 1 $i/331/OSZICAR | awk '{print $5}' # 提取最后一行的第 5 列
-done                                     # 循环结束
-```
-
-这里更重要的不是背语法，而是慢慢建立感觉：
-
-- 重复劳动通常都能写成循环
-- 目录结构一旦统一，就非常容易自动化
-
-### 4. 终端环境优化：`.zshrc` `alias` `oh-my-zsh` `fzf`
-
-当你已经开始高频使用命令行时，可以逐步优化自己的环境。
-
-最基础的是 `alias`：
-
-```bash
-alias ll='ls -lh'    # 给 ls -lh 起一个简短别名
-alias gs='git status' # 给 git status 起一个简短别名
-```
-
-如果你使用 `zsh`，可以进一步配置：
-
-- `oh-my-zsh`
-- `zsh-autosuggestions`
-- `zsh-syntax-highlighting`
-- `fzf`
-
-这些工具的意义不是“好看”，而是减少输入量、降低出错率、提高历史命令和文件搜索效率。
-
-但我的建议是：先掌握基本命令，再做环境美化。不要本末倒置。
-
-### 5. 后台任务和资源查看：`nohup` `du` `df`
-
-有些任务不一定开交互式会话，也可能直接后台跑。
-
-```bash
-nohup python script.py > run.log 2>&1 & # 后台运行脚本并把输出写入日志
-```
-
-此外，磁盘空间问题也很常见：
-
-```bash
-du -sh .  # 查看当前目录总大小
-du -sh *  # 查看各子目录大小
-df -h     # 查看磁盘空间使用情况
-```
-
-这些命令分别用来：
-
-- 后台运行任务
-- 看目录大小
-- 看子目录各占多少空间
-- 看磁盘是否快满了
-
-### 6. 压缩、解压和并行压缩：`tar` `pigz`
-
-结果文件多了以后，压缩和备份是日常操作。
-
-```bash
-tar -czvf results.tar.gz results/ # 压缩 results 目录
-tar -xzvf results.tar.gz          # 解压 results.tar.gz
-```
-
-如果装了 `pigz`，可以做并行压缩：
-
-```bash
-tar -cf - results | pigz > results.tar.gz # 使用 pigz 并行压缩目录
-pigz -d -c results.tar.gz | tar -xf -     # 解压 pigz 压缩结果
-```
-
-这在大目录打包时会比普通 `gzip` 更快。
-
-如果你经常需要压缩大目录，可以直接准备一个简化脚本，比如 `pgtar`：
-
-```bash
-#!/bin/zsh
-tar -cf - $1 | pigz > $1.tar.gz # 并行压缩传入目录
-```
-
-解压对应写法：
-
-```bash
-pigz -d -c *.tar.gz | tar -xf - # 解压当前目录下所有 tar.gz 文件
-```
-
-### 7. 软链接：`ln -s`
-
-软链接很像 Windows 里的快捷方式。
-
-```bash
-ln -s /home/user/file.txt /home/user/links/mylink # 创建软链接
-```
-
-它很适合：
-
-- 简化很长的路径
-- 给常用目录建入口
-- 不复制文件本体，只建立引用
-
-### 8. 终端环境配置：`.zshrc` `oh-my-zsh` `fzf`
-
-这部分不是第一天必须做，但如果你已经开始高频用服务器，值得找个时间尽早配一下。
-
-#### `oh-my-zsh`
-
-如果服务器已经安装了 `zsh`，可以再装 `oh-my-zsh`：
-
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" # 安装 oh-my-zsh
-```
-
-它的配置文件是 `~/.zshrc`。
-
-#### 自动补全和语法高亮
-
-常用插件：
-
-- `zsh-autosuggestions`
-- `zsh-syntax-highlighting`
-
-安装示例：
-
-```bash
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions # 安装自动补全插件
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting # 安装语法高亮插件
-```
-
-然后在 `~/.zshrc` 的 `plugins=(...)` 里加上对应插件名。
-
-#### `fzf`
-
-`fzf` 是命令行模糊搜索工具，可以帮你更快找文件、找历史命令。
-
-```bash
-conda install -c conda-forge fzf # 安装 fzf 模糊搜索工具
-```
-
-配置思路通常是：
-
-```bash
-plugins=(git extract zsh-autosuggestions zsh-syntax-highlighting fzf) # 启用常用插件
-FZF_BASE=/your/env/path/share/fzf/shell # 指定 fzf 安装路径
-```
-
-保存后重新登录或重新加载配置。
-
-#### `extract`
-
-这是一个解压相关的小工具插件。不是必须，但对于经常处理压缩文件的人很省事。
-
-这一节的核心不是“美化终端”，而是减少重复输入、降低出错率、提高搜索效率。
-
----
-
-## 常见坑
-
-### 1. 分不清本地和服务器
-
-很多“文件不见了”“路径不对”的问题，其实只是你搞混了自己现在到底在本地还是服务器。
-
-### 2. 不看当前目录就执行删除命令
-
-这个坑非常危险。删之前先：
-
-```bash
-pwd # 先确认当前目录
-ls  # 再确认当前目录下的文件
-```
-
-### 3. 不开 `tmux` 就直接跑长任务
-
-这是新人很值得尽早避开的一个坑。
-
-### 4. 用 `cat` 打开超大文件
-
-大文件优先用：
-
-```bash
-less file         # 翻页查看大文件
-tail -n 50 file   # 看最后 50 行
-grep keyword file # 搜索关键词
-```
-
-### 5. 不理解 `>` 和 `>>` 的区别
-
-一个是覆盖，一个是追加。这个没搞清楚，日志很容易被你自己覆盖掉。
-
----
+另外还有一些在服务器环境里常见的工具，比如 [`lrzsz`](https://ohse.de/uwe/software/lrzsz.html)（`rz` / `sz`），也可以做文件上传下载。感兴趣的话可以自己探索，挑选适合自己的工具，还是那句话去跟 LLM 聊聊会很有收获。
 
 ## 入门检查清单
 
@@ -855,34 +420,13 @@ grep keyword file # 搜索关键词
 1. 登录服务器并配置一个 `ssh` 别名
 2. 用 `ls`、`cd`、`cp`、`mv`、`rm` 整理目录
 3. 用 `head`、`tail`、`less` 查看输入和输出文件
-4. 用 `grep` 搜错误信息
-5. 用 `tmux` 跑一个不会因为断网而中断的任务
-6. 写一个最简单的 `for` 循环处理多个目录
-
-如果这几件事都能做到，后面的很多内容就不会再总被环境问题卡住。
+4. 用 `scp` 或 `rsync` 完成一次最基本的上传或下载
+5. 知道本地终端和服务器终端不是一回事
 
 ---
 
-## 说明
+## 下一篇
 
-这篇文章已经把下面几篇旧文的核心内容并到了一起：
+前面的内容已经足够你正常登录服务器、整理文件、查看输出和完成基础传输。
 
-- `Linux 服务器配置指南`
-- `Shell 常用命令手册`
-- `命令行日常使用`
-
-后续如果删除旧文，可以把这篇作为统一入口继续维护。
-
----
-
-## 最后一段
-
-对新人来说，命令行最重要的不是“会多少命令”，而是先建立一套最基本的工作能力：
-
-- 连上服务器
-- 找到文件
-- 看懂日志
-- 保住长任务
-- 批量处理重复工作
-
-做到这一步，命令行就已经开始真正帮你节省时间了。
+下一篇建议接着看：[Linux 与命令行：进阶与高效工作流](/blog/tutorials/linux-command-line-advanced)。
