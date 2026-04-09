@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ChevronRightIcon } from 'lucide-react'
 import { BLOG_POSTS } from '../data'
+import { TUTORIAL_PHASES } from '../tutorials'
 
 export const metadata: Metadata = {
-  title: '博客',
-  description: '王美洁的完整博客列表。',
+  title: '博客归档',
+  description: '按主题与学习路径整理的博客归档页。',
 }
 
 const BLOG_GROUPS = [
@@ -14,60 +16,121 @@ const BLOG_GROUPS = [
   { title: '工具与环境', description: '开发环境、命令行工具与日常配置。' },
 ] as const
 
-export default function BlogIndexPage() {
+function SectionDirectory({
+  title,
+  description,
+  count,
+  defaultOpen = false,
+  children,
+}: {
+  title: string
+  description: string
+  count: number
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) {
   return (
-    <main className="space-y-10">
-      <section className="space-y-4">
-        <p className="text-sm text-zinc-500 dark:text-zinc-500">Blog</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-          博客
-        </h1>
-        <p className="max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-          这里汇总我在计算材料、AI4S、科研工具链与开发环境方面的完整博客文章。
-        </p>
-      </section>
-
-      <section className="space-y-4">
+    <details
+      open={defaultOpen}
+      className="group rounded-2xl border border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+    >
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-5 py-4 marker:content-none">
         <div className="space-y-1">
           <h2 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
-            教程目录
+            {title}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-500">
-            先按学习路径搭框架，再逐步把旧文章整合进去并补全专题教程。
+            {description}
           </p>
         </div>
+        <div className="flex shrink-0 items-center gap-3 pt-0.5">
+          <span className="rounded-full border border-zinc-200 px-2.5 py-1 text-xs text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+            {count} 篇
+          </span>
+          <ChevronRightIcon className="h-4 w-4 text-zinc-500 transition-transform duration-200 group-open:rotate-90 dark:text-zinc-400" />
+        </div>
+      </summary>
+      <div className="space-y-3 border-t border-zinc-200/80 px-5 py-4 dark:border-zinc-800">
+        {children}
+      </div>
+    </details>
+  )
+}
+
+export default function BlogIndexPage() {
+  return (
+    <main className="space-y-8 pb-8">
+      <section className="space-y-4">
+        <p className="text-sm text-zinc-500 dark:text-zinc-500">Archive</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+          博客归档
+        </h1>
+        <p className="max-w-3xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+          这里把原有博客和后续系列文章统一整理到一个入口里。你可以按主题展开，也可以按学习顺序一路往下看。
+        </p>
         <Link
-          href="/blog/tutorials"
-          className="block rounded-2xl border border-zinc-200/80 bg-zinc-50 px-5 py-4 transition-colors duration-200 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
+          href="/blog/preface"
+          className="block max-w-3xl rounded-2xl border border-zinc-200/80 bg-zinc-50/80 px-5 py-4 text-sm leading-relaxed text-zinc-600 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400 dark:hover:border-zinc-700"
         >
-          <h3 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
-            打开教程目录
-          </h3>
-          <p className="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            按 Phase 展示 DFT、机器学习、科研工具与项目实战主题，并挂接已有博客文章。
+          <h2 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
+            写在前面
+          </h2>
+          <p className="mt-1">
+            关于这套组内内容为什么这样写、它解决什么问题、以及应该如何使用。
           </p>
         </Link>
       </section>
 
-      {BLOG_GROUPS.map((group) => {
-        const posts = BLOG_POSTS.filter((post) => post.category === group.title)
+      <section className="space-y-3">
+        {TUTORIAL_PHASES.map((phase) => (
+          <SectionDirectory
+            key={phase.title}
+            title={phase.title}
+            description={phase.description}
+            count={phase.topics.length}
+            defaultOpen={false}
+          >
+            {phase.topics.map((topic) => (
+              <Link
+                key={topic.slug}
+                href={`/blog/tutorials/${topic.slug}`}
+                className="block rounded-xl border border-zinc-200/80 bg-zinc-50 px-4 py-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
+              >
+                <h3 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
+                  {topic.title}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  {topic.summary}
+                </p>
+              </Link>
+            ))}
+          </SectionDirectory>
+        ))}
+      </section>
 
-        return (
-          <section key={group.title} className="space-y-4">
-            <div className="space-y-1">
-              <h2 className="text-lg font-medium text-zinc-950 dark:text-zinc-50">
-                {group.title}
-              </h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-500">
-                {group.description}
-              </p>
-            </div>
-            <div className="space-y-3">
+      <section className="space-y-3">
+        {BLOG_GROUPS.map((group) => {
+          const posts = BLOG_POSTS.filter(
+            (post) => post.category === group.title,
+          )
+
+          if (!posts.length) {
+            return null
+          }
+
+          return (
+            <SectionDirectory
+              key={group.title}
+              title={group.title}
+              description={group.description}
+              count={posts.length}
+              defaultOpen={false}
+            >
               {posts.map((post) => (
                 <Link
                   key={post.uid}
                   href={post.link}
-                  className="block rounded-2xl border border-zinc-200/80 bg-white px-5 py-4 transition-colors duration-200 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+                  className="block rounded-xl border border-zinc-200/80 bg-zinc-50 px-4 py-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
                 >
                   <h3 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
                     {post.title}
@@ -77,10 +140,10 @@ export default function BlogIndexPage() {
                   </p>
                 </Link>
               ))}
-            </div>
-          </section>
-        )
-      })}
+            </SectionDirectory>
+          )
+        })}
+      </section>
     </main>
   )
 }

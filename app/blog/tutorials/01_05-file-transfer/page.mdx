@@ -1,0 +1,121 @@
+export const metadata = {
+  title: '1.5 文件传输',
+  description:
+    '',
+}
+
+# 1.5 文件传输
+
+## 1. 为什么需要传文件
+
+本地电脑和服务器并不能直接互相读取对方的文件。
+
+所以很常见的流程是：
+
+- 本地准备输入文件
+- 上传到服务器计算
+- 算完之后再把结果下载回本地分析
+
+## 2. `scp`
+
+```bash
+# 从本地传文件到服务器
+scp local.txt alias:~/work/        # 上传单个文件
+
+# 从服务器传文件到本地
+scp alias:~/work/result.txt ./     # 下载单个文件到当前目录
+
+# 传目录时加 -r
+scp -r local_dir alias:~/work/     # 上传整个目录
+```
+
+观察这个命令的结构其实很重要：
+
+```bash
+scp <source> <destination> # 从源路径复制到目标路径
+```
+
+这和本地复制命令 `cp` 很像，只是 `scp` 可以跨机器传输。
+
+## 3. `rsync`
+
+```bash
+rsync -avh local_dir/ alias:~/work/local_dir/ # 本地同步目录到服务器
+rsync -avh alias:~/work/results/ ./results/   # 服务器同步目录到本地
+```
+
+和 `scp` 相比，`rsync` 更像“同步”，不是单纯复制。
+
+常见用法：
+
+```bash
+# 本地同步到服务器
+rsync -avh local_dir/ alias:~/work/local_dir/ # 同步整个目录到服务器
+
+# 服务器同步到本地
+rsync -avh alias:~/work/results/ ./results/   # 同步整个目录到本地
+
+# 只同步某类文件
+rsync -avh *.txt alias:~/work/                # 同步当前目录下所有 txt 文件
+```
+
+其中常见参数：
+
+- `-a`：归档模式，尽量保留文件信息
+- `-v`：显示过程
+- `-h`：人类可读的文件大小
+
+简单区分：
+
+- 临时传一个文件，用 `scp`
+- 需要同步很多文件、反复同步、希望更稳一点，优先用 `rsync`
+
+## 4. 辅助脚本
+
+`scp` 本身不难，但高频传输时，输入长路径会比较烦。
+
+比如在服务器上，你可以准备一个简单的 `put`：
+
+```bash
+#!/bin/bash
+echo "scp -r alias:$PWD/$1 ." | pbcopy # 生成下载命令并复制到本地剪贴板
+```
+
+如果你是第一次看到这种脚本格式，可以先这样理解：
+
+- `#!/bin/bash`：表示这个脚本用 `bash` 执行
+- `echo`：输出一段文本
+- `|`：把前一个命令的输出交给后一个命令
+
+如果本地终端支持 `OSC 52`，也可以这样做：
+
+```bash
+#!/bin/bash
+CMD="scp -r alias:$PWD/$1 ."                         # 先生成要执行的 scp 命令
+ENCODED=$(printf "%s" "$CMD" | base64 | tr -d '\n') # 将命令做 base64 编码并去掉换行
+printf '\e]52;c;%s\a' "$ENCODED"                     # 通过 OSC 52 协议把内容发送到本地剪贴板
+```
+
+同理，在本地也可以准备一个简单脚本，用来往服务器上传：
+
+```bash
+#!/bin/zsh
+scp -r $1 alias:~ # 将本地文件或目录上传到服务器家目录
+```
+
+重点不是“你必须照抄这个脚本”，而是要开始意识到：很多高频动作都可以自己做一层小封装。
+
+## 5. 图形化工具和其他方案
+
+如果你更习惯图形化界面，也完全可以用：
+
+- [Xshell](https://www.netsarang.com/en/xshell/)
+- [MobaXterm](https://mobaxterm.mobatek.net/)
+
+这类工具通常会自带文件面板或 SFTP 浏览器，用起来更直观。
+
+另外还有一些服务器环境里常见的工具，比如 [`lrzsz`](https://ohse.de/uwe/software/lrzsz.html)（`rz` / `sz`），也可以做文件上传下载。
+
+## 下一篇
+
+继续看 [1.6 权限和环境变量](/blog/tutorials/01_06-permissions-environment)。

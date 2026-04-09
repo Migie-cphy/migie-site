@@ -26,7 +26,7 @@ export function TableOfContents() {
     if (!article) return
 
     const headingElements = Array.from(
-      article.querySelectorAll<HTMLHeadingElement>('h2, h3, h4')
+      article.querySelectorAll<HTMLHeadingElement>('h2, h3, h4'),
     )
 
     const nextHeadings = headingElements
@@ -56,7 +56,7 @@ export function TableOfContents() {
           .sort(
             (a, b) =>
               (a.target as HTMLElement).offsetTop -
-              (b.target as HTMLElement).offsetTop
+              (b.target as HTMLElement).offsetTop,
           )
 
         if (visibleHeadings[0]) {
@@ -66,7 +66,7 @@ export function TableOfContents() {
       {
         rootMargin: '0px 0px -70% 0px',
         threshold: 1,
-      }
+      },
     )
 
     headingElements.forEach((element) => observer.observe(element))
@@ -109,9 +109,7 @@ export function TableOfContents() {
           <p className="mb-3 text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
             目录
           </p>
-          <ol className="space-y-2">
-            {headings.map(renderHeadingLink)}
-          </ol>
+          <ol className="space-y-2">{headings.map(renderHeadingLink)}</ol>
           {hasH4 ? (
             <button
               type="button"

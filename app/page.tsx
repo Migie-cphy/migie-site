@@ -1,15 +1,13 @@
 'use client'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import {
-  faGithub,
-  faOrcid,
-} from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faOrcid } from '@fortawesome/free-brands-svg-icons'
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons'
 import { faGraduationCap, faNewspaper } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'motion/react'
 import { Spotlight } from '@/components/ui/spotlight'
 import { Magnetic } from '@/components/ui/magnetic'
+import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import {
@@ -17,12 +15,11 @@ import {
   EXPERIENCE,
   BLOG_POSTS,
   PUBLICATIONS,
-  EMAIL,
   SOCIAL_LINKS,
 } from './data'
 
 const FEATURED_PUBLICATIONS = PUBLICATIONS.filter(
-  (publication) => publication.group === 'first_author'
+  (publication) => publication.group === 'first_author',
 ).sort((a, b) => b.order - a.order)
 
 const FEATURED_BLOG_POSTS = BLOG_POSTS.slice(0, 5)
@@ -111,9 +108,11 @@ export default function Personal() {
               >
                 王
               </div>
-              <img
+              <Image
                 src="/avatar.jpg"
                 alt="王美洁"
+                fill
+                sizes="(max-width: 640px) 128px, 144px"
                 className="relative z-10 h-full w-full object-cover"
                 onError={(event) => {
                   event.currentTarget.style.display = 'none'
@@ -134,7 +133,8 @@ export default function Personal() {
               <p>
                 厦门大学凝聚态物理博士生（博二在读），目前研究聚焦 AI for
                 Science，围绕原子尺度体系的性质预测与模拟，构建数据驱动的建模与分析
-                pipeline。目前在 DeepPrinciple 实习，参与构建分子性质预测 Foundation Model.
+                pipeline。目前在 DeepPrinciple 实习，参与构建分子性质预测
+                Foundation Model.
               </p>
               <p>
                 <strong className="font-semibold text-zinc-950 dark:text-zinc-50">

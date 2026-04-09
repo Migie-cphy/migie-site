@@ -1,0 +1,103 @@
+export const metadata = {
+  title: '1.2 服务器连接',
+  description:
+    '服务器连接，SSH、别名配置、密钥登录和常见连接工具。',
+}
+
+# 1.2 服务器连接
+
+## 1. 用 `ssh` 连接服务器
+
+第一件事就是登录服务器。
+
+Windows 用户可以用 PowerShell，或者更推荐直接装 `WSL`。如果你更习惯图形化终端工具，也可以先用 [`Xshell`](https://www.netsarang.com/en/xshell/) 、[`MobaXterm`](https://mobaxterm.mobatek.net/) 这类软件连接服务器。
+macOS/Linux 用户直接打开终端即可。(应该不会有人用 Linux 吧，不会吧，不会吧。)
+
+最常见的连接命令是：
+
+```bash
+ssh -p port username@hostname # 用指定端口连接远程服务器
+
+# -p 后面是端口号，如果端口是默认值 22 可以不写
+# username 是用户名
+# hostname 一般是 IP 或者域名
+```
+
+回车执行后，一般会提示输入密码。
+
+注意：终端里输入密码时通常不会有任何回显，这是正常的，不是键盘没反应。
+
+## 2. 配置 `~/.ssh/config`
+
+如果你经常登录同一台服务器，建议尽早把别名配好。
+
+```ssh-config
+Host alias                       # 给这台服务器起一个本地别名
+    HostName hostname            # 服务器地址，通常是 IP 或域名
+    User username                # 登录用户名
+    Port port                    # SSH 端口
+    IdentityFile path/to/private/key # 私钥路径
+```
+
+这里的 `alias` 是你自己定义的本地名字。
+
+配置好之后，连接命令就会简化成：
+
+```bash
+ssh alias # 使用别名连接服务器
+```
+
+这个别名不只对 `ssh` 有用，后面的：
+
+- `scp`
+- `rsync`
+- `sftp`
+
+通常也都可以直接复用。
+
+## 3. 用密钥登录代替密码
+
+如果你每次登录都要输入密码，长期来看会很烦。更稳的做法是配置密钥登录。
+
+### 使用 `ssh-keygen` 生成密钥对
+
+```bash
+ssh-keygen # 生成一对 SSH 密钥
+# 一直按回车就可以，后面再按需细化
+```
+
+默认情况下，一般会生成：
+
+```text
+~/.ssh/id_rsa
+~/.ssh/id_rsa.pub
+```
+
+其中：
+
+- `id_rsa` 是私钥
+- `id_rsa.pub` 是公钥
+
+`~/.ssh/config` 里的 `IdentityFile` 对应的就是私钥路径。
+
+### 使用 `ssh-copy-id`
+
+如果本地有 `ssh-copy-id`，这是最省事的做法：
+
+```bash
+ssh-copy-id alias # 将本地公钥复制到服务器 authorized_keys
+```
+
+它会把你的公钥自动追加到服务器的 `~/.ssh/authorized_keys` 里。
+
+### 手动复制公钥
+
+如果本地没有 `ssh-copy-id`，也可以手动把 `id_rsa.pub` 的内容复制到服务器的：
+
+```text
+~/.ssh/authorized_keys
+```
+
+如果里面已经有内容，就另起一行追加，不要覆盖原有内容。
+
+配置好再试试连接，如果不需要输入密码，直接登入服务器就说明连接成功了！

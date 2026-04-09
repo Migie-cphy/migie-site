@@ -8,11 +8,11 @@ export const metadata: Metadata = {
 }
 
 const firstAuthorPublications = PUBLICATIONS.filter(
-  (publication) => publication.group === 'first_author'
+  (publication) => publication.group === 'first_author',
 ).sort((a, b) => b.order - a.order)
 
 const coAuthorPublications = PUBLICATIONS.filter(
-  (publication) => publication.group === 'co_author'
+  (publication) => publication.group === 'co_author',
 ).sort((a, b) => b.order - a.order)
 
 function PublicationCard({
@@ -85,7 +85,10 @@ export default function PublicationsPage() {
         </div>
         <div className="space-y-3">
           {firstAuthorPublications.map((publication, index) => (
-            <PublicationCard key={`${publication.title}-${index}`} {...publication} />
+            <PublicationCard
+              key={`${publication.title}-${index}`}
+              {...publication}
+            />
           ))}
         </div>
       </section>
@@ -113,7 +116,9 @@ export default function PublicationsPage() {
             目前仓库数据里还没有录入非一作文章。后续只需在
             <span className="mx-1 font-mono text-xs">app/data.ts</span>
             中把对应论文标记为
-            <span className="mx-1 font-mono text-xs">'co_author'</span>
+            <span className="mx-1 font-mono text-xs">
+              &apos;co_author&apos;
+            </span>
             ，这里会自动显示。
           </p>
         )}

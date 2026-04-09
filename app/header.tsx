@@ -1,5 +1,4 @@
 'use client'
-import { TextEffect } from '@/components/ui/text-effect'
 import {
   BookOpenIcon,
   BriefcaseBusinessIcon,

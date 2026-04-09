@@ -120,7 +120,8 @@ export const PROJECTS: Project[] = [
     ],
     publicationItems: [
       {
-        title: 'A Geometric-Electronic Principle for Curvature-Driven Catalysis',
+        title:
+          'A Geometric-Electronic Principle for Curvature-Driven Catalysis',
         venue: 'J. Am. Chem. Soc.',
         year: 2026,
         status: 'Under Review',
@@ -175,8 +176,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'liquid-spectrum-recognition',
     name: '神经网络液体光谱识别',
-    description:
-      '基于吸收光谱与神经网络实现液体种类判别，并获得发明专利。',
+    description: '基于吸收光谱与神经网络实现液体种类判别，并获得发明专利。',
     link: '/projects/liquid-spectrum-recognition',
     id: 'project3',
     start: '2020.05',
