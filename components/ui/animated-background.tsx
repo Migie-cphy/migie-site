@@ -4,25 +4,22 @@ import { AnimatePresence, Transition, motion } from 'motion/react'
 import {
   Children,
   cloneElement,
+  HTMLAttributes,
   ReactElement,
-  ReactNode,
   useEffect,
   useState,
   useId,
 } from 'react'
 
+type AnimatedBackgroundChildProps = HTMLAttributes<HTMLElement> & {
+  'data-id': string
+  'data-checked'?: string
+}
+
 export type AnimatedBackgroundProps = {
   children:
-    | ReactElement<{
-        'data-id': string
-        className?: string
-        children?: ReactNode
-      }>[]
-    | ReactElement<{
-        'data-id': string
-        className?: string
-        children?: ReactNode
-      }>
+    | ReactElement<AnimatedBackgroundChildProps>[]
+    | ReactElement<AnimatedBackgroundChildProps>
   defaultValue?: string
   onValueChange?: (newActiveId: string | null) => void
   className?: string
