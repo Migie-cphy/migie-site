@@ -17,14 +17,14 @@ export const TUTORIAL_PHASES: Array<{
   topics: TutorialTopic[]
 }> = [
   {
-    title: 'Phase 1 · 科研工具基础',
+    title: 'Phase 1 · 科研工具',
     description: '先让新人具备独立使用服务器、写脚本、管理环境和协作的能力。',
     topics: [
       {
         slug: '01_01-linux-command-line',
         title: '1.1 命令行',
         summary: '作为 Linux 教程的前言和总入口，按任务场景组织后续文档。',
-        phase: 'Phase 1 · 科研工具基础',
+        phase: 'Phase 1 · 科研工具',
         relatedPosts: [
           { title: 'Linux 服务器配置指南', href: '/blog/linux' },
           { title: 'Shell 常用命令手册', href: '/blog/shell' },
