@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
-export default function TutorialIndexPage() {
-  redirect('/blog')
+export default function TutorialIndexRedirect() {
+  redirect('/handbook')
 }

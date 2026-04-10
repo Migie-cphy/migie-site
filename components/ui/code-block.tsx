@@ -98,7 +98,12 @@ export function CodeBlock({
           <span>{copied ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
-      <pre ref={preRef}>{children}</pre>
+      <pre
+        ref={preRef}
+        className="m-0 overflow-x-auto bg-transparent p-4 text-zinc-800 dark:text-zinc-100"
+      >
+        {children}
+      </pre>
     </div>
   )
 }

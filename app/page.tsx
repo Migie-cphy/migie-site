@@ -126,15 +126,14 @@ export default function Personal() {
               王美洁
             </h1>
             <p className="mt-2 text-xl text-zinc-600 dark:text-zinc-400">
-              AI4S 算法工程师（实习）
+              Deep Principle ｜ AI4S 算法工程师（实习）
             </p>
 
             <div className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 [&_p]:mb-4 [&_p:last-child]:mb-0">
               <p>
                 厦门大学凝聚态物理博士生（博二在读），目前研究聚焦 AI for
                 Science，围绕原子尺度体系的性质预测与模拟，构建数据驱动的建模与分析
-                pipeline。目前在 DeepPrinciple 实习，参与构建分子性质预测
-                Foundation Model.
+                pipeline。
               </p>
               <p>
                 <strong className="font-semibold text-zinc-950 dark:text-zinc-50">

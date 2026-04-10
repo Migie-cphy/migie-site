@@ -1,7 +1,7 @@
 'use client'
 import {
   BookOpenIcon,
-  BriefcaseBusinessIcon,
+  BookMarkedIcon,
   HouseIcon,
   NotebookPenIcon,
 } from 'lucide-react'
@@ -9,8 +9,8 @@ import Link from 'next/link'
 
 const NAV_ITEMS = [
   { label: '主页', href: '/', icon: HouseIcon },
-  { label: '经历', href: '/#experience', icon: BriefcaseBusinessIcon },
   { label: '论文', href: '/publications', icon: BookOpenIcon },
+  { label: '手册', href: '/handbook', icon: BookMarkedIcon },
   { label: '博客', href: '/blog', icon: NotebookPenIcon },
 ]
 

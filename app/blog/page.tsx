@@ -2,11 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronRightIcon } from 'lucide-react'
 import { BLOG_POSTS } from '../data'
-import { TUTORIAL_PHASES } from '../tutorials'
 
 export const metadata: Metadata = {
   title: '博客归档',
-  description: '按主题与学习路径整理的博客归档页。',
+  description: '自由文章、工具记录与单点经验归档。',
 }
 
 const BLOG_GROUPS = [
@@ -66,46 +65,20 @@ export default function BlogIndexPage() {
           博客归档
         </h1>
         <p className="max-w-3xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-          这里把原有博客和后续系列文章统一整理到一个入口里。你可以按主题展开，也可以按学习顺序一路往下看。
+          这里保留自由文章、工具记录和单点经验。体系化学习路径已经迁到手册。
         </p>
         <Link
-          href="/blog/preface"
+          href="/handbook"
           className="block max-w-3xl rounded-2xl border border-zinc-200/80 bg-zinc-50/80 px-5 py-4 text-sm leading-relaxed text-zinc-600 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400 dark:hover:border-zinc-700"
         >
           <h2 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
-            写在前面
+            手册
           </h2>
           <p className="mt-1">
-            关于这套组内内容为什么这样写、它解决什么问题、以及应该如何使用。
+            如果你想按阶段系统学习
+            Linux、DFT、机器学习和科研工作流，可以从这里进入。
           </p>
         </Link>
-      </section>
-
-      <section className="space-y-3">
-        {TUTORIAL_PHASES.map((phase) => (
-          <SectionDirectory
-            key={phase.title}
-            title={phase.title}
-            description={phase.description}
-            count={phase.topics.length}
-            defaultOpen={false}
-          >
-            {phase.topics.map((topic) => (
-              <Link
-                key={topic.slug}
-                href={`/blog/tutorials/${topic.slug}`}
-                className="block rounded-xl border border-zinc-200/80 bg-zinc-50 px-4 py-3 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
-              >
-                <h3 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
-                  {topic.title}
-                </h3>
-                <p className="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  {topic.summary}
-                </p>
-              </Link>
-            ))}
-          </SectionDirectory>
-        ))}
       </section>
 
       <section className="space-y-3">

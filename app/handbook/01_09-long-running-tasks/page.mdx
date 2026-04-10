@@ -1,0 +1,100 @@
+export const metadata = {
+  title: '1.9 退出服务器后，任务怎么继续跑',
+  description: '理解 screen、tmux、nohup 和队列系统各自适合什么场景。',
+}
+
+# 1.9 退出服务器后，任务怎么继续跑
+
+目标：不要再把长任务直接裸跑在当前终端里。
+
+## 1. 为什么这件事很重要
+
+如果你在服务器上直接跑长任务，本地断网、终端关闭或者 SSH 断开后，任务很可能也会一起中断。
+
+所以最少要知道三种思路：
+
+- `screen`
+- `tmux`
+- `nohup ... &`
+
+## 2. `screen`
+
+```bash
+screen -S work # 创建一个名为 work 的 screen 会话
+python train.py # 在会话里运行任务
+```
+
+暂时离开会话：
+
+```text
+Ctrl-a d
+```
+
+重新接回去：
+
+```bash
+screen -ls     # 查看当前已有的 screen 会话
+screen -r work # 重新连接名为 work 的会话
+```
+
+## 3. `tmux`
+
+```bash
+tmux new -s work # 创建一个名为 work 的 tmux 会话
+python train.py  # 在 tmux 会话里运行任务
+```
+
+暂时离开会话：
+
+```text
+Ctrl-b d
+```
+
+重新接回去：
+
+```bash
+tmux ls          # 查看当前已有的 tmux 会话
+tmux attach -t work # 重新连接名为 work 的会话
+```
+
+## 4. `nohup` 和 `&`
+
+```bash
+nohup python train.py > run.log 2>&1 & # 把任务挂到后台并写日志
+```
+
+可以先这样理解：
+
+- `nohup`：退出终端后程序尽量继续运行
+- `> run.log`：把标准输出写到日志
+- `2>&1`：把报错也写进同一个日志
+- `&`：让命令在后台运行
+
+启动之后常见检查方式：
+
+```bash
+tail -f run.log        # 实时看日志
+ps -ef | grep train.py # 查进程是否还在
+```
+
+## 5. 队列系统才是正式计算的主线
+
+很多组里的正式计算，不应该长期挂在登录节点里跑，而是应该通过集群队列系统提交任务。常见的有：
+
+- `LSF`
+- `Slurm`（常见命令是 `sbatch`）
+- `PBS`
+
+一句话总结：
+
+> 长任务不要裸跑。临时交互任务可以用 `screen` / `tmux` / `nohup`，正式计算优先走队列系统。
+
+## 6. 这一节最少要做到什么
+
+1. 知道长任务不能直接裸跑
+2. 知道 `screen`、`tmux`、`nohup ... &` 分别是什么
+3. 知道正式任务优先走队列系统
+
+## 下一篇
+
+继续看 [1.10 重定向和管道](/handbook/01_10-redirection-pipes)。
