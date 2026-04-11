@@ -93,8 +93,9 @@ export const TUTORIAL_PHASES: Array<{
       },
       {
         slug: '01_12-find-xargs-glob',
-        title: '1.12 批量查找与处理文件',
-        summary: '认识 find、xargs 和通配符在批量处理里的作用。',
+        title: '1.12 通配符、正则和脚本参数',
+        summary:
+          '先建立通配符、最常见正则表达式和 $1 $2 这类脚本参数的基本直觉。',
         phase: 'Phase 1 · 科研工具',
       },
       {
@@ -116,20 +117,8 @@ export const TUTORIAL_PHASES: Array<{
         phase: 'Phase 1 · 科研工具',
       },
       {
-        slug: '01_16-disk-usage',
-        title: '1.16 磁盘空间查看',
-        summary: '用 du 和 df 判断目录和磁盘空间是不是快满了。',
-        phase: 'Phase 1 · 科研工具',
-      },
-      {
-        slug: '01_17-soft-links',
-        title: '1.17 软链接',
-        summary: '把软链接先理解成 Linux 里的快捷方式。',
-        phase: 'Phase 1 · 科研工具',
-      },
-      {
-        slug: '01_18-python-basics',
-        title: '1.18 科研里的 Python：先会这几点就够了',
+        slug: '01_16-python-basics',
+        title: '1.16 科研里的 Python：先会这几点就够了',
         summary: '围绕科研脚本、数据处理、绘图和 Notebook 的最小能力集。',
         phase: 'Phase 1 · 科研工具',
         relatedPosts: [
@@ -138,8 +127,8 @@ export const TUTORIAL_PHASES: Array<{
         ],
       },
       {
-        slug: '01_19-dev-collab-tools',
-        title: '1.19 开发与协作工具',
+        slug: '01_17-dev-collab-tools',
+        title: '1.17 开发与协作工具',
         summary: '包含 Git、环境管理、编译基础、Docker 和 LaTeX。',
         phase: 'Phase 1 · 科研工具',
         relatedPosts: [

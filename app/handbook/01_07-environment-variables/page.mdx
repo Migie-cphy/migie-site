@@ -98,7 +98,7 @@ OMP_NUM_THREADS=4 python run.py # 只对这一条命令生效
 
 这个写法在提交脚本、测试不同线程数时很常见。
 
-## 5. 怎样永久生效？
+### 永久生效
 
 如果你希望每次打开终端都自动带上这些设置，就要写到 shell 的配置文件里。
 
@@ -108,7 +108,7 @@ OMP_NUM_THREADS=4 python run.py # 只对这一条命令生效
 - `~/.bashrc`
 - `~/.bash_profile`
 
-你具体该改哪个，取决于你使用的 shell。现在很多人本地是 `zsh`，很多服务器默认还是 `bash`。
+你具体该改哪个，取决于你使用的 shell。Mac OS 默认是 `zsh`，很多服务器默认还是 `bash`。
 
 例如：
 
@@ -130,7 +130,7 @@ bash script.sh
 
 ### `bash`、`zsh` 和这些配置文件是什么关系？
 
-你可以先把 `bash`、`zsh` 理解成不同的 shell，也就是不同的命令行解释器。
+你可以先把 `bash`、`zsh` 理解成不同的 shell，也就是不同的命令行解释器（类似 python）。
 
 它们都负责：
 
@@ -153,7 +153,7 @@ echo $SHELL # 查看当前用户默认 shell
 ```
 
 
-## 6. 新手最常见的环境变量问题
+## 4. 新手最常见的环境变量问题
 
 ### 1. `command not found`
 
