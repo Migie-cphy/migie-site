@@ -29,7 +29,7 @@ echo $PATH              # 命令搜索路径
 - 当前使用的 shell
 - 命令应该去哪里找
 
-## 2. `PATH`
+## 2. 最重要的环境变量 `PATH`
 
 其中最常见、也最重要、也是你最早会反复遇到的一个例子，就是 `PATH`。
 
@@ -41,15 +41,13 @@ echo $PATH              # 命令搜索路径
 但更本质地说，这些命令实际上都对应着系统里的某个位置。比如：
 
 ```bash
+which ls    # 看 ls 命令实际来自哪里
 /usr/bin/ls
 ```
 
-这其实就是 `ls` 命令在系统里的一个实际路径。
-
-也就是说，从最底层来说，系统真正执行的并不是一个抽象的 `ls` 这个词，而是某个具体路径下的可执行文件。
+这其实就是 `ls` 命令在系统里的一个实际路径。也就是说，从最底层来说，系统真正执行的并不是一个抽象的 `ls` 这个词，而是某个具体路径下的可执行文件。
 
 如果每次都让你手动输入这种绝对路径，当然也能运行，但会非常麻烦。
-
 所以就有了 `PATH` 这样的环境变量。你可以先把它理解成：
 
 - 预先告诉 shell 几个常用目录
@@ -59,10 +57,8 @@ echo $PATH              # 命令搜索路径
 当你在终端里输入：
 
 ```bash
-python    # python 解释器
-jdftx     # jdftx  执行器
-vasp_std  # vasp  执行器
-run.sh    # 你写的小脚本
+echo $PATH   # 查看 PATH 环境变量的值（变量展开）
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin  # 这里 : 用以连接不同的路径
 ```
 
 shell 并不是“天然知道”这些命令在哪里。它会去 `PATH` 这个环境变量列出的目录里，按顺序查找同名可执行文件。
@@ -72,35 +68,25 @@ shell 并不是“天然知道”这些命令在哪里。它会去 `PATH` 这个
 - 如果程序装了，但它所在目录不在 `PATH` 里，就会提示 `command not found`
 - 如果同一个命令有多个版本，`PATH` 的顺序也会决定优先用哪一个
 
-## 4. 怎么设置环境变量？
-
-```bash
-echo $PATH      # 查看 PATH
-which python    # 看 python 命令实际来自哪里
-```
+## 3. 怎么设置环境变量？
 
 ### 当前 session 临时生效
 
 最常见的写法是：
 
 ```bash
-export OMP_NUM_THREADS=4 # 给当前 shell 设置环境变量
-export MY_CODE=/home/user/code
+export OMP_NUM_THREADS=4  # 给当前 shell 设置环境变量
+export PATH=$PATH:/your/path
 ```
 
 这类设置有一个很重要的特点：
 
-- 只对当前终端会话生效
-- 关闭终端后通常就没了
+- export 是把变量导出到子进程（不加 export 只在当前 shell 内有效）
+- PATH=$PATH:/xxx 是在原有路径后追加（不要覆盖）
+- 关闭终端后，这些设置就没了
 
 所以它适合临时测试，或者只想对当前这一次运行生效。
 
-比如：
-
-```bash
-export OMP_NUM_THREADS=4
-python run.py
-```
 
 ### 只对单条命令生效
 
@@ -132,37 +118,15 @@ echo 'export PATH=$HOME/software/bin:$PATH' >> ~/.zshrc
 source ~/.zshrc # 重新加载配置文件，让修改立刻生效
 ```
 
-这里很多同学第一次会疑惑：为什么写完之后还要再执行一次 `source ~/.zshrc`？
-
-你可以先简单理解成：
-
-- `~/.zshrc` 只是一个配置文件
-- 你刚刚只是把内容写进了这个文件
-- `source ~/.zshrc` 的作用，是让当前这个 shell 立刻重新读取这个文件
-
-不然的话，新配置通常要等你重新开一个终端窗口后才会生效。
-
-所以：
-
-- 改完配置文件后想立刻生效，就 `source` 一次
-- 如果不开 `source`，那就重新登录或重新开一个终端
-
-这里最常见的场景就是把自己的软件目录加到 `PATH` 前面：
+这里补充一下 source vs bash 的区别
 
 ```bash
-export PATH=$HOME/software/bin:$PATH
+source script.sh   
+bash script.sh
 ```
 
-含义是：
-
-- 把 `$HOME/software/bin` 加到原来 `PATH` 的前面
-- 以后 shell 查找命令时，会优先去这个目录找
-
-这类写法很常用于：
-
-- 自己手动安装的软件
-- 没有 root 权限时放在家目录里的程序
-- 不同版本程序的切换
+- bash script.sh：在子 shell中执行脚本，不影响当前环境
+- source script.sh：在当前 shell 中执行脚本，会改变当前环境（变量、PATH 等）
 
 ### `bash`、`zsh` 和这些配置文件是什么关系？
 
@@ -180,11 +144,7 @@ export PATH=$HOME/software/bin:$PATH
 - `bash` 常看 `~/.bashrc`
 - `~/.bash_profile` 更常出现在登录 shell 场景
 
-所以一个很常见的问题是：
-
-- 你明明把配置写进了 `~/.zshrc`
-- 但服务器实际跑的是 `bash`
-- 结果当然不会生效
+所以要把环境变量写到对应的文件里。
 
 如果你不确定自己现在在用什么 shell，可以先看：
 
@@ -192,10 +152,6 @@ export PATH=$HOME/software/bin:$PATH
 echo $SHELL # 查看当前用户默认 shell
 ```
 
-这不是说你要一开始就把各种 shell 启动机制全背下来，而是先建立一个最基本的意识：
-
-- 配置写到哪个文件里，要和你实际使用的 shell 对上
-- 本地终端和远程服务器，默认 shell 也可能不一样
 
 ## 6. 新手最常见的环境变量问题
 
