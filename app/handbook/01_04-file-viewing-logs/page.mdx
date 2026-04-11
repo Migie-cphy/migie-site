@@ -1,10 +1,9 @@
 export const metadata = {
-  title: '1.4 查看文件与日志',
-  description:
-    '',
+  title: '1.4 查看文件、搜索与日志',
+  description: '围绕 cat、less、head、tail、grep 和最基础的日志查看习惯。',
 }
 
-# 1.4 查看文件与日志
+# 1.4 查看文件、搜索与日志
 
 ## 1. 最常见的几个命令
 
@@ -14,14 +13,21 @@ export const metadata = {
 | `less` | less | 分页查看文件，适合大文件 |
 | `head` | head | 查看文件开头几行 |
 | `tail` | tail | 查看文件最后几行，或持续追踪新输出 |
+| `grep` | global regular expression print | 按关键词搜索文本内容 |
 
 例如：
 
 ```bash
-cat INCAR          # 直接输出所有文件内容
-head -n 20 OUTCAR  # 查看前 20 行 默认是 10 行
-tail -n 20 OUTCAR  # 查看后 20 行 默认是 10 行
-less OUTCAR        # 翻页查看大文件
+cat INCAR                  # 直接输出整个文件内容
+head OUTCAR                # 查看前 10 行
+tail OUTCAR                # 查看后 10 行
+head -n 20 OUTCAR          # 查看前 20 行
+tail -n 20 OUTCAR          # 查看后 20 行
+less OUTCAR                # 翻页查看大文件
+grep "NELM" OUTCAR         # 搜索包含 NELM 的行
+grep -i error job.out      # 忽略大小写搜索 error
+grep -n "warning" OUTCAR   # 显示匹配行的行号
+grep -r "keyword" results/ # 递归搜索目录中的文件
 ```
 
 简单理解：
@@ -30,40 +36,92 @@ less OUTCAR        # 翻页查看大文件
 - 大文件优先用 `less`
 - 看文件开头用 `head`
 - 看文件结尾和最新输出用 `tail`
+- 想按关键词找内容，用 `grep`
+
+## 2. `less` 比 `cat` 更适合大文件
+
+`cat` 很直接，但文件一大就会一下子刷满屏幕。
+
+所以看日志、输出文件、长文本时，通常更推荐：
+
+```bash
+less OUTCAR # 分页查看大文件
+```
+
+在 `less` 里你先知道这几个就够了：
+
+- `space`：向下翻一页
+- `b`：向上翻一页
+- `/keyword`：在文件里向下搜索关键词
+- `n`：跳到下一个匹配
+- `q`：退出
+
+这也是为什么很多时候 `less + /keyword` 会比直接 `cat` 更高效。
 
 ## 3. 看日志时的基本思路
 
-看输出文件时，最有效的方式通常不是从头读到尾，而是先看关键位置。
+看输出文件时，最慢的做法通常是从头读到尾。
 
-一个最基本的工作流是：
+更实用的顺序一般是：
+
+1. 先看开头是否正常
+2. 再看最后几十行有没有异常结束
+3. 再按关键词搜索报错或警告
+4. 最后再回头看相关上下文
+
+例如：
 
 ```bash
-head -n 20 OUTCAR  # 先看开头是否正常
-tail -n 50 OUTCAR  # 再看最后几十行有没有报错或异常结束
-less OUTCAR        # 需要时再翻页细看
+head -n 50 OUTCAR        # 先看开头是否正常
+tail -n 50 OUTCAR        # 再看最后几十行
+grep -i error OUTCAR     # 搜索 error
+grep -i warning OUTCAR   # 搜索 warning
+less OUTCAR              # 需要时再翻页细看
 ```
 
-如果你要持续盯着日志变化，可以用：
+这个顺序的核心不是把文件完整读完，而是先快速判断：
+
+- 程序有没有正常启动
+- 程序停在了哪里
+- 有没有明显的报错关键词
+
+## 4. `grep` 是最基础的文本搜索器
+
+你可以先把 `grep` 理解成“按关键词找文本”的工具。
+
+最常见的用法是：
+
+```bash
+grep "pattern" file      # 在文件中搜索字符串
+grep -i error job.out    # 忽略大小写搜索 error
+grep -n warning OUTCAR   # 显示匹配行号
+grep -r keyword results/ # 递归搜索目录中的文件
+```
+
+这里先记住几个最常用参数：
+
+- `-i`：忽略大小写
+- `-n`：显示行号
+- `-r`：递归搜索目录
+
+以后你看到很长的输出文件，不要默认从头读到尾，先想一件事：
+
+> 能不能先 `grep` 一下关键词？
+
+## 5. `tail -f` 适合边跑边看
+
+如果任务还在运行，不想反复打开文件，可以用：
 
 ```bash
 tail -f job.out # 实时追踪日志新输出
 ```
 
-## 4. 常见误区
+它会一直停在那里，把新写进文件的内容持续显示出来。
 
-### 用 `cat` 打开超大文件
+这个命令很适合：
 
-大文件优先用：
+- 看作业是不是还在正常往下跑
+- 看程序是不是卡住了
+- 看有没有新的报错出现
 
-```bash
-less file         # 翻页查看大文件
-tail -n 50 file   # 看最后 50 行
-```
-
-### 一上来就从第一行开始硬读
-
-很多时候，真正有信息量的位置是：
-
-- 文件开头
-- 文件最后几十行
-- 正在持续刷新的最新输出
+退出时按 `Ctrl + C` 即可。

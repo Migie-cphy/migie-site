@@ -82,7 +82,7 @@ export function CodeBlock({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-950/60">
+    <div className="not-prose overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-950/60">
       <div className="flex items-center justify-between gap-3 border-b border-zinc-200/80 px-2.5 py-2 sm:px-3 dark:border-zinc-800">
         <span className="min-w-0 truncate text-[10px] tracking-[0.16em] text-zinc-500 uppercase sm:text-[11px] dark:text-zinc-400">
           {language || 'code'}
