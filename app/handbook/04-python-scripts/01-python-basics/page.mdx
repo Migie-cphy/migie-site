@@ -1,0 +1,505 @@
+export const metadata = {
+  title: '4.1 Python',
+  description:
+    '面向组内新生的 Python 科研入门教程，聚焦文件处理、批量脚本、数据分析和绘图这些真正会用到的能力。',
+}
+
+# 4.1 Python
+
+## 前言
+
+### 为什么不写通用 Python 教程？
+
+Python 教程网上已经非常多了。  
+如果再从变量、循环、函数、面向对象从头讲一遍，价值并不大，也不符合组内教程的定位。
+
+这篇文章只回答一个问题：
+
+> 为了开始做计算科研，你到底需要会哪些 Python？
+
+我的判断是，前期真正有用的不是“把 Python 学完”，而是先能做下面这些事：
+
+- 读写文件
+- 处理表格数据
+- 批量遍历目录
+- 从输出文件中提取结果
+- 画出一张能用的图
+
+只要这几件事能做到，Python 对你来说就已经开始产生实际价值了。
+
+### Python 在科研里主要拿来干什么？
+
+对组内大多数人来说，Python 主要不是拿来刷算法题，也不是拿来做完整的软件工程，而是拿来做这些事情：
+
+| 用途     | 典型任务                                 |
+| -------- | ---------------------------------------- |
+| 文件处理 | 读写输入文件、改参数、整理目录           |
+| 结果提取 | 从输出文件中抓能量、收敛信息、结构信息   |
+| 数据分析 | 读表格、筛数据、做简单统计               |
+| 绘图     | 画折线图、散点图、态密度图、多面板图     |
+| 自动化   | 遍历一批目录、批量生成脚本、批量汇总结果 |
+
+所以这篇教程不追求全面，而是先把这些最常见场景打通。
+
+### 这篇怎么读
+
+我把内容分成两部分：
+
+- **基础**：这是你开始使用 Python 处理科研任务的最小闭环
+- **进阶**：不是第一天必须全会，但建议尽早知道有这些工具
+
+如果你以前几乎没写过 Python，建议你先把“基础”部分过一遍，并且跟着敲一下代码。
+
+---
+
+## 第一部分：基础
+
+### 1. 先把环境装好
+
+如果环境没配好，后面所有内容都会卡住。
+
+我建议你至少准备一个独立环境，不要直接在系统 Python 里乱装包。
+
+#### 用 conda 创建环境
+
+```bash
+conda create -n research-python python=3.11   # 创建一个名为 research-python 的环境
+conda activate research-python                # 激活这个环境
+conda install numpy pandas matplotlib         # 安装最常用的科学计算与绘图库
+```
+
+如果你更习惯 `pip`，也可以这样：
+
+```bash
+python -m venv .venv              # 创建虚拟环境
+source .venv/bin/activate         # 激活虚拟环境（macOS / Linux）
+pip install numpy pandas matplotlib # 安装常用库
+```
+
+装好之后，先确认环境是对的：
+
+```bash
+which python          # 看当前 python 来自哪里
+python --version      # 看 python 版本
+python -c "import numpy, pandas, matplotlib; print('ok')" # 测试核心库能否正常导入
+```
+
+这一步不要跳。很多“代码跑不了”的问题，其实不是代码问题，而是环境问题。
+
+### 2. 先会最小脚本
+
+很多人一开始学 Python，会被一大堆语法细节带偏。  
+对科研来说，前期真正需要的是：你能写并运行一个脚本。
+
+先看一个最小例子：
+
+```python
+name = "Python"                  # 定义一个字符串变量
+value = 3.14159                  # 定义一个数值变量
+
+print("hello")                   # 输出固定文本
+print(name)                      # 输出变量内容
+print(f"value = {value:.2f}")    # 格式化输出，保留两位小数
+```
+
+保存成 `test.py` 后运行：
+
+```bash
+python test.py # 运行脚本
+```
+
+你前期需要掌握的，不是所有语法，而是下面这些够用的基础：
+
+- 变量
+- `if`
+- `for`
+- 函数
+- 列表 `list`
+- 字典 `dict`
+
+比如最常见的循环：
+
+```python
+for i in range(5):              # 从 0 循环到 4
+    print(i)                    # 输出当前循环变量
+```
+
+最常见的列表：
+
+```python
+files = ["a.out", "b.out"]      # 定义一个字符串列表
+for file in files:              # 逐个遍历列表中的文件名
+    print(file)                 # 输出当前文件名
+```
+
+最常见的字典：
+
+```python
+info = {"ENCUT": 500, "ISPIN": 2} # 定义键值对
+print(info["ENCUT"])              # 读取指定键对应的值
+```
+
+这些东西你当然可以继续往深了学，但前期先会用就够了。
+
+### 3. 文件读写：最先会这个
+
+对科研最重要的 Python 能力之一，就是读写文件。
+
+#### 读文本文件
+
+```python
+with open("INCAR", "r", encoding="utf-8") as f: # 以只读方式打开文件
+    content = f.read()                          # 读取整个文件内容
+
+print(content)                                 # 输出文件内容
+```
+
+如果你只想一行一行处理：
+
+```python
+with open("job.out", "r", encoding="utf-8") as f: # 打开输出文件
+    for line in f:                                 # 逐行遍历
+        if "error" in line.lower():                # 判断这一行里是否包含 error
+            print(line.strip())                    # 去掉换行后输出
+```
+
+#### 写文本文件
+
+```python
+new_incar = "ENCUT = 500\nISPIN = 2\n"     # 构造要写入的文本内容
+
+with open("INCAR.new", "w", encoding="utf-8") as f: # 以写入模式打开文件
+    f.write(new_incar)                               # 写入内容
+```
+
+这个能力非常实用，因为很多批处理脚本本质上就是：
+
+1. 读一个模板文件
+2. 改几个参数
+3. 写成新文件
+
+### 4. 遍历目录和批量处理
+
+科研里很少只处理一个文件。大多数时候你会面对一批目录、一批结构、一批输出文件。
+
+最常用的是 `pathlib`：
+
+```python
+from pathlib import Path                      # 导入路径处理工具
+
+root = Path(".")                             # 当前目录
+for path in root.iterdir():                  # 遍历当前目录下所有文件和目录
+    print(path)                              # 输出路径
+```
+
+如果你只想看目录：
+
+```python
+from pathlib import Path                     # 导入路径处理工具
+
+for path in Path(".").iterdir():             # 遍历当前目录
+    if path.is_dir():                        # 判断当前路径是否为目录
+        print(path.name)                     # 输出目录名
+```
+
+一个更接近科研场景的例子：从每个子目录里找 `OSZICAR`
+
+```python
+from pathlib import Path                             # 导入路径处理工具
+
+for folder in Path(".").iterdir():                   # 遍历当前目录下所有路径
+    if not folder.is_dir():                          # 跳过非目录
+        continue
+
+    oszicar = folder / "OSZICAR"                     # 拼接出目标文件路径
+    if oszicar.exists():                             # 判断文件是否存在
+        print(f"{folder.name}: found")               # 输出找到的目录名
+```
+
+这类代码是后面很多自动化脚本的基础。
+
+### 5. 读表格和数值数据：`numpy` 和 `pandas`
+
+对科研来说，这两个库几乎是默认配置。
+
+我的经验是：
+
+- `numpy` 更适合处理纯数值数组
+- `pandas` 更适合处理表格数据
+
+#### 用 `numpy` 读取数值文件
+
+```python
+import numpy as np                           # 导入 numpy
+
+data = np.loadtxt("dos.dat")                 # 读取纯数值文本文件
+print(data.shape)                            # 查看数组形状
+print(data[:5])                              # 查看前 5 行
+```
+
+如果你只想取某一列：
+
+```python
+energy = data[:, 0]                          # 取第 1 列
+dos = data[:, 1]                             # 取第 2 列
+```
+
+#### 用 `pandas` 读取表格
+
+```python
+import pandas as pd                          # 导入 pandas
+
+df = pd.read_csv("result.csv")               # 读取 csv 文件
+print(df.head())                             # 查看前几行
+print(df.columns)                            # 查看列名
+```
+
+筛选某一列大于指定值的数据：
+
+```python
+filtered = df[df["energy"] < -1.0]           # 保留 energy 小于 -1.0 的行
+print(filtered)                              # 输出筛选结果
+```
+
+保存成新表格：
+
+```python
+filtered.to_csv("filtered.csv", index=False) # 保存结果，不写入行号
+```
+
+这一步对结果整理特别重要。不要总想着手工复制粘贴，很多表格工作 Python 都更稳。
+
+### 6. 从输出文件中提取结果
+
+这是组里最常见的 Python 使用场景之一。
+
+比如你想从一个输出文件里找最后一个能量值：
+
+```python
+from pathlib import Path                               # 导入路径处理工具
+
+path = Path("OSZICAR")                                 # 指定输出文件路径
+lines = path.read_text(encoding="utf-8").splitlines() # 读取文件并按行拆分
+last_line = lines[-1]                                 # 取最后一行
+print(last_line)                                      # 输出最后一行
+```
+
+如果你想批量提取多个目录中的结果：
+
+```python
+from pathlib import Path                                      # 导入路径处理工具
+
+for folder in Path(".").iterdir():                            # 遍历当前目录
+    if not folder.is_dir():                                   # 跳过非目录
+        continue
+
+    path = folder / "OSZICAR"                                 # 拼接出 OSZICAR 路径
+    if not path.exists():                                     # 如果文件不存在就跳过
+        continue
+
+    lines = path.read_text(encoding="utf-8").splitlines()     # 读取所有行
+    print(folder.name, lines[-1])                             # 输出目录名和最后一行
+```
+
+很多时候，这就已经足够解决问题了。  
+不要一开始就把脚本写得很复杂，先把最小版本跑通。
+
+### 7. 绘图：先把最小可用图画出来
+
+科研里最常用的绘图库就是 `matplotlib`。
+
+先看一个最小例子：
+
+```python
+import numpy as np                         # 导入 numpy
+import matplotlib.pyplot as plt           # 导入 matplotlib
+
+x = np.linspace(0, 10, 200)               # 生成 0 到 10 的等间距点
+y = np.sin(x)                             # 计算正弦函数值
+
+plt.plot(x, y, label="sin(x)")            # 画折线图
+plt.xlabel("x")                           # 设置 x 轴标签
+plt.ylabel("y")                           # 设置 y 轴标签
+plt.legend()                              # 显示图例
+plt.tight_layout()                        # 自动调整边距
+plt.savefig("demo.png", dpi=300)          # 保存图片
+plt.show()                                # 显示图像
+```
+
+如果你已经在做科研绘图，建议尽早养成一个习惯：
+
+- 图尽量用代码生成
+- 图的参数写在脚本里
+- 图能重复生成
+
+这比手动点图形界面更可复现，也更方便后面修改。
+
+---
+
+## 第二部分：进阶
+
+### 1. `numpy`：先理解数组，而不是把它当高级 list
+
+`numpy` 的核心不是“语法花”，而是它在处理数值数组时更快、更稳定，也更适合科学计算。
+
+一个很重要的区别是向量化：
+
+```python
+import numpy as np                      # 导入 numpy
+
+x = np.array([1, 2, 3, 4])             # 创建数组
+y = x * 2                              # 对整个数组同时乘以 2
+print(y)                               # 输出结果
+```
+
+这里你不需要自己写 `for` 循环。  
+很多数值操作都可以直接对整个数组做。
+
+这也是为什么后面如果要处理大规模数值数据，`numpy` 往往是最自然的选择。
+
+### 2. `matplotlib`：图能重复画，比图画得花更重要
+
+你后面如果要画 DOS、散点图、多面板图，基本都会用到 `matplotlib`。
+
+这部分有两个重点：
+
+1. 把“读数据”和“画图”分开
+2. 把常用画图逻辑写成函数
+
+比如：
+
+```python
+import numpy as np                          # 导入 numpy
+import matplotlib.pyplot as plt            # 导入 matplotlib
+
+def plot_one_curve(ax, file_name):         # 定义一个画图函数
+    data = np.loadtxt(file_name)           # 读取数据文件
+    ax.plot(data[:, 0], data[:, 1])        # 画出第 1 列和第 2 列
+    ax.set_xlabel("x")                     # 设置 x 轴标签
+    ax.set_ylabel("y")                     # 设置 y 轴标签
+
+fig, ax = plt.subplots()                   # 创建画布和坐标轴
+plot_one_curve(ax, "data.dat")             # 调用函数作图
+plt.tight_layout()                         # 自动调整边距
+plt.savefig("figure.pdf")                  # 保存为 pdf
+```
+
+一旦你把图形逻辑封成函数，后面画 1 张图、4 张图、10 张图都只是重复调用的问题。
+
+### 3. 批量脚本：Python 和 shell 是互补的
+
+很多同学会问：批处理到底该用 shell，还是该用 Python？
+
+我的建议是：
+
+- 很短、很直接的批处理，用 shell
+- 一旦涉及条件判断、文件读写、数据处理，优先用 Python
+
+比如：
+
+- 复制一批文件，shell 很合适
+- 读取一批输出文件并提取关键数值，Python 更清楚
+
+不要纠结“只能选一个”。在科研里，这两者是互补关系。
+
+### 4. 性能问题：先写对，再考虑加速
+
+你已经有一篇旧文在讲 Python 加速：
+
+- [Python 科学计算加速](/Users/migie/workplace/migie_site/app/blog/numpy-accelerate/page.mdx)
+
+这部分很有价值，但对新生来说，顺序上应该放后面。
+
+原因很简单：
+
+- 前期主要问题通常不是“慢”
+- 而是“根本没写对”
+- 或者“工作流还没跑通”
+
+所以默认顺序应该是：
+
+1. 先把脚本写对
+2. 先让结果可信
+3. 再看是否需要 `numpy` 向量化、`numba`、多进程
+
+这才是更稳的路径。
+
+---
+
+## 常见坑
+
+### 1. 环境没搞清楚就开始装包
+
+这会导致：
+
+- 代码在一个环境里写
+- 包装在另一个环境里
+- 运行时又用第三个 `python`
+
+所以第一件事永远是：
+
+```bash
+which python # 先确认当前 python 来自哪里
+```
+
+### 2. 路径写死
+
+比如：
+
+```python
+path = "/Users/xxx/Desktop/test.dat"
+```
+
+这种写法自己电脑上能跑，换机器就废了。  
+尽量使用相对路径，或者用 `pathlib` 统一处理。
+
+### 3. 一开始就写复杂脚本
+
+很多时候，最好的办法不是一开始写一个“完美脚本”，而是先写一个只解决当前问题的最小版本。
+
+### 4. 手工复制粘贴太多
+
+如果一件事你要重复做 3 次以上，就该开始想能不能写成脚本。
+
+### 5. 图能画出来，但下次自己都复现不了
+
+所以图形参数、路径、字体、输出格式这些东西，最好都留在代码里。
+
+---
+
+## 入门检查清单
+
+如果你现在刚入组，我建议先把下面这些事做到能独立完成：
+
+1. 创建一个 Python 环境并安装 `numpy`、`pandas`、`matplotlib`
+2. 写一个最小脚本并运行
+3. 读取一个文本文件并筛出关键词
+4. 批量遍历一批目录
+5. 读取一个表格并筛选数据
+6. 画出一张折线图并保存
+7. 写一个最简单的结果提取脚本
+
+如果这几件事都能做到，Python 对你来说就已经不只是“会一点语法”，而是开始真正能帮你干活了。
+
+---
+
+## 可继续看的旧文章
+
+这篇文章后续还可以继续吸收这些旧文内容：
+
+- [Python 科学计算加速](/Users/migie/workplace/migie_site/app/blog/numpy-accelerate/page.mdx)
+- [Matplotlib 科研绘图](/Users/migie/workplace/migie_site/app/blog/matplotlib/page.mdx)
+
+---
+
+## 最后一段
+
+对新生来说，Python 最重要的不是“学完这门语言”，而是先建立一个最小工作闭环：
+
+- 会跑脚本
+- 会读文件
+- 会处理数据
+- 会批量操作
+- 会画图
+
+做到这一步，你后面的很多科研工作都会顺很多。

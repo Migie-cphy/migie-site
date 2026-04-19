@@ -1,0 +1,78 @@
+export const metadata = {
+  title: '5.2 环境管理',
+  description:
+    '先理解 module、conda、venv 在服务器和本地各自解决什么问题，以及常见排查思路。',
+}
+
+# 5.2 环境管理
+
+对新手来说，环境管理最容易让人困惑的地方在于：
+
+> 明明昨天还能跑，今天为什么又不行了？
+
+很多时候，不是代码变了，而是环境变了。
+
+## 1. 先区分三类东西
+
+- `module load xxx`：集群管理员提供的软件模块
+- `conda activate xxx`：你自己的 Python/科学计算环境
+- `python -m venv xxx`：更轻量的 Python 虚拟环境
+
+可以先粗略理解为：
+
+- `module` 更像“机器上已经装好的公共工具”
+- `conda/venv` 更像“你给自己项目准备的小环境”
+
+## 2. 在服务器上最常见的组合
+
+```bash
+module avail
+module load cuda/12.1
+conda activate myenv
+python script.py
+```
+
+这通常表示：
+
+1. 先加载机器相关的软件模块
+2. 再进入你自己的 Python 环境
+3. 最后运行脚本
+
+## 3. 最常见的报错排查
+
+如果你看到：
+
+- `command not found`
+- `ModuleNotFoundError`
+- 找不到 `python`
+- 找不到 `vasp_std`
+
+优先查这几件事：
+
+```bash
+which python
+echo $PATH
+conda env list
+module list
+```
+
+你真正想确认的是：
+
+- 当前到底在用哪个 `python`
+- 当前是否真的激活了目标环境
+- 当前是否真的加载了需要的软件模块
+
+## 4. 一个很实用的习惯
+
+不要把所有包装进默认 shell 配置里。
+
+更稳妥的做法通常是：
+
+- 通用设置放 `.zshrc` / `.bashrc`
+- 项目相关环境在进入项目后手动激活
+- 跑批处理任务时把环境加载写进作业脚本
+
+## 5. 下一步可以看什么
+
+- 协作工具总入口：看 [5.1 开发与协作工具](/handbook/05-dev-collab/01-dev-collab-tools)
+- 环境变量基础：看 [1.7 环境变量](/handbook/01-linux-terminal/07-environment-variables)
