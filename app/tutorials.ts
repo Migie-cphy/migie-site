@@ -83,7 +83,7 @@ export const TUTORIAL_PHASES: Array<{
         phase: 'Phase 1 · Linux 与终端',
       },
       {
-        slug: '01-linux-terminal/10-find-xargs-glob',
+        slug: '01-linux-terminal/10-glob-regex-shell-params',
         title: '1.10 通配符、正则和脚本参数',
         summary:
           '先建立通配符、最常见正则表达式和 $1 $2 这类脚本参数的基本直觉。',
