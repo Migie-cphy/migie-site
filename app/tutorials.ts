@@ -104,26 +104,15 @@ export const TUTORIAL_PHASES: Array<{
     ],
   },
   {
-    title: 'Phase 2 · 服务器、集群与任务管理',
-    description: '围绕队列系统、集群边界和实际计算任务管理组织内容。',
+    title: 'Phase 2 · 科研工具',
+    description: '围绕科研中常用的软件工具、计算环境和配套工作流组织内容。',
     topics: [
       {
         slug: '02-servers-clusters/01-cluster-basics',
         title: '2.1 集群基础与使用边界',
         summary:
           '先知道 login node、compute node、home/work/scratch 各自是干什么的。',
-        phase: 'Phase 2 · 服务器、集群与任务管理',
-      },
-      {
-        slug: '02-servers-clusters/02-job-management',
-        title: '2.2 计算任务管理',
-        summary: '聚焦 SLURM、批量投递、失败任务重启和结果目录规范。',
-        phase: 'Phase 2 · 服务器、集群与任务管理',
-        relatedPosts: [
-          { title: 'Linux 科学计算服务器搭建', href: '/blog/root' },
-          { title: '并行计算工具集', href: '/blog/parallel' },
-          { title: '远程 Jupyter Notebook', href: '/blog/remote-jupyter' },
-        ],
+        phase: 'Phase 2 · 科研工具',
       },
     ],
   },
@@ -138,8 +127,21 @@ export const TUTORIAL_PHASES: Array<{
         phase: 'Phase 3 · DFT 与电化学计算',
       },
       {
-        slug: '03-dft/02-dft-pre-post',
-        title: '3.2 DFT 前后处理',
+        slug: '03-dft/02-structure-visualization-tools',
+        title: '3.2 常用结构处理与可视化工具',
+        summary:
+          '简要认识 VASPkit、VESTA、OVITO、ASE、pymatgen 和在线结构编辑工具。',
+        phase: 'Phase 3 · DFT 与电化学计算',
+        relatedPosts: [
+          { title: 'ASE 原子模拟环境', href: '/blog/ase' },
+          { title: 'VESTA 命令行批处理', href: '/blog/vesta-cmd' },
+          { title: 'VESTA 原子配色方案', href: '/blog/vesta-color' },
+          { title: 'Materials Project API 数据抓取', href: '/blog/mp-api' },
+        ],
+      },
+      {
+        slug: '03-dft/03-dft-pre-post',
+        title: '3.3 DFT 前后处理',
         summary: '整理结构生成、吸附模型、DOS/PDOS、Bader 和可视化流程。',
         phase: 'Phase 3 · DFT 与电化学计算',
         relatedPosts: [
@@ -150,21 +152,21 @@ export const TUTORIAL_PHASES: Array<{
         ],
       },
       {
-        slug: '03-dft/03-constant-potential-principles',
-        title: '3.3 恒电势计算原理',
+        slug: '03-dft/04-constant-potential-principles',
+        title: '3.4 恒电势计算原理',
         summary: '整理恒电势计算的基本概念、适用场景和常见误区。',
         phase: 'Phase 3 · DFT 与电化学计算',
         relatedPosts: [{ title: 'JDFTx 电化学计算指南', href: '/blog/jdftx' }],
       },
       {
-        slug: '03-dft/04-vaspsol-plus-plus',
-        title: '3.4 Vaspsol++',
+        slug: '03-dft/05-vaspsol-plus-plus',
+        title: '3.5 Vaspsol++',
         summary: '整理 Vaspsol++ 的使用场景、输入参数和恒电势计算工作流。',
         phase: 'Phase 3 · DFT 与电化学计算',
       },
       {
-        slug: '03-dft/05-jdftx',
-        title: '3.5 JDFTx',
+        slug: '03-dft/06-jdftx',
+        title: '3.6 JDFTx',
         summary: '整理 JDFTx 在电化学界面、隐式溶剂和恒电势计算中的基本用法。',
         phase: 'Phase 3 · DFT 与电化学计算',
         relatedPosts: [{ title: 'JDFTx 电化学计算指南', href: '/blog/jdftx' }],
