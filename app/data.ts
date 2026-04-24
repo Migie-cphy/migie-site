@@ -244,6 +244,13 @@ export const BLOG_POSTS: BlogPost[] = [
     category: 'AI4S',
   },
   {
+    title: 'MACE 结构预优化',
+    description: '用 MACE-MP 预训练模型配合 ASE 快速优化结构',
+    link: '/blog/mace',
+    uid: 'blog-mace',
+    category: 'AI4S',
+  },
+  {
     title: 'Materials Project API 数据抓取',
     description: '基于 mp_api 批量获取晶体结构数据',
     link: '/blog/mp-api',

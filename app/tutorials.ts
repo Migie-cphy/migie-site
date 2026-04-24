@@ -239,7 +239,10 @@ export const TUTORIAL_PHASES: Array<{
         title: '6.4 AI4S 建模专题',
         summary: '串起材料数据、图神经网络、Δ-learning 和预训练势模型。',
         phase: 'Phase 6 · 机器学习与 AI4S',
-        relatedPosts: [{ title: 'CHGNet 结构预优化', href: '/blog/chgnet' }],
+        relatedPosts: [
+          { title: 'CHGNet 结构预优化', href: '/blog/chgnet' },
+          { title: 'MACE 结构预优化', href: '/blog/mace' },
+        ],
       },
       {
         slug: '06-ml-ai4s/05-llm-for-research',

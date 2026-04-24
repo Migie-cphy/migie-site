@@ -1,0 +1,117 @@
+export const metadata = {
+  title: '使用 MACE 预训练模型进行结构粗优化',
+  description:
+    '介绍如何使用 MACE-MP 预训练势模型配合 ASE 对结构进行快速优化，并简单说明训练和微调入口。',
+}
+
+# 使用 MACE 预训练模型进行结构粗优化
+
+和 [CHGNet](/blog/chgnet) 类似，[MACE](https://github.com/ACEsuit/mace) 也是现在材料计算里很常见的机器学习势工具。你可以先把它理解成一个比 DFT 快很多的近似势能面：它不能替代最终的 DFT 计算，但很适合在 DFT 之前帮我们把明显不合理的结构先拉回到比较正常的位置。
+
+MACE 的特点是使用等变神经网络来描述原子环境，官方也提供了预训练的 foundation models。对刚入门的同学来说，第一件值得做的事不是马上训练自己的模型，而是先学会用 `MACE-MP` 这类预训练模型做一次结构能量和力的预测，或者做一次粗略结构优化。
+
+## 安装 MACE
+
+建议单独建一个环境：
+
+```shell
+conda create -n mace python=3.10
+conda activate mace
+
+pip install --upgrade pip
+
+# 先根据自己的 CUDA / CPU 环境安装 PyTorch
+# 具体命令建议看 PyTorch 官网，不同服务器可能不一样
+
+pip install mace-torch ase pymatgen
+```
+
+如果服务器有 NVIDIA GPU，通常会用 `device="cuda"`；如果是 Apple Silicon，可以尝试 `device="mps"`；如果只是小结构测试，用 `device="cpu"` 也可以跑，只是慢一些。
+
+## 用 MACE-MP 做一次结构优化
+
+MACE 可以直接作为 ASE calculator 使用。下面这个脚本会读取一个结构文件，调用预训练的 `MACE-MP` 模型，然后用 ASE 的 `BFGS` 优化结构。
+
+将下面代码保存为 `MACE_Relax.py`：
+
+```python
+import sys
+from pathlib import Path
+
+from ase.io import read, write
+from ase.optimize import BFGS
+from mace.calculators import mace_mp
+
+
+input_file = Path(sys.argv[1])
+device = sys.argv[2] if len(sys.argv) > 2 else "cpu"
+
+atoms = read(input_file)
+
+calc = mace_mp(
+    model="medium",
+    dispersion=False,
+    default_dtype="float32",
+    device=device,
+)
+atoms.calc = calc
+
+print(f"Using device: {device}")
+print(f"Initial energy: {atoms.get_potential_energy():.6f} eV")
+
+dyn = BFGS(
+    atoms,
+    trajectory="mace_relax.traj",
+    logfile="mace_relax.log",
+)
+dyn.run(fmax=0.05, steps=300)
+
+print(f"Final energy: {atoms.get_potential_energy():.6f} eV")
+
+output_file = input_file.with_name(f"{input_file.stem}_mace_relaxed.vasp")
+write(output_file, atoms, format="vasp", direct=True, vasp5=True)
+print(f"Relaxed structure written to: {output_file}")
+```
+
+运行方式很简单：
+
+```shell
+python MACE_Relax.py POSCAR cuda
+```
+
+如果没有 GPU，也可以先用 CPU 测试：
+
+```shell
+python MACE_Relax.py POSCAR cpu
+```
+
+运行完成后，当前目录下会多出几个文件：
+
+- `mace_relax.log`：优化过程的文字日志
+- `mace_relax.traj`：ASE 轨迹文件，可以用 `ase gui` 打开
+- `POSCAR_mace_relaxed.vasp`：优化后的结构
+
+如果输入文件里带有 ASE 能识别的约束，比如 VASP 的 selective dynamics，ASE 通常会把它们读成 constraints。实际写出前最好还是用 `VESTA` 或 `ase gui` 检查一下固定原子有没有符合预期。
+
+## 看优化轨迹
+
+如果装好了 ASE，可以直接打开轨迹：
+
+```shell
+ase gui mace_relax.traj
+```
+
+这一步很有用。机器学习势优化很快，但正因为快，所以更应该养成习惯：不要只看最后一个结构，也要看一下优化过程中有没有原子乱飞、吸附物钻进 slab、晶胞变化不合理这类问题。
+
+
+## 什么时候适合用 MACE
+
+MACE 比较适合放在 DFT 之前做“预处理”。比如你手动搭了一个吸附结构，原子之间有点太近，直接丢给 DFT 可能很难收敛；这时可以先用 MACE 粗优化几十步，再把结构交给 VASP 做正式优化。
+
+但也要记住，它不是最终裁判。预训练模型的适用范围取决于训练数据。对普通无机晶体、表面、简单吸附结构，MACE-MP 往往能给一个不错的起点；但如果体系里有很特殊的化学环境、强电荷转移、溶剂界面、带电体系、复杂磁性或不常见元素，就不能只相信机器学习势的结果。
+
+## 后续可以继续看什么
+
+MACE 的官方仓库在这里：[ACEsuit/mace](https://github.com/ACEsuit/mace)。如果只是用预训练模型，先看 MACE-MP 和 ASE calculator 的例子就够了；如果要训练或微调自己的模型，再去看官方 training、fine-tuning 和 foundation models 文档。
+
+对组内日常工作来说，可以先把 MACE 当成一个结构预优化工具和快速筛查工具。等你真的需要在某一类体系上大量跑分子动力学、主动学习或高通量筛选，再考虑训练自己的专用模型。
