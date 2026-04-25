@@ -272,13 +272,6 @@ export const BLOG_POSTS: BlogPost[] = [
     category: '计算材料',
   },
   {
-    title: 'ASE 原子模拟环境',
-    description: 'ASE 安装与结构读写基础',
-    link: '/blog/ase',
-    uid: 'blog-ase',
-    category: 'AI4S',
-  },
-  {
     title: 'Linux 服务器配置指南',
     description: 'Zsh、SSH、文件传输与插件配置',
     link: '/blog/linux',
@@ -314,13 +307,6 @@ export const BLOG_POSTS: BlogPost[] = [
     category: '计算材料',
   },
   {
-    title: 'Conda 环境管理',
-    description: '默认路径与安装目录配置',
-    link: '/blog/conda',
-    uid: 'blog-conda',
-    category: '工具与环境',
-  },
-  {
     title: 'Oh My Zsh 无 root 安装',
     description: '从源码编译 Zsh 与 ncurses 依赖',
     link: '/blog/ohmyzsh',
@@ -347,20 +333,6 @@ export const BLOG_POSTS: BlogPost[] = [
     link: '/blog/root',
     uid: 'blog-root',
     category: '科研工程',
-  },
-  {
-    title: 'CP2K 编译安装',
-    description: 'CP2K 安装命令与编译步骤',
-    link: '/blog/cp2k',
-    uid: 'blog-cp2k',
-    category: '计算材料',
-  },
-  {
-    title: '命令行日常使用',
-    description: 'Mac OS 与 Linux 常用命令整理',
-    link: '/blog/command-line',
-    uid: 'blog-command-line',
-    category: '工具与环境',
   },
 ]
 

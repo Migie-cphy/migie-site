@@ -1,0 +1,280 @@
+export const metadata = {
+  title: '3.5 JDFTx',
+  description:
+    '从输入文件、最小 Si 计算、隐式溶剂到 target-mu 恒电势计算，介绍 JDFTx 的基本使用方式。',
+}
+
+# 3.5 JDFTx
+
+JDFTx 是一个平面波 DFT 程序。对我们来说，它最值得关注的地方不是“又一个 DFT 软件”，而是它很早就把隐式溶剂、电解液和恒电势计算作为核心能力来设计。也正因为这个原因，很多电化学界面、带电表面和恒电势相关的例子会优先出现在 JDFTx 的语境里。
+
+如果你已经会一点 VASP，可以先用一个很粗略的类比来理解 JDFTx。VASP 通常把输入拆成 `INCAR`、`POSCAR`、`KPOINTS`、`POTCAR` 几个文件；JDFTx 更像是把这些设置都写成命令，放进一个输入文件里，比如 `Si.in` 或 `command.in`。结构、赝势、k 点、截断能、输出内容，都可以在这个文件里写清楚。
+
+JDFTx 的输入文件本质上是一串命令：
+
+```text
+command value
+command key1 value1 key2 value2
+```
+
+每一行是一条命令，`#` 后面是注释，反斜杠 `\` 可以用来续行。它还支持变量和 `include`，所以很适合把公共设置放在一个 `common.in` 里，再让不同计算复用这部分设置。
+
+## 1. 一个最小 Si 计算
+
+下面这个例子用 Si 的面心立方原胞建立一个最小直觉。它大致对应 VASP 里的结构、赝势、k 点和计算参数。
+
+```bash
+# 结构
+lattice face-centered Cubic 5.43
+latt-scale 1.88973 1.88973 1.88973
+coords-type lattice
+ion Si 0.00 0.00 0.00 0
+ion Si 0.25 0.25 0.25 0
+
+# 赝势
+ion-species GBRV/si_pbe.uspp
+
+# k 点
+kpoint 0 0 0 1.
+kpoint-folding 8 8 8
+
+# 截断能和输出
+elec-cutoff 20 100
+dump-name Si.$VAR
+dump End Ecomponents ElecDensity
+```
+
+保存为 `Si.in` 后运行：
+
+```bash
+jdftx -i Si.in | tee Si.out
+```
+
+如果要把电子密度转成 VESTA 可以看的格式，可以用：
+
+```bash
+createXSF Si.out Si.xsf n
+```
+
+这一步的目的不是把 Si 算得多精细，而是先知道 JDFTx 的输入方式：它不是几个固定文件，而是一组命令。
+
+## 2. k 点收敛怎么做
+
+JDFTx 支持在输入文件里使用环境变量。比如把 k 点写成：
+
+```bash
+kpoint-folding ${nk} ${nk} ${nk}
+```
+
+然后用 shell 脚本批量跑不同的 `nk`：
+
+```bash
+#!/bin/bash
+for nk in 1 2 4 8 12 16; do
+    export nk
+    mpirun -n 4 jdftx -i Si.in | tee Si-${nk}.out
+done
+
+listEnergy Si-?.out Si-??.out
+```
+
+这和我们在 VASP 里扫 `KPOINTS` 的逻辑是一样的：先选一个足够小的体系，逐步提高 k 点密度，看总能量什么时候基本不再变化。JDFTx 的好处是变量和命令行工具配合得比较自然，很适合做这种小扫描。
+
+## 3. 用 include 管理公共输入
+
+JDFTx 里很常见的写法是把公共部分放到 `common.in`：
+
+```bash
+lattice Cubic 15
+coulomb-interaction Isolated
+coulomb-truncation-embed 0 0 0
+ion-species GBRV/$ID_pbe.uspp
+elec-cutoff 20 100
+coords-type cartesian
+```
+
+然后在不同计算里引用它：
+
+```bash
+include common.in
+```
+
+这个用法很像 LaTeX 里的 `\input`。如果多个输入文件都要用同一套晶胞、赝势、截断能、库仑截断设置，就不要到处复制粘贴，放在 `common.in` 里会清楚很多。
+
+比如一个真空水分子优化可以写成：
+
+```bash
+include common.in
+
+ion O 0.00 0.00 0.00 0
+ion H 0.00 1.13 1.45 1
+ion H 0.00 1.13 -1.45 1
+
+ionic-minimize nIterations 10
+dump-name Vacuum.$VAR
+dump End State
+```
+
+运行：
+
+```bash
+jdftx -i Vacuum.in | tee Vacuum.out
+```
+
+这里 `dump End State` 会保存最终状态，后续计算可以直接接着这个状态跑。
+
+## 4. 隐式溶剂计算
+
+JDFTx 的一个重要特点是内置了很多连续介质溶剂模型。比如在前面的水分子真空计算基础上，做一个最小的 `LinearPCM` 计算：
+
+```bash
+include common.in
+include Vacuum.ionpos
+initial-state Vacuum.$VAR
+
+ionic-minimize nIterations 10
+dump-name LinearPCM.$VAR
+dump End State BoundCharge
+
+fluid LinearPCM
+pcm-variant GLSSA13
+fluid-solvent H2O
+```
+
+运行：
+
+```bash
+jdftx -i LinearPCM.in | tee LinearPCM.out
+```
+
+输出能量里会多出溶剂相关项，比如 `A_diel`。溶剂化自由能可以粗略理解成：
+
+```text
+solvation free energy = E(溶液中) - E(真空中)
+```
+
+如果输出了束缚电荷密度，也可以转成 XSF 文件：
+
+```bash
+createXSF LinearPCM.out LinearPCM.xsf nbound
+```
+
+JDFTx 里常见的溶剂模型包括 `LinearPCM`、`NonlinearPCM`、`SaLSA` 和 `ClassicalDFT`。刚开始不需要全部掌握。大多数入门场景先知道 `LinearPCM` 和 `pcm-variant` 就够了，比如 `GLSSA13` 可以理解成和 VASPsol 相关的一类腔体定义，`CANDLE` 是 JDFTx 里很常被推荐的模型之一。
+
+## 5. 恒电势计算：target-mu
+
+JDFTx 做恒电势计算时，最关键的命令是：
+
+```bash
+target-mu <mu>
+```
+
+这里的 `mu` 是电子化学势，单位是 Hartree，并且是相对于真空能级的绝对值。设置 `target-mu` 以后，计算就不再是简单固定电子数，而是固定电子化学势，让电子数在自洽过程中自动调整。
+
+如果要把相对于 SHE 的电势换成 `target-mu`，可以先用这个粗略关系：
+
+```text
+mu = -(Vref + U_SHE) / 27.2114
+```
+
+其中 `Vref` 是 SHE 相对于真空能级的参考值，常见近似是 `4.44 V`；`27.2114` 是 Hartree 和 eV 的换算系数。比如想算相对于 SHE 为 `+0.5 V` 的电势，可以写成：
+
+```bash
+target-mu -(4.44 + 0.5)/27.2114
+```
+
+在恒电势输出里，你会看到 `G`，而不只是固定电子数计算里的 `F`。可以粗略记成：
+
+```text
+G = F - muN
+```
+
+也就是说，固定电势时真正被优化的是巨自由能，而电子数 `N` 会随 `mu` 调整。
+
+## 6. 一个带电表面的最小框架
+
+电化学表面计算通常会把 slab、库仑截断、溶剂、电解质和 `target-mu` 放在一起。下面不是完整生产参数，只是让你知道一个输入文件大概长什么样。
+
+公共输入 `common.in`：
+
+```bash
+lattice Hexagonal 5.23966 36
+
+ion Pt 0.333333 -0.333333 -0.237676 1
+ion Pt -0.333333 0.333333 -0.118838 1
+ion Pt 0.000000 0.000000 0.000000 1
+ion Pt 0.333333 -0.333333 0.118838 1
+ion Pt -0.333333 0.333333 0.237676 1
+
+ion-species GBRV/$ID_pbesol.uspp
+elec-ex-corr gga-PBEsol
+elec-cutoff 20 100
+
+coulomb-interaction Slab 001
+coulomb-truncation-embed 0 0 0
+
+kpoint-folding 12 12 1
+elec-smearing Fermi 0.01
+
+fluid LinearPCM
+pcm-variant CANDLE
+fluid-solvent H2O
+fluid-cation Na+ 1.
+fluid-anion F- 1.
+
+dump-name common.$VAR
+initial-state common.$VAR
+dump End State BoundCharge
+```
+
+先做一个中性表面：
+
+```bash
+include common.in
+electronic-SCF
+```
+
+运行：
+
+```bash
+jdftx -i Neutral.in | tee Neutral.out
+```
+
+然后做恒电势计算：
+
+```bash
+include common.in
+electronic-minimize nIterations 200
+target-mu ${mu}
+```
+
+可以用脚本扫一组 `mu`：
+
+```bash
+#!/bin/bash
+for iMu in {-10..10}; do
+    export mu="$(echo $iMu | awk '{printf("%.4f", -0.2015 + 0.1*$1/27.2114)}')"
+    mpirun -n 4 jdftx -i Charged.in | tee Charged${mu}.out
+    mv common.nbound Charged${mu}.nbound
+done
+```
+
+这个脚本表达的是：围绕某个参考化学势，每隔 `0.1 eV` 扫一个点。真实研究中，参考值、溶剂模型、电解质浓度、slab 厚度、k 点和截断能都需要认真收敛，这里只是让你先看懂恒电势扫描的形状。
+
+## 7. 结果先看哪里
+
+第一次看 JDFTx 输出时，可以先抓这几件事：
+
+- 看 `Etot`、`F`、`G`：固定电子数时更关注 `F`，恒电势时更关注 `G`
+- 看 `muN`：它和恒电势下的巨自由能有关
+- 看是否继承了正确的 `initial-state`
+- 看 `BoundCharge`、`nbound`：理解溶剂和电解质响应
+- 看日志有没有明显的 SCF 或 minimize 不收敛
+
+JDFTx 的优势是输入灵活、变量支持好、溶剂模型丰富，并且内置 `target-mu` 这类恒电势能力。缺点是它和 VASP 的生态不完全一样，很多组内现成脚本不能直接复用，初学者也需要重新适应它的输入风格。
+
+所以建议的学习顺序是：先跑通一个最小晶体计算，再跑通一个隐式溶剂分子计算，最后再碰带电表面和恒电势扫描。不要一上来就从复杂电极体系开始，否则问题出在哪里会很难判断。
+
+## 8. 继续查什么
+
+这篇只整理组内上手 JDFTx 最容易遇到的几个入口。更完整的命令、模型和例子，应该继续看 [JDFTx 官方文档](https://jdftx.org/)。

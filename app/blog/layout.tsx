@@ -9,7 +9,7 @@ export default function LayoutBlogPost({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const isIndexPage = pathname === '/blog' || pathname === '/blog/tutorials'
+  const isIndexPage = pathname === '/blog'
 
   if (isIndexPage) {
     return <main className="pb-8">{children}</main>
