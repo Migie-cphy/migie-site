@@ -10,6 +10,9 @@ export const metadata = {
 它的目标不是把所有东西一次讲全，也不是替代教材、官方文档和参考手册。
 更准确地说，这里更像是一张地图：先帮你知道有什么工具、它大概是做什么的、什么时候可能会用到，然后再带你迈出第一步，实现从“0”到“1”。
 
+为了目录长期更稳定，读者一眼能看出每部分在讲什么，这套手册现在按主题分类组织。
+大部分内容都是基础，我想大部分人都是值得一看的，少部分是满足组内小部分需求，有需要再看。
+
 在 LLM 时代，很多具体细节后面都可以再查、再问、再补。真正容易卡住人的，往往不是“资料不够多”，而是：
 
 - 不知道有这个东西
@@ -18,102 +21,5 @@ export const metadata = {
 
 Claude、ChatGPT、Gemini...是人类有史以来最好的老师，对于后续的内容，如果你感兴趣或者需要深入就去找他们吧！！
 
-## 阅读指南：第一次看手册怎么选
-
-这套手册现在按主题分类组织，而不是按“新手第一天应该干什么”来组织。
-
-这样做的好处是：
-
-- 目录长期更稳定
-- 后续扩展时不会越来越别扭
-- 读者一眼能看出每部分在讲什么
-
-代价是：
-
-- 第一次来看的人，可能不知道应该从哪里开始
-
-所以这一部分的作用只有一个：
-
-> 帮你选一条最短阅读路径，而不是替代整套手册。
-
-### 1. 如果你现在的目标只是“会用服务器”
-
-优先读这些：
-
-1. [1.1 命令行](/handbook/01-linux-terminal/01-command-line)
-2. [1.2 服务器连接](/handbook/01-linux-terminal/02-server-connection)
-3. [1.3 文件与目录管理](/handbook/01-linux-terminal/03-file-directory-management)
-4. [1.4 查看文件、搜索与日志](/handbook/01-linux-terminal/04-file-viewing-logs)
-5. [1.5 文件传输](/handbook/01-linux-terminal/05-file-transfer)
-6. [1.8 进程、后台与长任务](/handbook/01-linux-terminal/08-process-background-long-running-tasks)
-
-读完这些，你通常已经能独立完成：
-
-- 登录服务器
-- 找文件
-- 传文件
-- 看日志
-- 判断程序是不是还在跑
-
-### 2. 如果你很快就要开始跑集群作业
-
-在上面基础上，再读这些：
-
-1. [2.1 集群基础与使用边界](/handbook/02-servers-clusters/01-cluster-basics)
-
-这一组内容解决的是：
-
-- 登录节点和计算节点有什么区别
-- 正式计算环境中哪些事情该做，哪些事情不该做
-
-### 3. 如果你要开始做 DFT
-
-推荐这样读：
-
-1. 先读“会用服务器”和“集群作业”那两条
-2. [3.1 DFT 基础](/handbook/03-dft/01-dft-basics)
-3. [3.2 常用结构处理与可视化工具](/handbook/03-dft/02-structure-visualization-tools)
-
-如果你已经进入电化学方向，再继续看：
-
-1. [3.3 恒电势计算原理](/handbook/03-dft/03-constant-potential-principles)
-2. [3.4 Vaspsol++](/handbook/03-dft/04-vaspsol-plus-plus)
-3. [3.5 JDFTx](/handbook/03-dft/05-jdftx)
-
-### 4. 如果你现在主要想补 Python
-
-建议这样读：
-
-1. [1.3 文件与目录管理](/handbook/01-linux-terminal/03-file-directory-management)
-2. [1.4 查看文件、搜索与日志](/handbook/01-linux-terminal/04-file-viewing-logs)
-3. [1.10 通配符、正则和脚本参数](/handbook/01-linux-terminal/10-glob-regex-shell-params)
-4. [1.11 文本处理：awk 和 sed](/handbook/01-linux-terminal/11-awk-sed)
-5. [1.12 批处理脚本：for](/handbook/01-linux-terminal/12-shell-for-loops)
-6. [4.1 Python](/handbook/04-python-scripts/01-python-basics)
-
-因为对科研来说，Python 往往不是孤立使用的，而是和命令行、批处理、文件组织连在一起的。
-
-### 5. 如果你已经会 Linux，只想按主题查
-
-那就完全不用按什么“入门路线”来读了，直接按目录分类跳转即可：
-
-- Linux 与终端：命令行、文件、日志、批处理
-- 服务器、集群与任务管理：SLURM、集群边界、任务管理
-- Python 与科研脚本
-- 开发、环境与协作
-- DFT 基础
-- DFT 前后处理与工作流
-- 电化学与恒电势专题
-- 机器学习与 AI4S
-
-### 6. 最后一个原则
-
-不要试图第一次就把整套手册从头到尾完整读完。
-
-更好的方式通常是：
-
-1. 先读和你最近一周要用到的部分
-2. 真遇到问题时，再回来看相邻主题
-3. 等你开始稳定做某个方向，再系统补那一块
-
-这一部分的作用不是让你“按顺序毕业”，而是帮你先找到入口。
+另外，今天 agents 在这些事情上的效率已经远远超过了人类，在使用这些工具的同时，
+希望你可以知道它在干什么，它会犯错，不要被它诈骗了，我想这也是对我们提出了更高的要求。

@@ -107,11 +107,21 @@ export const TUTORIAL_PHASES: Array<{
     description: '围绕科研中常用的软件工具、计算环境和配套工作流组织内容。',
     topics: [
       {
-        slug: '02-servers-clusters/01-cluster-basics',
+        slug: '02-research-tools/01-cluster-basics',
         title: '2.1 集群基础与使用边界',
         summary:
           '先知道 login node、compute node、home/work/scratch 各自是干什么的。',
         phase: 'Phase 2 · 科研工具',
+      },
+      {
+        slug: '02-research-tools/02-python-basics',
+        title: '2.2 科研里的 Python：先会这几点就够了',
+        summary: '围绕科研脚本、数据处理、绘图和 Notebook 的最小能力集。',
+        phase: 'Phase 2 · 科研工具',
+        relatedPosts: [
+          { title: 'Python 科学计算加速', href: '/blog/numpy-accelerate' },
+          { title: 'Matplotlib 科研绘图', href: '/blog/matplotlib' },
+        ],
       },
     ],
   },
@@ -158,80 +168,42 @@ export const TUTORIAL_PHASES: Array<{
     ],
   },
   {
-    title: 'Phase 4 · Python 与科研脚本',
-    description: '聚焦科研里真正会用到的 Python、数据处理和绘图能力。',
-    topics: [
-      {
-        slug: '04-python-scripts/01-python-basics',
-        title: '4.1 科研里的 Python：先会这几点就够了',
-        summary: '围绕科研脚本、数据处理、绘图和 Notebook 的最小能力集。',
-        phase: 'Phase 4 · Python 与科研脚本',
-        relatedPosts: [
-          { title: 'Python 科学计算加速', href: '/blog/numpy-accelerate' },
-          { title: 'Matplotlib 科研绘图', href: '/blog/matplotlib' },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'Phase 5 · 开发、环境与协作',
-    description: '围绕 Git、环境管理、LaTeX 和工程协作建立最小工作流。',
-    topics: [
-      {
-        slug: '05-dev-collab/01-dev-collab-tools',
-        title: '5.1 开发与协作工具',
-        summary: '包含 Git、环境管理、编译基础、Docker 和 LaTeX。',
-        phase: 'Phase 5 · 开发、环境与协作',
-        relatedPosts: [
-          { title: 'macOS 开发环境搭建', href: '/blog/macos' },
-          { title: 'Oh My Zsh 无 root 安装', href: '/blog/ohmyzsh' },
-        ],
-      },
-      {
-        slug: '05-dev-collab/02-environment-management',
-        title: '5.2 环境管理',
-        summary: '先理解 module、conda、venv 在服务器和本地分别解决什么问题。',
-        phase: 'Phase 5 · 开发、环境与协作',
-      },
-    ],
-  },
-  {
-    title: 'Phase 6 · 机器学习与 AI4S',
+    title: 'Phase 4 · 机器学习与 AI4S',
     description: '从经典机器学习过渡到可解释模型、深度学习和 AI4S 专题。',
     topics: [
       {
-        slug: '06-ml-ai4s/01-classical-ml',
-        title: '6.1 传统机器学习',
+        slug: '04-ml-ai4s/01-classical-ml',
+        title: '4.1 传统机器学习',
         summary: '面向回归、分类、特征工程、交叉验证与误差分析。',
-        phase: 'Phase 6 · 机器学习与 AI4S',
+        phase: 'Phase 4 · 机器学习与 AI4S',
       },
       {
-        slug: '06-ml-ai4s/02-interpretable-ml',
-        title: '6.2 可解释机器学习',
+        slug: '04-ml-ai4s/02-interpretable-ml',
+        title: '4.2 可解释机器学习',
         summary: '围绕 SISSO、特征重要性与描述符构建思路。',
-        phase: 'Phase 6 · 机器学习与 AI4S',
+        phase: 'Phase 4 · 机器学习与 AI4S',
       },
       {
-        slug: '06-ml-ai4s/03-deep-learning',
-        title: '6.3 深度学习',
+        slug: '04-ml-ai4s/03-deep-learning',
+        title: '4.3 深度学习',
         summary: '以 PyTorch 为主线，覆盖训练循环、调参与 GPU 基础。',
-        phase: 'Phase 6 · 机器学习与 AI4S',
+        phase: 'Phase 4 · 机器学习与 AI4S',
       },
       {
-        slug: '06-ml-ai4s/04-ai4s-modeling',
-        title: '6.4 AI4S 建模专题',
+        slug: '04-ml-ai4s/04-ai4s-modeling',
+        title: '4.4 AI4S 建模专题',
         summary: '串起材料数据、图神经网络、Δ-learning 和预训练势模型。',
-        phase: 'Phase 6 · 机器学习与 AI4S',
+        phase: 'Phase 4 · 机器学习与 AI4S',
         relatedPosts: [
           { title: 'CHGNet 结构预优化', href: '/blog/chgnet' },
           { title: 'MACE 结构预优化', href: '/blog/mace' },
         ],
       },
       {
-        slug: '06-ml-ai4s/05-llm-for-research',
-        title: '6.5 LLM 与科研应用',
+        slug: '04-ml-ai4s/05-llm-for-research',
+        title: '4.5 LLM 与科研应用',
         summary: '覆盖 prompt、RAG、fine-tune 和科研场景中的边界判断。',
-        phase: 'Phase 6 · 机器学习与 AI4S',
+        phase: 'Phase 4 · 机器学习与 AI4S',
       },
     ],
   },
