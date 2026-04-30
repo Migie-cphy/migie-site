@@ -123,6 +123,31 @@ export const TUTORIAL_PHASES: Array<{
           { title: 'Matplotlib 科研绘图', href: '/blog/matplotlib' },
         ],
       },
+      {
+        slug: '02-research-tools/03-scientific-illustration',
+        title: '2.3 科研绘图与 matplotlib',
+        summary: '聚焦科研里最常见的折线图、散点图、多面板图和出图习惯。',
+        phase: 'Phase 2 · 科研工具',
+        relatedPosts: [
+          { title: 'Matplotlib 科研绘图', href: '/blog/matplotlib' },
+        ],
+      },
+      {
+        slug: '02-research-tools/04-scientific-writting',
+        title: '2.4 科研写作与 LaTeX',
+        summary: '先建立论文写作、公式排版、文献管理和协作修改的最小直觉。',
+        phase: 'Phase 2 · 科研工具',
+      },
+      {
+        slug: '02-research-tools/05-tools',
+        title: '2.5 常用工具',
+        summary: '整理科研里常会用到的编辑器、下载工具、远程工具和效率软件。',
+        phase: 'Phase 2 · 科研工具',
+        relatedPosts: [
+          { title: 'macOS 开发环境搭建', href: '/blog/macos' },
+          { title: 'Oh My Zsh 无 root 安装', href: '/blog/ohmyzsh' },
+        ],
+      },
     ],
   },
   {
@@ -172,37 +197,27 @@ export const TUTORIAL_PHASES: Array<{
     description: '从经典机器学习过渡到可解释模型、深度学习和 AI4S 专题。',
     topics: [
       {
-        slug: '04-ml-ai4s/01-classical-ml',
-        title: '4.1 传统机器学习',
+        slug: '04-ml-ai4s/01-preface-ml',
+        title: '4.1 机器学习前言',
+        summary: '先建立机器学习在组内科研里的位置、边界和学习路线图。',
+        phase: 'Phase 4 · 机器学习与 AI4S',
+      },
+      {
+        slug: '04-ml-ai4s/02-classical-ml',
+        title: '4.2 传统机器学习',
         summary: '面向回归、分类、特征工程、交叉验证与误差分析。',
         phase: 'Phase 4 · 机器学习与 AI4S',
       },
       {
         slug: '04-ml-ai4s/02-interpretable-ml',
-        title: '4.2 可解释机器学习',
+        title: '4.3 可解释机器学习',
         summary: '围绕 SISSO、特征重要性与描述符构建思路。',
         phase: 'Phase 4 · 机器学习与 AI4S',
       },
       {
         slug: '04-ml-ai4s/03-deep-learning',
-        title: '4.3 深度学习',
+        title: '4.4 深度学习',
         summary: '以 PyTorch 为主线，覆盖训练循环、调参与 GPU 基础。',
-        phase: 'Phase 4 · 机器学习与 AI4S',
-      },
-      {
-        slug: '04-ml-ai4s/04-ai4s-modeling',
-        title: '4.4 AI4S 建模专题',
-        summary: '串起材料数据、图神经网络、Δ-learning 和预训练势模型。',
-        phase: 'Phase 4 · 机器学习与 AI4S',
-        relatedPosts: [
-          { title: 'CHGNet 结构预优化', href: '/blog/chgnet' },
-          { title: 'MACE 结构预优化', href: '/blog/mace' },
-        ],
-      },
-      {
-        slug: '04-ml-ai4s/05-llm-for-research',
-        title: '4.5 LLM 与科研应用',
-        summary: '覆盖 prompt、RAG、fine-tune 和科研场景中的边界判断。',
         phase: 'Phase 4 · 机器学习与 AI4S',
       },
     ],

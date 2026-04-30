@@ -203,7 +203,7 @@ export const PROJECTS: Project[] = [
 
 export const EXPERIENCE: Experience[] = [
   {
-    organization: '深度原理 (DeepPrinciple)',
+    organization: '深度原理 (Deep Principle)',
     title: 'AI4S 算法工程师（实习）',
     start: '2026.01',
     end: '至今',
