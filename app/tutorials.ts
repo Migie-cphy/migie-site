@@ -107,20 +107,19 @@ export const TUTORIAL_PHASES: Array<{
     description: '围绕科研中常用的软件工具、计算环境和配套工作流组织内容。',
     topics: [
       {
-        slug: '02-research-tools/01-cluster-basics',
-        title: '2.1 集群基础与使用边界',
-        summary:
-          '先知道 login node、compute node、home/work/scratch 各自是干什么的。',
+        slug: '02-research-tools/01-preface',
+        title: '2.1 前言',
+        summary: '先建立这一章在讲什么、为什么这些配套工具值得尽早知道。',
         phase: 'Phase 2 · 科研工具',
       },
       {
-        slug: '02-research-tools/02-python-basics',
-        title: '2.2 科研里的 Python：先会这几点就够了',
-        summary: '围绕科研脚本、数据处理、绘图和 Notebook 的最小能力集。',
+        slug: '02-research-tools/02-tools',
+        title: '2.2 常用工具',
+        summary: '整理科研里常会用到的编辑器、下载工具、远程工具和效率软件。',
         phase: 'Phase 2 · 科研工具',
         relatedPosts: [
-          { title: 'Python 科学计算加速', href: '/blog/numpy-accelerate' },
-          { title: 'Matplotlib 科研绘图', href: '/blog/matplotlib' },
+          { title: 'macOS 开发环境搭建', href: '/blog/macos' },
+          { title: 'Oh My Zsh 无 root 安装', href: '/blog/ohmyzsh' },
         ],
       },
       {
@@ -137,16 +136,6 @@ export const TUTORIAL_PHASES: Array<{
         title: '2.4 科研写作与 LaTeX',
         summary: '先建立论文写作、公式排版、文献管理和协作修改的最小直觉。',
         phase: 'Phase 2 · 科研工具',
-      },
-      {
-        slug: '02-research-tools/05-tools',
-        title: '2.5 常用工具',
-        summary: '整理科研里常会用到的编辑器、下载工具、远程工具和效率软件。',
-        phase: 'Phase 2 · 科研工具',
-        relatedPosts: [
-          { title: 'macOS 开发环境搭建', href: '/blog/macos' },
-          { title: 'Oh My Zsh 无 root 安装', href: '/blog/ohmyzsh' },
-        ],
       },
     ],
   },
