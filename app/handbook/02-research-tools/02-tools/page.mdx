@@ -6,14 +6,161 @@ export const metadata = {
 
 # 2.2 常用工具
 
-这一节不想把工具列成一张很长的清单，而是先建立一个基本感觉：科研里除了主程序本身，还会不断碰到一批配套工具。它们不一定每个都复杂，但会非常高频地出现在日常工作里。早点知道这些东西的存在，后面会少走很多弯路。
+这里专门分享，我日常用的提高我效率的工具、软件，anything。
 
-前面 Linux 和终端那一章，更像是在解决“你能不能开始动手”的问题；这一章则更像是在回答“开始做事之后，手边还会不断碰到哪些工具”。比如画图、写作、远程工具、编辑器、下载和整理资料，这些事情单独看都不算主线，但加起来会占掉你大量时间。
+# Linux 和 macOS 通用的工具
 
-## 计划内容
+## Oh My Zsh
 
-- 编辑器与 IDE
-- 远程连接工具
-- 下载与传输工具
-- 终端增强和效率工具
-- 科研协作与文档工具
+[Oh My Zsh](https://ohmyz.sh) 是一个基于 `zsh` 开源的终端工具，提供了丰富的插件和主题。
+
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+oh-my-zsh 的配置文件是 `~/.zshrc`，可以通过修改这个文件来配置 oh-my-zsh。
+
+### zsh-autosuggestions
+
+oh-my-zsh 好用，主要是有命令行补全功能，基于 `zsh-autosuggestions` 插件。
+
+`zsh-autosuggestions` 是一个 `zsh` 的自动补全插件，可以根据你的输入自动提示，通过方向键 `>` 补全。
+
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `zsh-autosuggestions` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+
+```shell
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+
+###  zsh-syntax-highlighting
+
+`zsh-syntax-highlighting` 是一个 `zsh` 的语法高亮插件，可以根据你的输入高亮显示。
+
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `zsh-syntax-highlighting` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+### macos
+
+macos 是一个基于 zsh 的 macos 系统配置工具，可以通过简单的命令来配置 macos 系统。
+
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `macos` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+
+### fzf
+fzf 是一个命令行模糊搜索工具，可以通过模糊搜索来快速找到你想要的文件。
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `fzf` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+```shell
+brew install fzf  # macos
+conda install fzf # linux
+```
+
+### autojump
+autojump 是一个命令行工具，可以通过简单的命令来快速跳转到你想要的目录。
+
+安装命令如下，安装后需要在 `~/.zshrc` 中添加 `autojump` 到 `plugins` 中，然后重新加载配置文件，即可使用。
+
+```shell
+brew install autojump
+conda install autojump
+```
+
+###  extract
+extract 是一个命令行工具，帮助识别压缩文件的格式，并解压文件，但要本地需要有对应的解压命令。
+
+```shell
+extract <file>.zip
+extract <file>.tar.gz
+extract <file>.tar.bz2
+extract -r <file>.tar.bz2 # -r 解压后,删除原来的压缩文件
+```
+
+# macos 专属
+
+## 一些系统设置
+
+### 光标响应速度
+System Preferences -> Keyboard
+
+### 三指拖移
+System Preferences -> Accessibility -> Pointer Control -> Trackpad Options
+
+## Homebrew
+
+Homebrew 是 macos 和 Linux 中的软件和包（Package）管理软件，类似于 centOS 的 yum 和 ubuntu 的 apt-get。
+
+首先在 terminal 中运行
+
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+用[Homebrew官网](https://brew.sh)的话说就是"Homebrew安装了你需要的东西，而 macos（或你的Linux系统）没有。"
+
+介绍一些基本用法：
+
+```shell
+brew install <package> # 安装软件
+brew install <package> --cask # 安装软件（GUI）有时候会有同名的 fomule 和 cask，需要指定
+
+brew uninstall <package> # 卸载软件
+
+brew list # 列出已安装的软件
+brew list --cask # 列出已安装的软件（GUI）
+
+brew search <package> # 搜索软件
+brew info <package> # 查看软件信息
+
+brew update # 更新软件
+brew upgrade # 升级软件
+brew cleanup # 清理缓存
+```
+
+## iTerm2
+
+[iTerm2](https://iterm2.com) 是一个终端模拟器，比 macos 自带的终端功能更强大。
+
+```shell
+brew install --cask iterm2
+```
+
+### 终端快捷键
+- `Command + A` 光标移动到行首
+- `Command + E` 光标移动到行尾
+- `Command + U` 删除光标前的所有字符
+- `Command + K` 删除光标后的所有字符
+- `Command + W` 删除光标前的一个单词
+- `Command + R` 搜索历史命令 (安装fzf后,直接模糊搜索)
+- `Command + L` 清屏
+
+### iterm2 快捷键
+- `Command + D` 垂直分屏
+- `Command + Shift + D` 水平分屏
+- `Command + Option + 方向键` 切换分屏
+- `Command + Option + Shift + 方向键` 调整分屏大小
+- `Command + Option + F` 切换全屏
+
+## bob 翻译
+
+[Bob](https://bobtranslate.com) 是一个 macos 上很好用的翻译软件，支持划词翻译、截图翻译、OCR、快捷键呼出等功能。
+
+# typora markdown 编辑阅读器
+
+[Typora](https://typora.io) 是一个很顺手的 Markdown 编辑器。
+
+Markdown 本身很适合写：
+
+- 笔记
+- README
+- 实验记录
+- 手册草稿
+
+Typora 的优点是边写边预览，不像有些编辑器要在源码和预览之间来回切。对于刚接触 Markdown 的人来说，上手会比较自然。
+
+# pycharm
+
+[PyCharm](https://www.jetbrains.com/pycharm/) 是 Python 开发里很常见的 IDE。另外，Pycharm 提供了学生试用，可以使用你的学生身份申请。
+
+# sublime text
+
+[Sublime Text](https://www.sublimetext.com) 是一个很轻的文本编辑器，启动很快，打开文件也很快。
+
