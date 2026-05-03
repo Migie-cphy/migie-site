@@ -3,6 +3,7 @@ import './globals.css'
 import { Header } from './header'
 import { Footer } from './footer'
 import { ThemeProvider } from 'next-themes'
+import { RouteScrollTop } from '@/components/ui/route-scroll-top'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -36,6 +37,7 @@ export default function RootLayout({
           storageKey="theme"
           defaultTheme="system"
         >
+          <RouteScrollTop />
           <div className="font-sans-apple flex min-h-screen w-full flex-col">
             <div className="relative mx-auto w-full max-w-5xl flex-1 px-6 pt-2">
               <Header />
