@@ -175,36 +175,6 @@ export const TUTORIAL_PHASES: Array<{
       },
     ],
   },
-  {
-    title: 'Phase 4 · 机器学习与 AI4S',
-    description: '从经典机器学习过渡到可解释模型、深度学习和 AI4S 专题。',
-    topics: [
-      {
-        slug: '04-ml-ai4s/01-preface-ml',
-        title: '4.1 机器学习前言',
-        summary: '先建立机器学习在组内科研里的位置、边界和学习路线图。',
-        phase: 'Phase 4 · 机器学习与 AI4S',
-      },
-      {
-        slug: '04-ml-ai4s/02-classical-ml',
-        title: '4.2 传统机器学习',
-        summary: '面向回归、分类、特征工程、交叉验证与误差分析。',
-        phase: 'Phase 4 · 机器学习与 AI4S',
-      },
-      {
-        slug: '04-ml-ai4s/02-interpretable-ml',
-        title: '4.3 可解释机器学习',
-        summary: '围绕 SISSO、特征重要性与描述符构建思路。',
-        phase: 'Phase 4 · 机器学习与 AI4S',
-      },
-      {
-        slug: '04-ml-ai4s/03-deep-learning',
-        title: '4.4 深度学习',
-        summary: '以 PyTorch 为主线，覆盖训练循环、调参与 GPU 基础。',
-        phase: 'Phase 4 · 机器学习与 AI4S',
-      },
-    ],
-  },
 ]
 
 export const TUTORIAL_TOPICS = TUTORIAL_PHASES.flatMap((phase) => phase.topics)
