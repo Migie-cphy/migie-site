@@ -1,0 +1,262 @@
+export const metadata = {
+  title: '2.2 科研绘图与 matplotlib',
+  description:
+    '整理科研里最常见的绘图任务、matplotlib 的基本使用方式和出图习惯。',
+}
+
+# 2.2 科研绘图与 matplotlib
+
+## 科研绘图
+
+科研绘图不是“把图画出来”这么简单。
+更实际的问题通常是：图要表达什么、横纵坐标怎么选、不同数据怎么放在一张图里、最后怎么输出到论文里。
+
+我觉得要先说一个更底层的问题：审美。
+
+很多人一开始会把科研绘图理解成一个纯技术问题，觉得只要命令会写、线能画出来、图片能导出就够了。
+但实际不是这样。
+你最后画出来的图，往往不会超过你平时见过的、觉得好的那些图。
+所以如果你自己脑子里没有“什么图是舒服的、清楚的、可信的”这个判断，工具学得再多，最后也很容易停留在“能画，但不好看，也不好读”。
+
+所以提高审美这件事，不是虚的。很实际的做法就是：
+
+- 多看高质量论文里的图
+- 多看你真正欣赏的组内汇报图
+- 多看别人是怎么处理字体、留白、线型、颜色和多面板排版的
+
+不是为了模仿某一个具体样式，而是慢慢建立一种感觉：什么图看起来是干净的，什么图是一眼能读懂的，什么图虽然信息很多但不乱。
+
+我会把这句话说得更直接一点：
+
+> 你只会画出，你觉得好看的图。
+
+如果你平时看到的图大多都比较粗糙，那你自己画出来的东西通常也会停留在那个水平。
+所以审美输入本身，就是科研绘图训练的一部分。
+
+但如果把审美先放一边，真正落到操作层面，最重要的一个词其实是：`default`。
+
+这里的 `default` 不是说永远使用软件默认参数，而是说：在你还没有形成稳定风格之前，最先应该建立的是一套一致、整齐、可重复的默认标准。
+无论是 coding，还是 origin、matplotlib、其他作图软件，我觉得最基本的要求都不是“花哨”，而是“整齐统一”。
+
+比如最常见的几个问题：
+
+- 同一组图里字体大小忽大忽小
+- 线宽不一致
+- 颜色风格完全不统一
+- 坐标轴格式东一块西一块
+- 图例位置每张图都不一样
+- 多面板之间间距不一致
+
+这些问题单独看都不大，但叠在一起，图就会显得很散，很像“能交差”，而不是“认真整理过”。
+所以在刚开始画图时，我更建议你先追求下面这些最基本的事情：
+
+- 字体统一
+- 线宽统一
+- 颜色逻辑统一
+- 坐标轴样式统一
+- 子图大小和留白统一
+- 同一类数据尽量用同一套表达方式
+
+也就是说，在你还没有形成个人风格之前，先有一套稳定的默认风格。
+
+这个原则其实和写代码很像。
+好的代码不一定花哨，但首先应该整齐、统一、容易读。
+科研绘图也是一样。真正高水平的图，当然会有设计感，会有审美判断，
+但在那之前，至少应该让读者感觉到：这张图是经过整理的，是可信的，是在认真传递信息，而不是随手导出的截图。
+
+## Matplotlib
+
+[Matplotlib 官方网站](https://matplotlib.org)
+
+如果只从“快不快上手”来看，`Origin` 这类图形化软件当然很有吸引力。拖一拖、点一点，图很快就能出来，这对刚开始画图的人确实很友好。
+
+但如果从长期使用的角度看，我还是更偏向 `matplotlib`。原因不只是“我更喜欢 coding”，而是我觉得科研绘图这件事，本质上就是一个高度个性化的过程。
+
+很多图形化软件的问题在于：它们确实降低了入门门槛，但也因为要照顾“点击式”的使用方式，最后往往会把很多东西封装起来。于是你一开始觉得方便，后面一旦想做得更细、更统一、更个性化，就会越来越受限制。
+
+我自己的理解是：
+
+> 任何图形化，最终都是基于后端代码构建出来的。
+
+它易上手，这是优点；但它也很容易随着功能堆积而变复杂，同时自由度反而下降。你能做很多“预设好的事”，却不一定能很自然地做到你真正想要的那个效果。
+
+而科研绘图恰恰不是一个特别适合“大家都差不多”地完成的任务。它的个性化很强。不同课题、不同数据、不同论文风格，对图的要求都不一样。你经常会遇到这种情况：
+
+- 我就是想把这个子图压窄一点
+- 我就是想让这组颜色按我的逻辑来
+- 我就是想统一所有图的线宽、字体和边距
+- 我就是想批量把几十张图都改成同一风格
+
+这时候，代码式绘图的优势就会越来越明显。因为你不是在和一个软件界面“商量”，而是在直接描述你想要什么。
+
+另外，在现在这个时间点，我会更明确地站在 `matplotlib` 这边，还有一个现实原因：LLM 时代，`CLI` 和代码接口的重要性比以前更高了。
+
+如果你用的是代码式工具：
+
+- 你可以把图的逻辑交给 LLM 一起帮你整理
+- 你可以让它帮你改参数、统一风格、批量重构
+- 你可以把这套风格沉淀成脚本，之后不断复用
+
+但如果你主要依赖图形化点击操作，这些能力就很难积累下来。你每次还是要重新点一遍，很多修改也更难复现，更难批量化。
+
+所以我并不是说 `Origin` 不好，也不是说所有人都应该一开始就排斥图形化工具。更准确地说是：
+
+- 如果你只是偶尔快速出一张图，图形化工具完全可以用
+- 但如果你想长期做科研、反复画图、形成自己的风格，`matplotlib` 这种代码式绘图会更值得投入
+
+它前期可能更慢一点，但后面会越来越快，而且越用越统一，越用越可积累。
+
+对我来说，`matplotlib` 最重要的价值其实不只是“能画图”，而是它会逼着你把很多原本模糊的东西讲清楚：这张图到底想表达什么、哪些元素应该保留、哪些只是干扰、什么样的默认风格才真正适合自己。等你把这些问题想清楚之后，工具本身反而会变得简单很多。
+
+## 进阶一点
+
+如果你已经开始连续画图了，我很建议你再往前走一步：不要每次都在脚本里重新调字体、线宽、颜色，而是把这些东西单独整理成一个 `plot_params.py`。
+
+这样做的好处很直接。第一，你所有图的风格会天然统一。第二，你以后想整体调风格时，只需要改一个文件。第三，你会慢慢积累出属于自己的那套默认参数，而不是每次都从零开始。
+
+一个很常见的写法就是在单独的文件里定义颜色和 `rcParams`：
+
+```python
+colors = [
+    "#6D98CA", "#BB2649", "#88B04B", "#D8604D",
+    "#F6B756", "#926AA6", "#F3D54E", "#5B5EA6",
+    "#E15D44", "#45B8AC", "#6D98BA", "#88B04B",
+]
+
+
+def get_plot_params():
+    import matplotlib.pyplot as plt
+
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["mathtext.fontset"] = "dejavuserif"
+    plt.rcParams["text.usetex"] = True
+    plt.rcParams["text.latex.preamble"] = r"\\usepackage{amsmath} \\usepackage{amssymb}"
+
+    plt.rcParams["font.size"] = 15
+    plt.rcParams["axes.labelsize"] = 15
+    plt.rcParams["xtick.labelsize"] = 15
+    plt.rcParams["ytick.labelsize"] = 15
+    plt.rcParams["legend.fontsize"] = 12
+
+    plt.rcParams["figure.figsize"] = (3.5, 2.625)
+    plt.rcParams["savefig.dpi"] = 330
+    plt.rcParams["savefig.bbox"] = "tight"
+    plt.rcParams["savefig.pad_inches"] = 0.05
+
+    plt.rcParams["xtick.direction"] = "in"
+    plt.rcParams["ytick.direction"] = "in"
+    plt.rcParams["xtick.top"] = True
+    plt.rcParams["ytick.right"] = True
+    plt.rcParams["xtick.minor.visible"] = True
+    plt.rcParams["ytick.minor.visible"] = True
+
+    plt.rcParams["xtick.major.size"] = 3
+    plt.rcParams["ytick.major.size"] = 3
+    plt.rcParams["xtick.minor.size"] = 1.5
+    plt.rcParams["ytick.minor.size"] = 1.5
+
+    plt.rcParams["axes.linewidth"] = 0.5
+    plt.rcParams["grid.linewidth"] = 0.5
+    plt.rcParams["lines.linewidth"] = 1.0
+    plt.rcParams["legend.frameon"] = False
+
+    return colors
+```
+
+然后你在真正画图的脚本里直接调用它：
+
+```python
+import matplotlib.pyplot as plt
+from plot_params import get_plot_params
+
+colors = get_plot_params()
+
+fig, ax = plt.subplots()
+ax.plot(x, y, color=colors[0], label="example")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.legend()
+plt.savefig("test.png")
+```
+
+这件事看起来只是把参数挪了个地方，但长期看非常值。因为你会逐渐从“这次把图调对”转到“建立一套我以后一直能复用的作图习惯”。
+
+再往前一点，当你开始画多面板图时，`matplotlib.gridspec` 也会很有用。
+
+很多时候 `plt.subplots(2, 2)` 已经够了。但如果你想让不同子图大小不一样，或者想做一个上面宽、下面窄，左边大、右边小的版式，这时 `gridspec` 会比普通的 `subplots` 更灵活。
+
+最简单的例子大概是这样：
+
+```python
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from plot_params import get_plot_params
+
+colors = get_plot_params()
+
+fig = plt.figure(figsize=(6, 4))
+gs = gridspec.GridSpec(2, 2, figure=fig)
+
+ax1 = fig.add_subplot(gs[0, :])   # 第一行整行
+ax2 = fig.add_subplot(gs[1, 0])   # 第二行左侧
+ax3 = fig.add_subplot(gs[1, 1])   # 第二行右侧
+
+ax1.plot(x1, y1, color=colors[0])
+ax2.scatter(x2, y2, color=colors[1])
+ax3.hist(data, color=colors[2])
+
+plt.savefig("multi_panel.png")
+```
+
+它的好处不是“语法更高级”，而是当你真的开始排版论文图时，会发现很多图不是规则网格，而是需要你自己安排结构。`gridspec` 就是在帮你处理这种事情。
+
+所以如果只给一个比较实用的建议，我会说：
+
+- 一开始先学会用 `matplotlib` 正常出图
+- 接着尽快整理一个自己的 `plot_params.py`
+- 多面板图变复杂之后，再学 `gridspec`
+
+这样路线会比较自然，也比较符合科研里真正会遇到的需求。
+
+## 一个更像科研里的例子
+
+如果你已经看过 [`blog/matplotlib`](/Users/migie/workplace/migie_site/app/blog/matplotlib/page.mdx)，会发现那篇里用了一个比较典型的例子：画 `DOS` 图。
+
+我觉得那个例子真正值得学的，不是某一行具体命令，而是它背后的组织方式。
+
+科研里很多图其实都是这样：你不是只画一张图，而是画一组很相似的图。数据文件不同，但整体结构、坐标范围、颜色逻辑、图例位置、排版方式都应该尽量一致。
+
+这时候，一个很自然的做法就是先把“单张图怎么画”封装成函数，比如：
+
+```python
+def plot(ax, n):
+    data = np.loadtxt(f"{n}_out.dat")
+    ax.plot(data[:, 0], data[:, 1])
+    ax.axvline(x=0, color="gray", linestyle="--", alpha=0.6)
+    ax.set_xlim(-3, 3)
+    ax.set_ylim(-2, 2)
+    ax.text(0.95, 0.95, f"{n}", transform=ax.transAxes, ha="right", va="top")
+```
+
+然后在多面板图里反复调用它：
+
+```python
+fig, axes = plt.subplots(nrows=4, ncols=1, figsize=(5, 10))
+
+for ax, n in zip(axes, [3, 4, 5, 6]):
+    plot(ax, n)
+
+plt.subplots_adjust(hspace=0.0)
+plt.savefig("dos_merge.pdf")
+```
+
+这个思路很重要。因为你真正积累下来的不是某一张图，而是一种可复用的画图方式：
+
+- 单张图的逻辑先写成函数
+- 风格参数尽量统一放在 `plot_params.py`
+- 多张图只是循环调用，不要重复手调
+- 多面板排版最后再统一处理间距、标号和图例
+
+这样做的好处是，图不但更整齐，而且后续修改会非常轻松。你想改字体、改颜色、改坐标范围、改子图布局，都不用重新从头点一遍。
+
+所以如果你想更进一步，我会建议你把 blog 里那篇 `DOS` 例子当成一个完整练习：不要只看它“怎么把线画出来”，而是重点体会它怎么把一类图整理成一个可以复用的脚本。

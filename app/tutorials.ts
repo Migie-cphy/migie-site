@@ -107,14 +107,8 @@ export const TUTORIAL_PHASES: Array<{
     description: '围绕科研中常用的软件工具、计算环境和配套工作流组织内容。',
     topics: [
       {
-        slug: '02-research-tools/01-preface',
-        title: '2.1 前言',
-        summary: '先建立这一章在讲什么、为什么这些配套工具值得尽早知道。',
-        phase: 'Phase 2 · 科研工具',
-      },
-      {
-        slug: '02-research-tools/02-tools',
-        title: '2.2 常用工具',
+        slug: '02-research-tools/01-tools',
+        title: '2.1 常用工具',
         summary: '整理科研里常会用到的编辑器、下载工具、远程工具和效率软件。',
         phase: 'Phase 2 · 科研工具',
         relatedPosts: [
@@ -123,8 +117,8 @@ export const TUTORIAL_PHASES: Array<{
         ],
       },
       {
-        slug: '02-research-tools/03-scientific-illustration',
-        title: '2.3 科研绘图与 matplotlib',
+        slug: '02-research-tools/02-scientific-illustration',
+        title: '2.2 科研绘图与 matplotlib',
         summary: '聚焦科研里最常见的折线图、散点图、多面板图和出图习惯。',
         phase: 'Phase 2 · 科研工具',
         relatedPosts: [
@@ -132,8 +126,8 @@ export const TUTORIAL_PHASES: Array<{
         ],
       },
       {
-        slug: '02-research-tools/04-scientific-writting',
-        title: '2.4 科研写作与 LaTeX',
+        slug: '02-research-tools/03-scientific-writting',
+        title: '2.3 科研写作与 LaTeX',
         summary: '先建立论文写作、公式排版、文献管理和协作修改的最小直觉。',
         phase: 'Phase 2 · 科研工具',
       },
