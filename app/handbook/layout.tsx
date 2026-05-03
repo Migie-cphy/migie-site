@@ -10,14 +10,14 @@ export default function HandbookLayout({
 }) {
   return (
     <>
-      <div className="pointer-events-none fixed top-14 left-0 z-10 h-12 w-full bg-gray-100 to-transparent backdrop-blur-xl [-webkit-mask-image:linear-gradient(to_bottom,black,transparent)] dark:bg-zinc-950" />
+      <div className="pointer-events-none fixed top-12 left-0 z-10 h-12 w-full bg-gray-100 to-transparent backdrop-blur-xl [-webkit-mask-image:linear-gradient(to_bottom,black,transparent)] dark:bg-zinc-950" />
       <ScrollProgress
-        className="fixed top-14 z-40 h-0.5 bg-gray-300 dark:bg-zinc-600"
+        className="fixed top-12 z-[60] h-0.5 bg-gray-300 dark:bg-zinc-600"
         springOptions={{
           bounce: 0,
         }}
       />
-      <div className="mt-24 pb-20 md:grid md:grid-cols-[200px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)] xl:gap-10">
+      <div className="mt-8 pb-8 md:grid md:grid-cols-[200px_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)] xl:gap-10">
         <HandbookSidebar />
         <main id="top">
           <article

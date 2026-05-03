@@ -17,14 +17,14 @@ export default function LayoutBlogPost({
 
   return (
     <>
-      <div className="pointer-events-none fixed top-14 left-0 z-10 h-12 w-full bg-gray-100 to-transparent backdrop-blur-xl [-webkit-mask-image:linear-gradient(to_bottom,black,transparent)] dark:bg-zinc-950" />
+      <div className="pointer-events-none fixed top-12 left-0 z-10 h-12 w-full bg-gray-100 to-transparent backdrop-blur-xl [-webkit-mask-image:linear-gradient(to_bottom,black,transparent)] dark:bg-zinc-950" />
       <ScrollProgress
-        className="fixed top-14 z-40 h-0.5 bg-gray-300 dark:bg-zinc-600"
+        className="fixed top-12 z-[60] h-0.5 bg-gray-300 dark:bg-zinc-600"
         springOptions={{
           bounce: 0,
         }}
       />
-      <div className="mt-24 pb-20 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_240px] xl:gap-12">
+      <div className="mt-8 pb-8 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,1fr)_240px] xl:gap-12">
         <main id="top">
           <article
             data-blog-article

@@ -16,7 +16,8 @@ const NAV_ITEMS = [
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 -mx-2 mb-6 flex items-center justify-between gap-2 border-b border-zinc-200/70 bg-white/85 px-2 py-3 backdrop-blur dark:border-zinc-800/70 dark:bg-zinc-950/85">
+    <header className="fixed top-0 right-0 left-0 z-50 border-b border-zinc-200/70 bg-white/85 backdrop-blur dark:border-zinc-800/70 dark:bg-zinc-950/85">
+      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-6 py-3">
       <div>
         <Link href="/" className="font-medium text-black dark:text-white">
           王美洁
@@ -34,6 +35,7 @@ export function Header() {
           </Link>
         ))}
       </nav>
+      </div>
     </header>
   )
 }
