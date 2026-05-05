@@ -68,7 +68,7 @@ export const PROJECTS: Project[] = [
     slug: 'ocp-catalyst-screening',
     name: 'OCP/SiTM 晶体表面高潜力筛选',
     description:
-      '基于 Open Catalyst Project 的高通量筛选流程，面向 SiTM 晶体表面候选构建“预训练势 + DFT 精修”工作流，作为硕博曲率研究主线的工程化延伸。',
+      '基于 Open Catalyst Project 的高通量筛选流程，面向 SiTM 晶体表面候选构建“预训练势 + DFT 精修”工作流。',
     link: '/projects/ocp-catalyst-screening',
     id: 'project1',
     start: '2024.09',
@@ -90,7 +90,7 @@ export const PROJECTS: Project[] = [
     slug: 'physics-descriptor-screening',
     name: '曲率调控与电子结构耦合驱动的 CO2 电还原催化机理及可预测设计研究',
     description:
-      '研究路径从 SiFe 双原子位点增强 CO2 活化出发，逐步推进到过渡金属与配位环境系统筛选、单轴曲率调控，再到完备曲率理论框架，形成 4 篇一作论文（含 JACS 在审稿件）。',
+      '研究路径从 SiFe 双原子位点增强 CO2 活化出发，逐步推进到过渡金属与配位环境系统筛选、单轴曲率调控，再到完备曲率理论框架。',
     link: '/projects/physics-descriptor-screening',
     id: 'project2',
     start: '2022.09',
@@ -105,7 +105,7 @@ export const PROJECTS: Project[] = [
       '完成核心机理分析、模型验证与论文写作，形成连续一作成果链。',
     ],
     result:
-      '已形成 4 篇一作成果（3 篇已发表，1 篇 JACS 在审），并沉淀出可迁移的 AI4S 催化建模范式；当前 OCP/SiTM 表面高通量筛选即为该主线的工程化延伸。',
+      '已形成 4 篇一作成果，并沉淀出可迁移的 AI4S 催化建模范式；当前 OCP/SiTM 表面高通量筛选即为该主线的工程化延伸。',
     researchPath: [
       '阶段 1：SiFe-DAC 设计与 CO2 活化机理确认（双原子协同位点）。',
       '阶段 2：扩展到 SiTM 与配位环境，引入 GBR 做候选筛选与规律提炼。',

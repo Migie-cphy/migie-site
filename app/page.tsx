@@ -126,21 +126,17 @@ export default function Personal() {
               王美洁
             </h1>
             <p className="mt-2 text-xl text-zinc-600 dark:text-zinc-400">
-              Deep Principle ｜ AI4S 算法工程师（实习）
+              Deep Principle | AI4S 算法工程师（实习）
             </p>
 
             <div className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 [&_p]:mb-4 [&_p:last-child]:mb-0">
               <p>
-                厦门大学凝聚态物理博士生（博二在读），目前研究聚焦 AI for
-                Science，围绕原子尺度体系的性质预测与模拟，构建数据驱动的建模与分析
-                pipeline。
+                厦门大学凝聚态物理博士生（博二在读），目前在 Deep Principle
+                实习，参与 AI for Science
+                方向研究，围绕原子尺度体系的性质预测与模拟，重点关注分子性质预测中的结构表示及训练范式有效性。
               </p>
               <p>
-                <strong className="font-semibold text-zinc-950 dark:text-zinc-50">
-                  研究方向：
-                </strong>
-                <br /> <strong>Computational Materials & Catalysis</strong>
-                ：基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
+                此前主要基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
                 <a
                   href="https://doi.org/10.1016/j.apsusc.2023.158724"
                   target="_blank"
@@ -168,10 +164,7 @@ export default function Personal() {
                   J. Phys. Chem. Lett. 2026
                 </a>
                 ）。
-                <br /> <strong>AI for Science</strong>
-                ：构建 OCP → DFT 的 Δ-learning 框架，结合 GNN 与 LLM
-                表征，探索低高精度模拟之间的误差修正与泛化能力，逐步形成面向原子尺度体系的建模与预测
-                pipeline。
+                <br /> <strong></strong>
               </p>
             </div>
 

@@ -20,7 +20,7 @@ export function Header() {
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-6 py-3">
         <div>
           <Link href="/" className="font-medium text-black dark:text-white">
-            王美洁
+            Meijie Wang
           </Link>
         </div>
         <nav className="flex items-center gap-5 text-sm text-zinc-600 dark:text-zinc-400">

@@ -17,10 +17,10 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   title: {
-    default: '王美洁 (Meijie Wang)',
-    template: '%s | 王美洁  (Meijie Wang)',
+    default: 'Meijie Wang | Condensed Matter PhD Student',
+    template: '%s | Meijie Wang',
   },
-  description: '王美洁 (Meijie Wang) | AI4S 算法工程师（实习）. ',
+  description: 'Meijie Wang | Condensed Matter PhD Student.',
 }
 
 export default function RootLayout({
