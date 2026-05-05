@@ -8,7 +8,7 @@ export const metadata = {
 ## 1. 用 `ssh` 连接服务器
 
 Windows 用户可以用 PowerShell，或者更推荐直接装 `WSL`。如果你更习惯图形化终端工具，也可以先用 [`Xshell`](https://www.netsarang.com/en/xshell/) 、[`MobaXterm`](https://mobaxterm.mobatek.net/) 这类软件连接服务器。
-macOS/Linux 用户直接打开终端即可。（应该不会有人用 Linux 吧，不会吧，不会吧。）
+macOS/Linux 用户直接打开终端即可。
 
 最常见的连接命令是：
 
@@ -22,18 +22,18 @@ ssh -p port username@hostname # 用指定端口连接远程服务器
 
 回车执行后，一般会提示输入密码。
 
-注意：终端里输入密码时通常不会有任何回显，这是正常的，不是键盘没反应。
+> 终端里输入密码时通常不会有任何回显，这是正常的，不是键盘没反应。
 
 ## 2. 配置 `~/.ssh/config`
 
 如果你经常登录同一台服务器，建议尽早把别名配好。
 
 ```ssh-config
-Host alias                       # 给这台服务器起一个本地别名
-    HostName hostname            # 服务器地址，通常是 IP 或域名
-    User username                # 登录用户名
-    Port port                    # SSH 端口
-    IdentityFile path/to/private/key # 私钥路径
+Host alias                                       # 给这台服务器起一个本地别名
+    HostName hostname                   # 服务器地址，通常是 IP 或域名
+    User username                           # 登录用户名
+    Port port                                   # SSH 端口
+    IdentityFile path/to/private/key    # 私钥路径
 ```
 
 这里的 `alias` 是你自己定义的本地名字。
@@ -50,7 +50,7 @@ ssh alias # 使用别名连接服务器
 - `rsync`
 - `sftp`
 
-通常也都可以直接复用。
+都可以直接复用。
 
 ## 3. 用密钥登录代替密码
 

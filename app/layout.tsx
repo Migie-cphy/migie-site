@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className="bg-white tracking-tight antialiased dark:bg-zinc-950">
+      <body className="overflow-x-hidden bg-white tracking-tight antialiased dark:bg-zinc-950">
         <ThemeProvider
           enableSystem={true}
           attribute="class"
