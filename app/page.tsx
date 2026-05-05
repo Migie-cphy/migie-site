@@ -122,7 +122,7 @@ export default function Personal() {
           </div>
 
           <div className="flex max-w-2xl flex-1 flex-col items-start text-left">
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-950 sm:text-5xl dark:text-zinc-50">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-950 sm:text-4xl dark:text-zinc-50">
               王美洁
             </h1>
             <p className="mt-2 text-xl text-zinc-600 dark:text-zinc-400">

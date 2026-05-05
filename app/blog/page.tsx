@@ -4,7 +4,7 @@ import { ChevronRightIcon } from 'lucide-react'
 import { BLOG_POSTS } from '../data'
 
 export const metadata: Metadata = {
-  title: '博客归档',
+  title: '博客',
   description: '自由文章、工具记录与单点经验归档。',
 }
 
@@ -60,25 +60,9 @@ export default function BlogIndexPage() {
   return (
     <main className="space-y-8 pb-8">
       <section className="space-y-4">
-        <p className="text-sm text-zinc-500 dark:text-zinc-500">Archive</p>
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-          博客归档
+          博客
         </h1>
-        <p className="max-w-3xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-          这里保留自由文章、工具记录和单点经验。体系化学习路径已经迁到手册。
-        </p>
-        <Link
-          href="/handbook"
-          className="block max-w-3xl rounded-2xl border border-zinc-200/80 bg-zinc-50/80 px-5 py-4 text-sm leading-relaxed text-zinc-600 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400 dark:hover:border-zinc-700"
-        >
-          <h2 className="text-base font-medium text-zinc-950 dark:text-zinc-50">
-            手册
-          </h2>
-          <p className="mt-1">
-            如果你想按阶段系统学习
-            Linux、DFT、机器学习和科研工作流，可以从这里进入。
-          </p>
-        </Link>
       </section>
 
       <section className="space-y-3">
