@@ -230,6 +230,13 @@ export const EXPERIENCE: Experience[] = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: 'SISSO 与 pysisso',
+    description: '从 SISSO 本体、传统使用方式，到 pysisso 这个 Python 包装层',
+    link: '/blog/sisso',
+    uid: 'blog-sisso',
+    category: 'AI4S',
+  },
+  {
     title: 'JDFTx 电化学计算指南',
     description: 'Brillouin zone、溶剂化模型、恒电位计算详解',
     link: '/blog/jdftx',
