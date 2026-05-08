@@ -24,6 +24,24 @@ const FEATURED_PUBLICATIONS = PUBLICATIONS.filter(
 
 const FEATURED_BLOG_POSTS = BLOG_POSTS.slice(0, 5)
 
+const HANDBOOK_HIGHLIGHTS = [
+  {
+    title: 'Linux 和终端',
+    description: '命令行基础、文件操作、日志查看与远程服务器使用。',
+    href: '/handbook/01-linux-terminal/01-command-line',
+  },
+  {
+    title: '科研工具',
+    description: '科研写作、绘图，以及日常会反复用到的软件工具。',
+    href: '/handbook/02-research-tools/01-tools',
+  },
+  {
+    title: 'DFT 与电化学计算',
+    description: 'DFT 基础、结构可视化工具，以及恒电势相关方法。',
+    href: '/handbook/03-dft/01-dft-basics',
+  },
+] as const
+
 const VARIANTS_CONTAINER = {
   hidden: { opacity: 0 },
   visible: {
@@ -327,6 +345,36 @@ export default function Personal() {
               />
             </svg>
           </Link>
+        </div>
+      </motion.section>
+
+      {/* Handbook */}
+      <motion.section
+        variants={VARIANTS_SECTION}
+        transition={TRANSITION_SECTION}
+      >
+        <div className="mb-4 space-y-2">
+          <h3 className="text-lg font-medium">Handbook</h3>
+          <p className="max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            面向组内新人的结构化手册，整理 Linux、科研工具和 DFT
+            工作流中最常用的内容。
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {HANDBOOK_HIGHLIGHTS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-2xl border border-zinc-200/80 bg-zinc-50 px-4 py-4 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
+            >
+              <h4 className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
+                {item.title}
+              </h4>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                {item.description}
+              </p>
+            </Link>
+          ))}
         </div>
       </motion.section>
 
