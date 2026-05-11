@@ -144,7 +144,7 @@ export default function Personal() {
               王美洁
             </h1>
             <p className="mt-2 text-xl text-zinc-600 dark:text-zinc-400">
-              Deep Principle | AI4S 算法工程师（实习）
+              Deep Principle | AI4S 算法实习生
             </p>
 
             <div className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 [&_p]:mb-4 [&_p:last-child]:mb-0">
