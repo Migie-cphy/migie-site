@@ -16,7 +16,7 @@ type Project = {
     title: string
     venue: string
     year: number
-    status: 'Published' | 'Under Review'
+    status: 'Published' | 'Accepted' | 'Under Review'
     doi?: string
     pdf: string
     takeaway: string
@@ -60,6 +60,7 @@ type Publication = {
   pages?: string
   doi?: string
   pdf?: string
+  link?: string
   group: 'first_author' | 'co_author'
 }
 
@@ -110,7 +111,7 @@ export const PROJECTS: Project[] = [
       '阶段 1：SiFe-DAC 设计与 CO2 活化机理确认（双原子协同位点）。',
       '阶段 2：扩展到 SiTM 与配位环境，引入 GBR 做候选筛选与规律提炼。',
       '阶段 3：引入单轴曲率调控，建立曲率-活性响应关系。',
-      '阶段 4：发展完备曲率框架，构建可解释几何描述符并形成 JACS 在审稿件。',
+      '阶段 4：发展完备曲率框架，构建可解释几何描述符，成果已被 ACS Catal. 接收。',
       '阶段 5（延伸）：OCP/SiTM 晶体表面高潜力筛选与工程化工作流。',
     ],
     ai4sHighlights: [
@@ -122,9 +123,9 @@ export const PROJECTS: Project[] = [
       {
         title:
           'A Geometric-Electronic Principle for Curvature-Driven Catalysis',
-        venue: 'J. Am. Chem. Soc.',
+        venue: 'ACS Catal.',
         year: 2026,
-        status: 'Under Review',
+        status: 'Accepted',
         pdf: '/paper/manuscript.pdf',
         takeaway:
           '面向任意各向异性形貌提出统一曲率定量框架，以几何描述符 phi 打通几何-力学-电子-活性因果链。',
@@ -164,7 +165,7 @@ export const PROJECTS: Project[] = [
       },
     ],
     relatedLinks: [
-      { label: 'JACS（在审）manuscript', href: '/paper/manuscript.pdf' },
+      { label: 'ACS Catal.（已接收）manuscript', href: '/paper/manuscript.pdf' },
       {
         label: 'J. Phys. Chem. Lett. 2026',
         href: '/paper/curvature-engineering.pdf',
@@ -349,9 +350,9 @@ export const PUBLICATIONS: Publication[] = [
     title: 'A geometric-electronic principle for curvature-driven catalysis',
     authors:
       '**Meijie Wang**, Yuxing Lin, Zhulin Huang, Yang Sun, Zi-zhong Zhu, Shunqing Wu, Xinrui Cao',
-    journal: 'J. Am. Chem. Soc.',
+    journal: 'ACS Catal.',
     year: 2026,
-    pages: 'In Peer Review',
+    pages: 'Accepted, In Press',
     group: 'first_author',
   },
   {
@@ -480,6 +481,16 @@ export const PUBLICATIONS: Publication[] = [
     pages: '104406',
     doi: '10.1103/PhysRevB.111.104406',
     pdf: 'Room_temperature.pdf',
+    group: 'co_author',
+  },
+  {
+    order: 7,
+    title:
+      'Materials Property Axiom: Adapting Foundation Models to Experimental Property Prediction via Multi-phase Training',
+    authors: 'Deep Principle Team and SciClaw',
+    journal: 'Technical Report · Deep Principle',
+    year: 2026,
+    link: 'https://www.deepprinciple.com/papers/mpa.pdf',
     group: 'co_author',
   },
 ]

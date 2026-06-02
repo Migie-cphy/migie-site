@@ -22,6 +22,7 @@ function PublicationCard({
   volume,
   pages,
   doi,
+  link,
 }: (typeof PUBLICATIONS)[number]) {
   return (
     <article className="rounded-2xl border border-zinc-200/80 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
@@ -46,6 +47,20 @@ function PublicationCard({
               className="underline underline-offset-4 transition-colors hover:text-zinc-950 dark:hover:text-zinc-100"
             >
               DOI
+            </a>
+          </>
+        ) : null}
+        {link ? (
+          <>
+            {' '}
+            ·{' '}
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4 transition-colors hover:text-zinc-950 dark:hover:text-zinc-100"
+            >
+              技术报告
             </a>
           </>
         ) : null}

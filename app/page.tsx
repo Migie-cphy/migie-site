@@ -149,9 +149,18 @@ export default function Personal() {
 
             <div className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 [&_p]:mb-4 [&_p:last-child]:mb-0">
               <p>
-                厦门大学凝聚态物理博士生（博二在读），目前在 Deep Principle
-                实习，参与 AI for Science
-                方向研究，围绕原子尺度体系的性质预测与模拟，重点关注分子性质预测中的结构表示及训练范式有效性。
+                厦门大学凝聚态物理博士生（博二在读），现于 Deep Principle 从事
+                AI for Science 方向研究。近期聚焦材料性质预测基础模型（
+                <a
+                  href="https://www.deepprinciple.com/papers/mpa.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                >
+                  MPA
+                </a>
+                ）的研发，负责训练与评测基础设施建设、Mid-training 与
+                Post-training 流程开发，以及大规模模型训练和实验评估工作。
               </p>
               <p>
                 此前主要基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
@@ -181,7 +190,7 @@ export default function Personal() {
                 >
                   J. Phys. Chem. Lett. 2026
                 </a>
-                ）。
+                , ACS Catal. 2026）。
                 <br /> <strong></strong>
               </p>
             </div>

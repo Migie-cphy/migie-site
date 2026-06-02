@@ -139,7 +139,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                     className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs ${
                       paper.status === 'Under Review'
                         ? 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300'
-                        : 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300'
+                        : paper.status === 'Accepted'
+                          ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
+                          : 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300'
                     }`}
                   >
                     {paper.status}
