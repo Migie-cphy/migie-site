@@ -165,7 +165,10 @@ export const PROJECTS: Project[] = [
       },
     ],
     relatedLinks: [
-      { label: 'ACS Catal.（已接收）manuscript', href: '/paper/manuscript.pdf' },
+      {
+        label: 'ACS Catal.（已接收）manuscript',
+        href: '/paper/manuscript.pdf',
+      },
       {
         label: 'J. Phys. Chem. Lett. 2026',
         href: '/paper/curvature-engineering.pdf',
