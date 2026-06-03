@@ -1,30 +1,10 @@
-type Project = {
-  slug: string
-  name: string
-  description: string
-  link: string
-  id: string
+type Education = {
+  organization: string
+  degree: string
   start: string
   end: string
-  problem: string
-  method: string
-  contribution: string[]
-  result: string
-  researchPath?: string[]
-  ai4sHighlights?: string[]
-  publicationItems?: Array<{
-    title: string
-    venue: string
-    year: number
-    status: 'Published' | 'Accepted' | 'Under Review'
-    doi?: string
-    pdf: string
-    takeaway: string
-  }>
-  relatedLinks?: Array<{
-    label: string
-    href: string
-  }>
+  link: string
+  id: string
 }
 
 type Experience = {
@@ -34,6 +14,7 @@ type Experience = {
   end: string
   link: string
   id: string
+  bullets: string[]
 }
 
 type BlogPost = {
@@ -64,144 +45,22 @@ type Publication = {
   group: 'first_author' | 'co_author'
 }
 
-export const PROJECTS: Project[] = [
+export const EDUCATION: Education[] = [
   {
-    slug: 'ocp-catalyst-screening',
-    name: 'OCP/SiTM 晶体表面高潜力筛选',
-    description:
-      '基于 Open Catalyst Project 的高通量筛选流程，面向 SiTM 晶体表面候选构建“预训练势 + DFT 精修”工作流。',
-    link: '/projects/ocp-catalyst-screening',
-    id: 'project1',
-    start: '2024.09',
-    end: '至今',
-    problem:
-      'SiTM 晶体表面候选规模大，若完全依赖 DFT 弛豫将导致筛选效率和迭代速度受限。',
-    method:
-      '构建 OCP 势函数预优化 + DFT 精修双阶段流程，先用 EquiformerV2 做粗筛，再对候选结构做高精度计算。',
-    contribution: [
-      '实现候选结构的批量预优化脚本与失败任务重试流程。',
-      '建立从预优化结果到 DFT 输入文件的自动转换接口。',
-      '将关键指标统一为可追踪表格，便于后续模型训练、实验对比与候选回溯。',
-    ],
-    result:
-      '显著减少大规模候选体系进入 DFT 精修前的无效计算，提升筛选流程吞吐量与可复现性。',
-    relatedLinks: [{ label: 'CHGNet 结构预优化', href: '/blog/chgnet' }],
-  },
-  {
-    slug: 'physics-descriptor-screening',
-    name: '曲率调控与电子结构耦合驱动的 CO2 电还原催化机理及可预测设计研究',
-    description:
-      '研究路径从 SiFe 双原子位点增强 CO2 活化出发，逐步推进到过渡金属与配位环境系统筛选、单轴曲率调控，再到完备曲率理论框架。',
-    link: '/projects/physics-descriptor-screening',
-    id: 'project2',
+    organization: '厦门大学',
+    degree: '凝聚态物理 · 硕博连读',
     start: '2022.09',
-    end: '至今',
-    problem:
-      'CO2RR 中活性来源同时受元素组合、配位环境与曲率形貌耦合影响，传统单一经验描述符难以统一解释与预测。',
-    method:
-      '以 DFT 与常电位自由能计算为底座，结合 GBR/SISSO 等可解释建模方法，构建“元素-配位-曲率-电子结构-活性”递进式描述符框架。',
-    contribution: [
-      '主导从 SiFe-DAC 机制验证到广义 SiTM 配位筛选的连续研究设计与计算实施。',
-      '主导曲率调控研究从单轴场景扩展到完备曲率描述，建立可解释的几何-电子-活性关联。',
-      '完成核心机理分析、模型验证与论文写作，形成连续一作成果链。',
-    ],
-    result:
-      '已形成 4 篇一作成果，并沉淀出可迁移的 AI4S 催化建模范式；当前 OCP/SiTM 表面高通量筛选即为该主线的工程化延伸。',
-    researchPath: [
-      '阶段 1：SiFe-DAC 设计与 CO2 活化机理确认（双原子协同位点）。',
-      '阶段 2：扩展到 SiTM 与配位环境，引入 GBR 做候选筛选与规律提炼。',
-      '阶段 3：引入单轴曲率调控，建立曲率-活性响应关系。',
-      '阶段 4：发展完备曲率框架，构建可解释几何描述符，成果已被 ACS Catal. 接收。',
-      '阶段 5（延伸）：OCP/SiTM 晶体表面高潜力筛选与工程化工作流。',
-    ],
-    ai4sHighlights: [
-      '以科学问题分阶段建模，不是单次拟合，而是从机理到筛选到理论闭环的连续推进。',
-      '融合 DFT、电子结构特征与可解释 ML（GBR/SISSO），强调可解释与可迁移。',
-      '既有科研深度（机制与理论）也有工程化落地（OCP 高通量筛选流程）。',
-    ],
-    publicationItems: [
-      {
-        title:
-          'A Geometric-Electronic Principle for Curvature-Driven Catalysis',
-        venue: 'ACS Catal.',
-        year: 2026,
-        status: 'Accepted',
-        pdf: '/paper/manuscript.pdf',
-        takeaway:
-          '面向任意各向异性形貌提出统一曲率定量框架，以几何描述符 phi 打通几何-力学-电子-活性因果链。',
-      },
-      {
-        title:
-          'Curvature Engineering of SiFe Dual-Atom Catalysts for Enhanced CO2 Electroreduction',
-        venue: 'J. Phys. Chem. Lett.',
-        year: 2026,
-        status: 'Published',
-        doi: '10.1021/acs.jpclett.5c03896',
-        pdf: '/paper/curvature-engineering.pdf',
-        takeaway:
-          '证明曲率是独立有效的调控旋钮，揭示倒火山型曲率-活性关系，并给出可解释描述符（R2 = 0.92）。',
-      },
-      {
-        title:
-          'p-d Orbital Coupling in Silicon-Based Dual-Atom Catalysts for Enhanced CO2 Reduction',
-        venue: 'J. Mater. Chem. A',
-        year: 2024,
-        status: 'Published',
-        doi: '10.1039/D4TA06642A',
-        pdf: '/paper/p_d_orbital.pdf',
-        takeaway:
-          '系统筛选 27 + 336 个候选，建立 p-d 耦合与配位环境协同机制，突破仅靠 d-d 协同的设计局限。',
-      },
-      {
-        title:
-          'SiFeN6-Graphene: A Promising Dual-Atom Catalyst for Enhanced CO2-to-CH4 Conversion',
-        venue: 'Appl. Surf. Sci.',
-        year: 2024,
-        status: 'Published',
-        doi: '10.1016/j.apsusc.2023.158724',
-        pdf: '/paper/SiFeN6_graphene.pdf',
-        takeaway:
-          '验证 Si-Fe 异核位点可同时增强 CO2 活化并优化关键中间体吸附，给出 CO2 到 CH4 的可行反应路径。',
-      },
-    ],
-    relatedLinks: [
-      {
-        label: 'ACS Catal.（已接收）manuscript',
-        href: '/paper/manuscript.pdf',
-      },
-      {
-        label: 'J. Phys. Chem. Lett. 2026',
-        href: '/paper/curvature-engineering.pdf',
-      },
-      { label: 'J. Mater. Chem. A 2024', href: '/paper/p_d_orbital.pdf' },
-      { label: 'Appl. Surf. Sci. 2024', href: '/paper/SiFeN6_graphene.pdf' },
-    ],
+    end: '2028.06（预计）',
+    link: 'https://www.xmu.edu.cn',
+    id: 'edu1',
   },
   {
-    slug: 'liquid-spectrum-recognition',
-    name: '神经网络液体光谱识别',
-    description: '基于吸收光谱与神经网络实现液体种类判别，并获得发明专利。',
-    link: '/projects/liquid-spectrum-recognition',
-    id: 'project3',
-    start: '2020.05',
-    end: '2020.11',
-    problem:
-      '面向低成本场景，验证是否可以用简化硬件与神经网络实现可用的液体种类识别，而不只是“是否安全”的二分类判断。',
-    method:
-      '以 Arduino 控制多波长 LED 采集液体透射光电压特征，在树莓派端用 Python 构建并训练神经网络进行分类识别。',
-    contribution: [
-      '在团队协作中主导完成方案设计、硬件联调、程序实现与测试验证。',
-      '主导实现数据采集流程与神经网络训练/查询逻辑，打通“采集-识别-输出”的完整闭环。',
-      '参与竞赛报告撰写与技术沉淀，并推进获得发明专利。',
-    ],
-    result:
-      '作为本科竞赛 demo，验证了方案可行性；在实验条件下识别正确率约 80%，并支撑发明专利授权。',
-    relatedLinks: [
-      {
-        label: '发明专利：ZL 2021 1 0042048.9',
-        href: 'http://epub.cnipa.gov.cn/cred/CN112729465B',
-      },
-    ],
+    organization: '杭州师范大学',
+    degree: '物理学 · 理学学士',
+    start: '2018.09',
+    end: '2022.06',
+    link: 'https://www.hznu.edu.cn',
+    id: 'edu2',
   },
 ]
 
@@ -213,22 +72,22 @@ export const EXPERIENCE: Experience[] = [
     end: '至今',
     link: 'https://www.deepprinciple.com',
     id: 'exp1',
+    bullets: [
+      '材料基座模型 MPA：将 LLM 式多阶段训练（pre-/mid-/post-training）引入实验性质预测；40 项任务中 35 项达到 SOTA，scaffold（OOD）划分下 MAE 较直接微调降低 14.6%，超越 Uni-Mol2、Suiren、ChemProp。',
+      '负责 mid-training（基于大规模第一性原理数据的物理对齐）与 post-training 全部流程实现，含 Hybrid Readout 读出头（注意力池化 + 原子加和）；搭建训练/评测基础设施、完成全部大规模训练，模型已接入 SciClaw。',
+    ],
   },
   {
     organization: '厦门大学',
-    title: '凝聚态物理 · 硕博连读',
+    title: '博士课题',
     start: '2022.09',
     end: '至今',
     link: 'https://www.xmu.edu.cn',
     id: 'exp2',
-  },
-  {
-    organization: '杭州师范大学',
-    title: '物理学 · 理学学士',
-    start: '2018.09',
-    end: '2022.06',
-    link: 'https://www.hznu.edu.cn',
-    id: 'exp3',
+    bullets: [
+      '双原子催化剂设计与机理：设计 Si 基双原子催化剂用于 CO₂ 还原，揭示 p–d 轨道耦合机制；用 GBR pipeline 筛选 360+ 候选。（Appl. Surf. Sci. 2024, JMCA 2024）',
+      '曲率驱动催化：确立曲率为独立的活性调控旋钮（倒火山关系，可解释描述符 R² = 0.92），并推广为统一的几何-电子原理。（JPCL 2026, ACS Catal. 2026）',
+    ],
   },
 ]
 

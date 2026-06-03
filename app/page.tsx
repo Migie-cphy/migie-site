@@ -11,7 +11,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import {
-  PROJECTS,
+  EDUCATION,
   EXPERIENCE,
   BLOG_POSTS,
   PUBLICATIONS,
@@ -213,23 +213,21 @@ export default function Personal() {
         </div>
       </motion.section>
 
-      {/* Experience */}
+      {/* Education */}
       <motion.section
-        id="experience"
+        id="education"
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h3 className="mb-5 text-lg font-medium">Experience</h3>
+        <h3 className="mb-5 text-lg font-medium">Education</h3>
         <div className="flex flex-col space-y-2">
-          {EXPERIENCE.map((exp) => (
+          {EDUCATION.map((edu) => (
             <a
               className="relative overflow-hidden rounded-2xl bg-zinc-300/30 p-[1px] dark:bg-zinc-600/30"
-              href={exp.link}
-              target={exp.link.startsWith('http') ? '_blank' : undefined}
-              rel={
-                exp.link.startsWith('http') ? 'noopener noreferrer' : undefined
-              }
-              key={exp.id}
+              href={edu.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              key={edu.id}
             >
               <Spotlight
                 className="from-zinc-900 via-zinc-800 to-zinc-700 blur-2xl dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-50"
@@ -239,14 +237,14 @@ export default function Personal() {
                 <div className="relative flex w-full flex-row justify-between">
                   <div>
                     <h4 className="font-normal dark:text-zinc-100">
-                      {exp.title}
+                      {edu.organization}
                     </h4>
                     <p className="text-zinc-500 dark:text-zinc-400">
-                      {exp.organization}
+                      {edu.degree}
                     </p>
                   </div>
                   <p className="shrink-0 text-sm text-zinc-600 dark:text-zinc-400">
-                    {exp.start} - {exp.end}
+                    {edu.start} - {edu.end}
                   </p>
                 </div>
               </div>
@@ -255,37 +253,51 @@ export default function Personal() {
         </div>
       </motion.section>
 
-      {/* Selected Projects */}
+      {/* Experience */}
       <motion.section
+        id="experience"
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h3 className="mb-5 text-lg font-medium">Selected Projects</h3>
+        <h3 className="mb-5 text-lg font-medium">Experience</h3>
         <div className="flex flex-col space-y-2">
-          {PROJECTS.map((project) => (
-            <Link
-              key={project.id}
-              href={project.link}
+          {EXPERIENCE.map((exp) => (
+            <div
               className="relative overflow-hidden rounded-2xl bg-zinc-300/30 p-[1px] dark:bg-zinc-600/30"
+              key={exp.id}
             >
               <Spotlight
                 className="from-zinc-900 via-zinc-800 to-zinc-700 blur-2xl dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-50"
                 size={64}
               />
               <div className="relative h-full w-full rounded-[15px] bg-white p-4 dark:bg-zinc-950">
-                <div className="flex items-start justify-between gap-3">
-                  <h4 className="font-normal dark:text-zinc-100">
-                    {project.name}
-                  </h4>
+                <div className="relative flex w-full flex-row justify-between gap-3">
+                  <div>
+                    <h4 className="font-normal dark:text-zinc-100">
+                      <a
+                        href={exp.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline"
+                      >
+                        {exp.organization}
+                      </a>
+                    </h4>
+                    <p className="text-zinc-500 dark:text-zinc-400">
+                      {exp.title}
+                    </p>
+                  </div>
                   <p className="shrink-0 text-sm text-zinc-600 dark:text-zinc-400">
-                    {project.start} - {project.end}
+                    {exp.start} - {exp.end}
                   </p>
                 </div>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {project.description}
-                </p>
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  {exp.bullets.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </motion.section>
