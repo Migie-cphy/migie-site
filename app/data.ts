@@ -85,8 +85,8 @@ export const EXPERIENCE: Experience[] = [
     link: 'https://www.xmu.edu.cn',
     id: 'exp2',
     bullets: [
-      '双原子催化剂设计与机理：设计 Si 基双原子催化剂用于 CO₂ 还原，揭示 p–d 轨道耦合机制；用 GBR pipeline 筛选 360+ 候选。（Appl. Surf. Sci. 2024, JMCA 2024）',
-      '曲率驱动催化：确立曲率为独立的活性调控旋钮（倒火山关系，可解释描述符 R² = 0.92），并推广为统一的几何-电子原理。（JPCL 2026, ACS Catal. 2026）',
+      '双原子催化剂设计与机理：设计 Si 基双原子催化剂用于 CO₂ 还原，揭示 p–d 轨道耦合机制；用 GBR pipeline 筛选 360+ 候选。（Appl. Surf. Sci. 2024, J. Mater. Chem. A 2024）',
+      '曲率驱动催化：确立曲率为独立的活性调控旋钮（倒火山关系，可解释描述符 R² = 0.92），并推广为统一的几何-电子原理。（J. Phys. Chem. Lett. 2026, ACS Catal. 2026）',
     ],
   },
 ]
