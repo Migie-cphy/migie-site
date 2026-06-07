@@ -74,7 +74,7 @@ export const EXPERIENCE: Experience[] = [
     id: 'exp1',
     bullets: [
       '材料基座模型 MPA：将 LLM 式多阶段训练（pre-/mid-/post-training）引入实验性质预测；40 项任务中 35 项达到 SOTA，scaffold（OOD）划分下 MAE 较直接微调降低 14.6%，超越 Uni-Mol2、Suiren、ChemProp。',
-      '负责 mid-training（基于大规模第一性原理数据的物理对齐）与 post-training 全部流程实现，含 Hybrid Readout 读出头（注意力池化 + 原子加和）；搭建训练/评测基础设施、完成全部大规模训练，模型已接入 SciClaw。',
+      '负责 mid-training（基于大规模第一性原理数据的物理对齐）与 post-training 全部流程实现，含 Hybrid Readout 读出头（注意力池化 + 原子加和）；搭建训练/评测基础设施、完成全部大规模训练。',
     ],
   },
   {
