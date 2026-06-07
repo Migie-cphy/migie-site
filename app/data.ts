@@ -79,7 +79,7 @@ export const EXPERIENCE: Experience[] = [
   },
   {
     organization: '厦门大学',
-    title: '博士课题',
+    title: '博士研究生',
     start: '2022.09',
     end: '至今',
     link: 'https://www.xmu.edu.cn',
