@@ -202,7 +202,7 @@ export default function Personal() {
                 </MagneticSocialLink>
               ))}
               <Link
-                href="/MeijieWang_CV.pdf"
+                href="/cv_en.pdf"
                 className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-sm text-zinc-50 transition-colors duration-200 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-300"
               >
                 <FontAwesomeIcon icon={faNewspaper} className="h-3.5 w-3.5" />
