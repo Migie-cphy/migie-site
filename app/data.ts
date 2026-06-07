@@ -48,7 +48,7 @@ type Publication = {
 export const EDUCATION: Education[] = [
   {
     organization: '厦门大学',
-    degree: '凝聚态物理 · 硕博连读 · GPA 3.91',
+    degree: '凝聚态物理 · 硕博连读',
     start: '2022.09',
     end: '2028.06（预计）',
     link: 'https://www.xmu.edu.cn',
