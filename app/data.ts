@@ -214,7 +214,7 @@ export const PUBLICATIONS: Publication[] = [
       '**Meijie Wang**, Yuxing Lin, Zhulin Huang, Yang Sun, Zi-zhong Zhu, Shunqing Wu, Xinrui Cao',
     journal: 'ACS Catal.',
     year: 2026,
-    pages: 'Accepted, In Press',
+    pages: 'ASAP',
     doi: '10.1021/acscatal.6c02847',
     group: 'first_author',
   },
