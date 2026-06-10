@@ -215,6 +215,7 @@ export const PUBLICATIONS: Publication[] = [
     journal: 'ACS Catal.',
     year: 2026,
     pages: 'Accepted, In Press',
+    doi: '10.1021/acscatal.6c02847',
     group: 'first_author',
   },
   {
