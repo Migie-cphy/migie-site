@@ -39,7 +39,7 @@ export function Header() {
                 href={item.href}
                 aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
-                className={`inline-flex items-center gap-1.5 p-1 transition-colors duration-200 ${
+                className={`-m-1 inline-flex items-center gap-1.5 p-1 transition-colors duration-200 ${
                   isActive
                     ? 'font-medium text-zinc-950 dark:text-zinc-100'
                     : 'hover:text-zinc-950 dark:hover:text-zinc-100'
