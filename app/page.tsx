@@ -232,7 +232,16 @@ export default function Personal() {
                 >
                   J. Phys. Chem. Lett. 2026
                 </a>
-                , ACS Catal. 2026）。
+                ,{' '}
+                <a
+                  href="https://doi.org/10.1021/acscatal.6c02847"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                >
+                  ACS Catal. 2026
+                </a>
+                ）。
               </p>
             </div>
 
