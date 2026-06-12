@@ -76,7 +76,6 @@ export default function PublicationsPage() {
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
           论文
         </h1>
-        <p className="max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400"></p>
       </section>
 
       <section className="space-y-4">

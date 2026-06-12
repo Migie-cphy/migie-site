@@ -8,8 +8,15 @@ import { RouteScrollTop } from '@/components/ui/route-scroll-top'
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#ffffff',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+  ],
 }
+
+const SITE_TITLE = 'Meijie Wang | AI4S Algorithm Intern'
+const SITE_DESCRIPTION =
+  '王美洁（Meijie Wang）的个人主页：厦门大学凝聚态物理博士生，Deep Principle AI4S 算法实习生，研究方向为材料性质预测基础模型与计算催化。'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://migie.top/'),
@@ -17,10 +24,23 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   title: {
-    default: 'Meijie Wang | AI4S Algorithm Intern',
+    default: SITE_TITLE,
     template: '%s | Meijie Wang',
   },
-  description: 'Meijie Wang | AI4S Algorithm Intern.',
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: 'https://migie.top',
+    siteName: 'Meijie Wang',
+    locale: 'zh_CN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 }
 
 export default function RootLayout({

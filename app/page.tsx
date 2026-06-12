@@ -1,10 +1,12 @@
 'use client'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { faGithub, faOrcid } from '@fortawesome/free-brands-svg-icons'
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons'
-import { faGraduationCap, faNewspaper } from '@fortawesome/free-solid-svg-icons'
-import { motion } from 'motion/react'
+import {
+  ArrowUpRightIcon,
+  FileTextIcon,
+  GithubIcon,
+  GraduationCapIcon,
+  MailIcon,
+} from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
 import { Spotlight } from '@/components/ui/spotlight'
 import { Magnetic } from '@/components/ui/magnetic'
 import Image from 'next/image'
@@ -61,12 +63,50 @@ const TRANSITION_SECTION = {
   duration: 0.3,
 }
 
-const SOCIAL_ICONS: Record<string, IconDefinition> = {
-  GitHub: faGithub,
-  ORCID: faOrcid,
-  Email: faEnvelope,
-  Scholar: faGraduationCap,
-  'Google Scholar': faGraduationCap,
+function OrcidIcon({ className, style }: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 512 512"
+      fill="currentColor"
+      className={className}
+      style={style}
+      aria-hidden="true"
+    >
+      <path d="M294.7 188.2l-45.9 0 0 153.8 47.5 0c67.6 0 83.1-51.3 83.1-76.9 0-41.6-26.5-76.9-84.7-76.9zM256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496zM175.2 368.8l-29.8 0 0-207.5 29.8 0 0 207.5zM160.3 98.5a19.6 19.6 0 1 1 0 39.2 19.6 19.6 0 1 1 0-39.2zM300 369l-81 0 0-207.7 80.6 0c76.7 0 110.4 54.8 110.4 103.9 0 53.3-41.7 103.9-110 103.9z" />
+    </svg>
+  )
+}
+
+function ArrowRightIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+      />
+    </svg>
+  )
+}
+
+const SOCIAL_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string; style?: React.CSSProperties }>
+> = {
+  GitHub: GithubIcon,
+  ORCID: OrcidIcon,
+  Email: MailIcon,
+  Scholar: GraduationCapIcon,
+  'Google Scholar': GraduationCapIcon,
 }
 
 function MagneticSocialLink({
@@ -77,7 +117,7 @@ function MagneticSocialLink({
   link: string
 }) {
   const iconKey = typeof children === 'string' ? children : undefined
-  const icon = iconKey ? SOCIAL_ICONS[iconKey] : undefined
+  const Icon = iconKey ? SOCIAL_ICONS[iconKey] : undefined
   const isBrandIcon = iconKey === 'ORCID'
 
   return (
@@ -90,9 +130,8 @@ function MagneticSocialLink({
         title={iconKey}
         className="group relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-black transition-colors duration-200 hover:bg-zinc-950 hover:text-zinc-50 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
       >
-        {icon ? (
-          <FontAwesomeIcon
-            icon={icon}
+        {Icon ? (
+          <Icon
             className="h-4 w-4 shrink-0"
             style={isBrandIcon ? { color: '#A6CE39' } : undefined}
           />
@@ -103,11 +142,13 @@ function MagneticSocialLink({
 }
 
 export default function Personal() {
+  const prefersReducedMotion = useReducedMotion()
+
   return (
     <motion.main
       className="space-y-16"
       variants={VARIANTS_CONTAINER}
-      initial="hidden"
+      initial={prefersReducedMotion ? false : 'hidden'}
       animate="visible"
     >
       {/* Intro */}
@@ -130,6 +171,7 @@ export default function Personal() {
                 src="/avatar.jpg"
                 alt="王美洁"
                 fill
+                priority
                 sizes="(max-width: 640px) 128px, 144px"
                 className="relative z-10 h-full w-full object-cover"
                 onError={(event) => {
@@ -191,7 +233,6 @@ export default function Personal() {
                   J. Phys. Chem. Lett. 2026
                 </a>
                 , ACS Catal. 2026）。
-                <br /> <strong></strong>
               </p>
             </div>
 
@@ -205,7 +246,7 @@ export default function Personal() {
                 href="/cv_en.pdf"
                 className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-sm text-zinc-50 transition-colors duration-200 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-300"
               >
-                <FontAwesomeIcon icon={faNewspaper} className="h-3.5 w-3.5" />
+                <FileTextIcon className="h-3.5 w-3.5" aria-hidden="true" />
                 Download CV
               </Link>
             </div>
@@ -219,7 +260,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h3 className="mb-5 text-lg font-medium">Education</h3>
+        <h2 className="mb-5 text-lg font-medium">Education</h2>
         <div className="flex flex-col space-y-2">
           {EDUCATION.map((edu) => (
             <a
@@ -236,9 +277,13 @@ export default function Personal() {
               <div className="relative h-full w-full rounded-[15px] bg-white p-4 dark:bg-zinc-950">
                 <div className="relative flex w-full flex-row justify-between">
                   <div>
-                    <h4 className="font-normal dark:text-zinc-100">
+                    <h3 className="inline-flex items-center gap-1 font-normal dark:text-zinc-100">
                       {edu.organization}
-                    </h4>
+                      <ArrowUpRightIcon
+                        className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500"
+                        aria-hidden="true"
+                      />
+                    </h3>
                     <p className="text-zinc-500 dark:text-zinc-400">
                       {edu.degree}
                     </p>
@@ -259,7 +304,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h3 className="mb-5 text-lg font-medium">Experience</h3>
+        <h2 className="mb-5 text-lg font-medium">Experience</h2>
         <div className="flex flex-col space-y-2">
           {EXPERIENCE.map((exp) => (
             <div
@@ -273,7 +318,7 @@ export default function Personal() {
               <div className="relative h-full w-full rounded-[15px] bg-white p-4 dark:bg-zinc-950">
                 <div className="relative flex w-full flex-row justify-between gap-3">
                   <div>
-                    <h4 className="font-normal dark:text-zinc-100">
+                    <h3 className="font-normal dark:text-zinc-100">
                       <a
                         href={exp.link}
                         target="_blank"
@@ -282,7 +327,7 @@ export default function Personal() {
                       >
                         {exp.organization}
                       </a>
-                    </h4>
+                    </h3>
                     <p className="text-zinc-500 dark:text-zinc-400">
                       {exp.title}
                     </p>
@@ -308,16 +353,16 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h3 className="mb-5 text-lg font-medium">Selected Publications</h3>
+        <h2 className="mb-5 text-lg font-medium">Selected Publications</h2>
         <div className="flex flex-col space-y-3">
           {FEATURED_PUBLICATIONS.map((pub, i) => (
             <div
               key={i}
               className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800"
             >
-              <h4 className="text-sm leading-snug font-medium dark:text-zinc-100">
+              <h3 className="text-sm leading-snug font-medium dark:text-zinc-100">
                 {pub.title}
-              </h4>
+              </h3>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 {pub.authors.replace(/\*\*/g, '')}
               </p>
@@ -349,22 +394,7 @@ export default function Personal() {
             className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
           >
             完整论文列表
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 15 15"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
-                fill="currentColor"
-                fillRule="evenodd"
-                clipRule="evenodd"
-              />
-            </svg>
+            <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>
       </motion.section>
@@ -375,7 +405,7 @@ export default function Personal() {
         transition={TRANSITION_SECTION}
       >
         <div className="mb-4 space-y-2">
-          <h3 className="text-lg font-medium">Handbook</h3>
+          <h2 className="text-lg font-medium">Handbook</h2>
           <p className="max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             面向组内新人的结构化手册，整理 Linux、科研工具和 DFT
             工作流中最常用的内容。
@@ -388,9 +418,9 @@ export default function Personal() {
               href={item.href}
               className="rounded-2xl border border-zinc-200/80 bg-zinc-50 px-4 py-4 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
             >
-              <h4 className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
+              <h3 className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
                 {item.title}
-              </h4>
+              </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                 {item.description}
               </p>
@@ -404,7 +434,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h3 className="mb-3 text-lg font-medium">Blog</h3>
+        <h2 className="mb-3 text-lg font-medium">Blog</h2>
         <div className="flex flex-col space-y-2">
           <AnimatedBackground
             enableHover
@@ -423,9 +453,9 @@ export default function Personal() {
                 data-id={post.uid}
               >
                 <div className="flex flex-col space-y-1">
-                  <h4 className="font-normal dark:text-zinc-100">
+                  <h3 className="font-normal dark:text-zinc-100">
                     {post.title}
-                  </h4>
+                  </h3>
                   <p className="text-zinc-500 dark:text-zinc-400">
                     {post.description}
                   </p>
@@ -440,22 +470,7 @@ export default function Personal() {
             className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
           >
             完整博客列表
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 15 15"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
-                fill="currentColor"
-                fillRule="evenodd"
-                clipRule="evenodd"
-              />
-            </svg>
+            <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>
       </motion.section>

@@ -29,9 +29,8 @@
   --sh-jsxliterals: #2563eb;
   --sh-property: #0f766e;
   --sh-entity: #b45309;
-  --font-sans-apple:
-    'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-sans-apple: 'Helvetica Neue', Helvetica, 'PingFang SC',
+    'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
 }
 
 .dark {
@@ -47,6 +46,20 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-zinc-500);
+  outline-offset: 2px;
+}
+
+.dark :focus-visible {
+  outline-color: var(--color-zinc-400);
 }
 
 .font-sans-apple {

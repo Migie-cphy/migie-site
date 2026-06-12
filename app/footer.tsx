@@ -31,7 +31,7 @@ function ThemeSwitch() {
   }, [])
 
   if (!mounted) {
-    return null
+    return <div className="h-7 w-[84px]" aria-hidden="true" />
   }
 
   return (
