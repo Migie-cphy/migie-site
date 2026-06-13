@@ -376,7 +376,7 @@ export const PUBLICATIONS: Publication[] = [
     order: 7,
     title:
       'Materials Property Axiom: Adapting Foundation Models to Experimental Property Prediction via Multi-phase Training',
-    authors: 'Deep Principle Team and SciClaw',
+    authors: 'Deep Principle Team',
     journal: 'Technical Report · Deep Principle',
     year: 2026,
     link: 'https://www.deepprinciple.com/papers/mpa.pdf',
