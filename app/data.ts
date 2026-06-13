@@ -262,6 +262,31 @@ export const PUBLICATIONS: Publication[] = [
     group: 'first_author',
   },
   {
+    order: 9,
+    title:
+      'High-Density Chain-like Fe Atoms in Two-Dimensional α-FeC₄ Enable Synergistic and Strain-Tunable ORR Activity',
+    authors:
+      'Yaowei Xiang, Yuxing Lin, **Meijie Wang**, Zhulin Huang, Shunqing Wu, Xinrui Cao',
+    journal: 'Int. J. Hydrogen Energy',
+    year: 2026,
+    volume: 245,
+    pages: '155698',
+    doi: '10.1016/j.ijhydene.2026.155698',
+    group: 'co_author',
+  },
+  {
+    order: 8,
+    title:
+      'Synergistic surface engineering of BCN catalysts: Boosting NO electroreduction to NH₃ via compositional tuning and electron-rich edge stabilization',
+    authors:
+      'Yaxin Zhao, Yaowei Xiang, **Meijie Wang**, Yuxing Lin, Zi-Zhong Zhu, Shunqing Wu, Xinrui Cao',
+    journal: 'Chin. Chem. Lett.',
+    year: 2026,
+    pages: '112768',
+    doi: '10.1016/j.cclet.2026.112768',
+    group: 'co_author',
+  },
+  {
     order: 6,
     title:
       'MoS2 Grain Boundary-Supported Single-Atom Catalysts for Efficient Electrocatalytic CO2 Conversion to CO',
