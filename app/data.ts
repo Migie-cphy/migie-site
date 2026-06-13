@@ -375,11 +375,11 @@ export const PUBLICATIONS: Publication[] = [
   {
     order: 7,
     title:
-      'Materials Property Axiom: Adapting Foundation Models to Experimental Property Prediction via Multi-phase Training',
+      'Materials Property Axiom: Scaling Foundation Models to Experimental Property Generalists via Multi-phase Training',
     authors: 'Deep Principle Team',
     journal: 'Technical Report · Deep Principle',
     year: 2026,
-    link: 'https://www.deepprinciple.com/papers/mpa.pdf',
+    doi: '10.5281/zenodo.20521216',
     group: 'co_author',
     featured: true,
   },
