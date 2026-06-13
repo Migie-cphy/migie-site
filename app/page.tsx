@@ -21,8 +21,14 @@ import {
 } from './data'
 
 const FEATURED_PUBLICATIONS = PUBLICATIONS.filter(
-  (publication) => publication.group === 'first_author',
-).sort((a, b) => b.order - a.order)
+  (publication) => publication.featured || publication.group === 'first_author',
+).sort((a, b) => {
+  // Featured (non-first-author) items float to the top.
+  const aFeatured = a.featured && a.group !== 'first_author'
+  const bFeatured = b.featured && b.group !== 'first_author'
+  if (aFeatured !== bFeatured) return aFeatured ? -1 : 1
+  return b.order - a.order
+})
 
 const FEATURED_BLOG_POSTS = BLOG_POSTS.slice(0, 5)
 
@@ -390,6 +396,20 @@ export default function Personal() {
                       className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
                     >
                       DOI
+                    </a>
+                  </>
+                )}
+                {pub.link && (
+                  <>
+                    {' '}
+                    ·{' '}
+                    <a
+                      href={pub.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
+                    >
+                      技术报告
                     </a>
                   </>
                 )}

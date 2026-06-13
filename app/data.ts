@@ -43,6 +43,7 @@ type Publication = {
   pdf?: string
   link?: string
   group: 'first_author' | 'co_author'
+  featured?: boolean
 }
 
 export const EDUCATION: Education[] = [
@@ -380,6 +381,7 @@ export const PUBLICATIONS: Publication[] = [
     year: 2026,
     link: 'https://www.deepprinciple.com/papers/mpa.pdf',
     group: 'co_author',
+    featured: true,
   },
 ]
 
