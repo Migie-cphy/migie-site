@@ -61,7 +61,7 @@ export default function RootLayout({
           <LanguageProvider>
             <RouteScrollTop />
             <div className="font-sans-apple">
-              <div className="relative mx-auto w-full max-w-5xl px-6 pt-14">
+              <div className="relative mx-auto w-full max-w-5xl px-6 pt-24">
                 <Header />
                 {children}
                 <Footer />
