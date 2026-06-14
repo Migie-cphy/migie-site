@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import { Header } from './header'
 import { Footer } from './footer'
@@ -69,6 +70,11 @@ export default function RootLayout({
             </div>
           </LanguageProvider>
         </ThemeProvider>
+        <Script
+          data-goatcounter="https://migie.top/stats/count"
+          src="https://migie.top/stats/count.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
