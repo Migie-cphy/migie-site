@@ -11,7 +11,7 @@ export const NAV: { key: string; label: Bilingual }[] = [
 
 export const HOME: Record<string, Bilingual> = {
   subtitle: {
-    en: 'Deep Principle | AI4S Algorithm Intern',
+    en: 'AI4S Algorithm Intern, Deep Principle',
     zh: 'Deep Principle | AI4S 算法实习生',
   },
   education: { en: 'Education', zh: '教育经历' },

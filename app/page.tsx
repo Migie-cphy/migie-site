@@ -185,8 +185,8 @@ export default function Personal() {
                 <>
                   <p>
                     Ph.D. student in Condensed Matter Physics at Xiamen
-                    University (2nd year), currently doing AI for Science
-                    research at Deep Principle. My recent focus is the materials
+                    University, currently working on AI for Science research at
+                    Deep Principle. My recent work focuses on the materials
                     property-prediction foundation model (
                     <a
                       href="https://doi.org/10.5281/zenodo.20521216"
@@ -196,51 +196,17 @@ export default function Personal() {
                     >
                       MPA
                     </a>
-                    ), where I build the training/evaluation infrastructure,
-                    develop the mid-training and post-training pipelines, and
-                    run large-scale model training and evaluation.
+                    ), where I develop large-scale training and evaluation
+                    infrastructure, design the mid-/post-training pipelines, and
+                    support distributed model training, benchmarking, and
+                    iteration.
                   </p>
                   <p>
-                    Earlier, using first-principles calculations (DFT) and
-                    machine learning, I studied the
-                    structure–electronic-structure–activity relationships of
-                    single- and dual-atom catalytic systems (
-                    <a
-                      href="https://doi.org/10.1016/j.apsusc.2023.158724"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                    >
-                      Appl. Surf. Sci. 2024
-                    </a>
-                    ,{' '}
-                    <a
-                      href="https://doi.org/10.1039/D4TA06642A"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                    >
-                      J. Mater. Chem. A 2024
-                    </a>
-                    ,{' '}
-                    <a
-                      href="https://doi.org/10.1021/acs.jpclett.5c03896"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                    >
-                      J. Phys. Chem. Lett. 2026
-                    </a>
-                    ,{' '}
-                    <a
-                      href="https://doi.org/10.1021/acscatal.6c02847"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                    >
-                      ACS Catal. 2026
-                    </a>
-                    ).
+                    My background combines scientific computing and machine
+                    learning for materials science. Previously, I worked on
+                    structure–electronic-structure–activity relationships in
+                    single-atom and dual-atom catalytic systems using DFT and ML
+                    methods.
                   </p>
                 </>
               ) : (
