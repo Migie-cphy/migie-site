@@ -1,20 +1,22 @@
+type Bilingual = { en: string; zh: string }
+
 type Education = {
-  organization: string
-  degree: string
-  start: string
-  end: string
+  organization: Bilingual
+  degree: Bilingual
+  start: Bilingual
+  end: Bilingual
   link: string
   id: string
 }
 
 type Experience = {
-  organization: string
-  title: string
-  start: string
-  end: string
+  organization: Bilingual
+  title: Bilingual
+  start: Bilingual
+  end: Bilingual
   link: string
   id: string
-  bullets: string[]
+  bullets: Bilingual[]
 }
 
 type BlogPost = {
@@ -48,18 +50,21 @@ type Publication = {
 
 export const EDUCATION: Education[] = [
   {
-    organization: '厦门大学',
-    degree: '凝聚态物理 · 硕博连读',
-    start: '2022.09',
-    end: '2028.06（预计）',
+    organization: { en: 'Xiamen University', zh: '厦门大学' },
+    degree: {
+      en: 'Ph.D. in Condensed Matter Physics',
+      zh: '凝聚态物理 · 硕博连读',
+    },
+    start: { en: 'Sep 2022', zh: '2022.09' },
+    end: { en: 'Jun 2028 (Expected)', zh: '2028.06（预计）' },
     link: 'https://www.xmu.edu.cn',
     id: 'edu1',
   },
   {
-    organization: '杭州师范大学',
-    degree: '物理学 · 理学学士',
-    start: '2018.09',
-    end: '2022.06',
+    organization: { en: 'Hangzhou Normal University', zh: '杭州师范大学' },
+    degree: { en: 'B.S. in Physics', zh: '物理学 · 理学学士' },
+    start: { en: 'Sep 2018', zh: '2018.09' },
+    end: { en: 'Jun 2022', zh: '2022.06' },
     link: 'https://www.hznu.edu.cn',
     id: 'edu2',
   },
@@ -67,27 +72,39 @@ export const EDUCATION: Education[] = [
 
 export const EXPERIENCE: Experience[] = [
   {
-    organization: 'Deep Principle',
-    title: 'AI4S 算法实习生',
-    start: '2026.01',
-    end: '至今',
+    organization: { en: 'Deep Principle', zh: 'Deep Principle' },
+    title: { en: 'AI4S Algorithm Intern', zh: 'AI4S 算法实习生' },
+    start: { en: 'Jan 2026', zh: '2026.01' },
+    end: { en: 'Present', zh: '至今' },
     link: 'https://www.deepprinciple.com',
     id: 'exp1',
     bullets: [
-      '材料基座模型 MPA：将 LLM 式多阶段训练（pre-/mid-/post-training）引入实验性质预测；40 项任务中 35 项达到 SOTA，scaffold（OOD）划分下 MAE 较直接微调降低 14.6%，超越 Uni-Mol2、Suiren、ChemProp。',
-      '负责 mid-training（基于大规模第一性原理数据的物理对齐）与 post-training 全部流程实现，含 Hybrid Readout 读出头（注意力池化 + 原子加和）；搭建训练/评测基础设施、完成全部大规模训练。',
+      {
+        en: 'MPA materials foundation model: brought LLM-style multi-phase training (pre-/mid-/post-training) to experimental property prediction — SOTA on 35/40 tasks and 14.6% lower MAE than direct fine-tuning under scaffold (OOD) splits, surpassing Uni-Mol2, Suiren, and ChemProp.',
+        zh: '材料基座模型 MPA：将 LLM 式多阶段训练（pre-/mid-/post-training）引入实验性质预测；40 项任务中 35 项达到 SOTA，scaffold（OOD）划分下 MAE 较直接微调降低 14.6%，超越 Uni-Mol2、Suiren、ChemProp。',
+      },
+      {
+        en: 'Implemented the full mid-training (physics-guided alignment on large-scale first-principles data) and post-training pipelines, including a Hybrid Readout head (attention-pooling + atom-additive); built the training/evaluation infrastructure and ran all large-scale training.',
+        zh: '负责 mid-training（基于大规模第一性原理数据的物理对齐）与 post-training 全部流程实现，含 Hybrid Readout 读出头（注意力池化 + 原子加和）；搭建训练/评测基础设施、完成全部大规模训练。',
+      },
     ],
   },
   {
-    organization: '厦门大学',
-    title: '博士研究生',
-    start: '2022.09',
-    end: '至今',
+    organization: { en: 'Xiamen University', zh: '厦门大学' },
+    title: { en: 'Ph.D. Candidate', zh: '博士研究生' },
+    start: { en: 'Sep 2022', zh: '2022.09' },
+    end: { en: 'Present', zh: '至今' },
     link: 'https://www.xmu.edu.cn',
     id: 'exp2',
     bullets: [
-      '双原子催化剂设计与机理：设计 Si 基双原子催化剂用于 CO₂ 还原（Appl. Surf. Sci. 2024）；揭示 p–d 轨道耦合机制并用 GBR pipeline 筛选 360+ 候选（J. Mater. Chem. A 2024）。',
-      '曲率驱动催化：确立曲率为独立的活性调控旋钮（倒火山关系，可解释描述符；J. Phys. Chem. Lett. 2026），并推广为统一的几何-电子原理（ACS Catal. 2026）。',
+      {
+        en: 'Dual-atom catalyst design & mechanism: designed Si-based dual-atom catalysts for CO₂ reduction (Appl. Surf. Sci. 2024); uncovered the p–d orbital-coupling mechanism and screened 360+ candidates with a GBR pipeline (J. Mater. Chem. A 2024).',
+        zh: '双原子催化剂设计与机理：设计 Si 基双原子催化剂用于 CO₂ 还原（Appl. Surf. Sci. 2024）；揭示 p–d 轨道耦合机制并用 GBR pipeline 筛选 360+ 候选（J. Mater. Chem. A 2024）。',
+      },
+      {
+        en: 'Curvature-driven catalysis: established curvature as an independent activity knob (inverted-volcano relation, interpretable descriptor; J. Phys. Chem. Lett. 2026) and generalized it into a unified geometric-electronic principle (ACS Catal. 2026).',
+        zh: '曲率驱动催化：确立曲率为独立的活性调控旋钮（倒火山关系，可解释描述符；J. Phys. Chem. Lett. 2026），并推广为统一的几何-电子原理（ACS Catal. 2026）。',
+      },
     ],
   },
 ]

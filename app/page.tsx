@@ -19,6 +19,8 @@ import {
   PUBLICATIONS,
   SOCIAL_LINKS,
 } from './data'
+import { HOME, HANDBOOK_HIGHLIGHTS, t } from './i18n'
+import { useLanguage } from './language-provider'
 
 const FEATURED_PUBLICATIONS = PUBLICATIONS.filter(
   (publication) => publication.featured || publication.group === 'first_author',
@@ -31,24 +33,6 @@ const FEATURED_PUBLICATIONS = PUBLICATIONS.filter(
 })
 
 const FEATURED_BLOG_POSTS = BLOG_POSTS.slice(0, 5)
-
-const HANDBOOK_HIGHLIGHTS = [
-  {
-    title: 'Linux 和终端',
-    description: '命令行基础、文件操作、日志查看与远程服务器使用。',
-    href: '/handbook/01-linux-terminal/01-command-line',
-  },
-  {
-    title: '科研工具',
-    description: '科研写作、绘图，以及日常会反复用到的软件工具。',
-    href: '/handbook/02-research-tools/01-tools',
-  },
-  {
-    title: 'DFT 与电化学计算',
-    description: 'DFT 基础、结构可视化工具，以及恒电势相关方法。',
-    href: '/handbook/03-dft/01-dft-basics',
-  },
-] as const
 
 const VARIANTS_CONTAINER = {
   hidden: { opacity: 0 },
@@ -149,6 +133,7 @@ function MagneticSocialLink({
 
 export default function Personal() {
   const prefersReducedMotion = useReducedMotion()
+  const { lang } = useLanguage()
 
   return (
     <motion.main
@@ -189,66 +174,132 @@ export default function Personal() {
 
           <div className="flex max-w-2xl flex-1 flex-col items-start text-left">
             <h1 className="text-4xl font-bold tracking-tight text-zinc-950 sm:text-4xl dark:text-zinc-50">
-              王美洁
+              {lang === 'en' ? 'Meijie Wang' : '王美洁'}
             </h1>
             <p className="mt-2 text-xl text-zinc-600 dark:text-zinc-400">
-              Deep Principle | AI4S 算法实习生
+              {t(HOME.subtitle, lang)}
             </p>
 
             <div className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 [&_p]:mb-4 [&_p:last-child]:mb-0">
-              <p>
-                厦门大学凝聚态物理博士生（博二在读），现于 Deep Principle 从事
-                AI for Science 方向研究。近期聚焦材料性质预测基础模型（
-                <a
-                  href="https://doi.org/10.5281/zenodo.20521216"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                >
-                  MPA
-                </a>
-                ）的研发，负责训练与评测基础设施建设、Mid-training 与
-                Post-training 流程开发，以及大规模模型训练和实验评估工作。
-              </p>
-              <p>
-                此前主要基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
-                <a
-                  href="https://doi.org/10.1016/j.apsusc.2023.158724"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                >
-                  Appl. Surf. Sci. 2024
-                </a>
-                ,{' '}
-                <a
-                  href="https://doi.org/10.1039/D4TA06642A"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                >
-                  J. Mater. Chem. A 2024
-                </a>
-                ,{' '}
-                <a
-                  href="https://doi.org/10.1021/acs.jpclett.5c03896"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                >
-                  J. Phys. Chem. Lett. 2026
-                </a>
-                ,{' '}
-                <a
-                  href="https://doi.org/10.1021/acscatal.6c02847"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
-                >
-                  ACS Catal. 2026
-                </a>
-                ）。
-              </p>
+              {lang === 'en' ? (
+                <>
+                  <p>
+                    Ph.D. student in Condensed Matter Physics at Xiamen
+                    University (2nd year), currently doing AI for Science
+                    research at Deep Principle. My recent focus is the materials
+                    property-prediction foundation model (
+                    <a
+                      href="https://doi.org/10.5281/zenodo.20521216"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      MPA
+                    </a>
+                    ), where I build the training/evaluation infrastructure,
+                    develop the mid-training and post-training pipelines, and
+                    run large-scale model training and evaluation.
+                  </p>
+                  <p>
+                    Earlier, using first-principles calculations (DFT) and
+                    machine learning, I studied the
+                    structure–electronic-structure–activity relationships of
+                    single- and dual-atom catalytic systems (
+                    <a
+                      href="https://doi.org/10.1016/j.apsusc.2023.158724"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      Appl. Surf. Sci. 2024
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1039/D4TA06642A"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      J. Mater. Chem. A 2024
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1021/acs.jpclett.5c03896"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      J. Phys. Chem. Lett. 2026
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1021/acscatal.6c02847"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      ACS Catal. 2026
+                    </a>
+                    ).
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>
+                    厦门大学凝聚态物理博士生（博二在读），现于 Deep Principle
+                    从事 AI for Science 方向研究。近期聚焦材料性质预测基础模型（
+                    <a
+                      href="https://doi.org/10.5281/zenodo.20521216"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      MPA
+                    </a>
+                    ）的研发，负责训练与评测基础设施建设、Mid-training 与
+                    Post-training 流程开发，以及大规模模型训练和实验评估工作。
+                  </p>
+                  <p>
+                    此前主要基于第一性原理计算（DFT）和机器学习，系统研究材料结构—电子结构—催化性能之间的关系，聚焦单原子/双原子催化体系（
+                    <a
+                      href="https://doi.org/10.1016/j.apsusc.2023.158724"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      Appl. Surf. Sci. 2024
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1039/D4TA06642A"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      J. Mater. Chem. A 2024
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1021/acs.jpclett.5c03896"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      J. Phys. Chem. Lett. 2026
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1021/acscatal.6c02847"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      ACS Catal. 2026
+                    </a>
+                    ）。
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="mt-6 flex flex-wrap items-center justify-start gap-3">
@@ -258,11 +309,11 @@ export default function Personal() {
                 </MagneticSocialLink>
               ))}
               <Link
-                href="/cv_en.pdf"
+                href={lang === 'en' ? '/cv_en.pdf' : '/cv_zh.pdf'}
                 className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-sm text-zinc-50 transition-colors duration-200 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-300"
               >
                 <FileTextIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                Download CV
+                {t(HOME.downloadCv, lang)}
               </Link>
             </div>
           </div>
@@ -275,7 +326,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h2 className="mb-5 text-lg font-medium">Education</h2>
+        <h2 className="mb-5 text-lg font-medium">{t(HOME.education, lang)}</h2>
         <div className="flex flex-col space-y-2">
           {EDUCATION.map((edu) => (
             <a
@@ -293,18 +344,18 @@ export default function Personal() {
                 <div className="relative flex w-full flex-row justify-between">
                   <div>
                     <h3 className="inline-flex items-center gap-1 font-normal dark:text-zinc-100">
-                      {edu.organization}
+                      {t(edu.organization, lang)}
                       <ArrowUpRightIcon
                         className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500"
                         aria-hidden="true"
                       />
                     </h3>
                     <p className="text-zinc-500 dark:text-zinc-400">
-                      {edu.degree}
+                      {t(edu.degree, lang)}
                     </p>
                   </div>
                   <p className="shrink-0 text-sm text-zinc-600 dark:text-zinc-400">
-                    {edu.start} - {edu.end}
+                    {t(edu.start, lang)} - {t(edu.end, lang)}
                   </p>
                 </div>
               </div>
@@ -319,7 +370,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h2 className="mb-5 text-lg font-medium">Experience</h2>
+        <h2 className="mb-5 text-lg font-medium">{t(HOME.experience, lang)}</h2>
         <div className="flex flex-col space-y-2">
           {EXPERIENCE.map((exp) => (
             <div
@@ -340,20 +391,20 @@ export default function Personal() {
                         rel="noopener noreferrer"
                         className="hover:underline"
                       >
-                        {exp.organization}
+                        {t(exp.organization, lang)}
                       </a>
                     </h3>
                     <p className="text-zinc-500 dark:text-zinc-400">
-                      {exp.title}
+                      {t(exp.title, lang)}
                     </p>
                   </div>
                   <p className="shrink-0 text-sm text-zinc-600 dark:text-zinc-400">
-                    {exp.start} - {exp.end}
+                    {t(exp.start, lang)} - {t(exp.end, lang)}
                   </p>
                 </div>
                 <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                   {exp.bullets.map((item, i) => (
-                    <li key={i}>{item}</li>
+                    <li key={i}>{t(item, lang)}</li>
                   ))}
                 </ul>
               </div>
@@ -368,7 +419,9 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h2 className="mb-5 text-lg font-medium">Selected Publications</h2>
+        <h2 className="mb-5 text-lg font-medium">
+          {t(HOME.selectedPublications, lang)}
+        </h2>
         <div className="flex flex-col space-y-3">
           {FEATURED_PUBLICATIONS.map((pub, i) => (
             <div
@@ -409,7 +462,7 @@ export default function Personal() {
                       rel="noopener noreferrer"
                       className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
                     >
-                      技术报告
+                      {lang === 'en' ? 'Report' : '技术报告'}
                     </a>
                   </>
                 )}
@@ -422,7 +475,7 @@ export default function Personal() {
             href="/publications"
             className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
           >
-            完整论文列表
+            {t(HOME.allPublications, lang)}
             <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -434,10 +487,9 @@ export default function Personal() {
         transition={TRANSITION_SECTION}
       >
         <div className="mb-4 space-y-2">
-          <h2 className="text-lg font-medium">Handbook</h2>
+          <h2 className="text-lg font-medium">{t(HOME.handbook, lang)}</h2>
           <p className="max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            面向组内新人的结构化手册，整理 Linux、科研工具和 DFT
-            工作流中最常用的内容。
+            {t(HOME.handbookDesc, lang)}
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
@@ -448,10 +500,10 @@ export default function Personal() {
               className="rounded-2xl border border-zinc-200/80 bg-zinc-50 px-4 py-4 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:hover:border-zinc-700"
             >
               <h3 className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
-                {item.title}
+                {t(item.title, lang)}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                {item.description}
+                {t(item.description, lang)}
               </p>
             </Link>
           ))}
@@ -463,7 +515,7 @@ export default function Personal() {
         variants={VARIANTS_SECTION}
         transition={TRANSITION_SECTION}
       >
-        <h2 className="mb-3 text-lg font-medium">Blog</h2>
+        <h2 className="mb-3 text-lg font-medium">{t(HOME.blog, lang)}</h2>
         <div className="flex flex-col space-y-2">
           <AnimatedBackground
             enableHover
@@ -498,7 +550,7 @@ export default function Personal() {
             href="/blog"
             className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
           >
-            完整博客列表
+            {t(HOME.allPosts, lang)}
             <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>

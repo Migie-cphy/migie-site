@@ -3,6 +3,7 @@ import './globals.css'
 import { Header } from './header'
 import { Footer } from './footer'
 import { ThemeProvider } from 'next-themes'
+import { LanguageProvider } from './language-provider'
 import { RouteScrollTop } from '@/components/ui/route-scroll-top'
 
 export const viewport: Viewport = {
@@ -49,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className="overflow-x-hidden bg-white tracking-tight antialiased dark:bg-zinc-950">
         <ThemeProvider
           enableSystem={true}
@@ -57,14 +58,16 @@ export default function RootLayout({
           storageKey="theme"
           defaultTheme="system"
         >
-          <RouteScrollTop />
-          <div className="font-sans-apple">
-            <div className="relative mx-auto w-full max-w-5xl px-6 pt-14">
-              <Header />
-              {children}
-              <Footer />
+          <LanguageProvider>
+            <RouteScrollTop />
+            <div className="font-sans-apple">
+              <div className="relative mx-auto w-full max-w-5xl px-6 pt-14">
+                <Header />
+                {children}
+                <Footer />
+              </div>
             </div>
-          </div>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
