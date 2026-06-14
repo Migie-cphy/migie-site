@@ -206,7 +206,43 @@ export default function Personal() {
                     learning for materials science. Previously, I worked on
                     structure–electronic-structure–activity relationships in
                     single-atom and dual-atom catalytic systems using DFT and ML
-                    methods.
+                    methods (
+                    <a
+                      href="https://doi.org/10.1016/j.apsusc.2023.158724"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      Appl. Surf. Sci. 2024
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1039/D4TA06642A"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      J. Mater. Chem. A 2024
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1021/acs.jpclett.5c03896"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      J. Phys. Chem. Lett. 2026
+                    </a>
+                    ,{' '}
+                    <a
+                      href="https://doi.org/10.1021/acscatal.6c02847"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                    >
+                      ACS Catal. 2026
+                    </a>
+                    ).
                   </p>
                 </>
               ) : (
