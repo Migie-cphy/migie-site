@@ -28,6 +28,17 @@ export const HOME: Record<string, Bilingual> = {
   downloadCv: { en: 'Download CV', zh: '下载简历' },
 }
 
+export const BLOG = {
+  title: { en: 'Blog', zh: '博客' } as Bilingual,
+}
+
+export const BLOG_CATEGORY: Record<string, Bilingual> = {
+  AI4S: { en: 'AI4S', zh: 'AI4S' },
+  计算材料: { en: 'Computational Materials', zh: '计算材料' },
+  科研工程: { en: 'Research Engineering', zh: '科研工程' },
+  工具与环境: { en: 'Tools & Environment', zh: '工具与环境' },
+}
+
 export const PUB: Record<string, Bilingual> = {
   title: { en: 'Publications', zh: '论文' },
   firstAuthor: { en: 'First-author', zh: '一作文章' },
