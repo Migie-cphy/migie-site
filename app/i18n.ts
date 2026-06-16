@@ -28,6 +28,18 @@ export const HOME: Record<string, Bilingual> = {
   downloadCv: { en: 'Download CV', zh: '下载简历' },
 }
 
+export const PUB: Record<string, Bilingual> = {
+  title: { en: 'Publications', zh: '论文' },
+  firstAuthor: { en: 'First-author', zh: '一作文章' },
+  coAuthor: { en: 'Co-authored', zh: '合作文章' },
+  countSuffix: { en: 'papers', zh: '篇' },
+  report: { en: 'Report', zh: '技术报告' },
+  empty: {
+    en: 'No co-authored papers recorded yet.',
+    zh: '目前仓库数据里还没有录入非一作文章。',
+  },
+}
+
 export const HANDBOOK_HIGHLIGHTS: {
   title: Bilingual
   description: Bilingual
