@@ -235,7 +235,6 @@ export const PUBLICATIONS: Publication[] = [
     year: 2026,
     pages: 'ASAP',
     doi: '10.1021/acscatal.6c02847',
-    pdf: 'a-geometric-electronic-principle-for-curvature-driven-single-atom-catalysis.pdf',
     group: 'first_author',
   },
   {
@@ -249,7 +248,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 17,
     pages: '1227-1234',
     doi: '10.1021/acs.jpclett.5c03896',
-    pdf: 'curvature-engineering.pdf',
     group: 'first_author',
   },
   {
@@ -264,7 +262,6 @@ export const PUBLICATIONS: Publication[] = [
     issue: 46,
     pages: '31902-31913',
     doi: '10.1039/D4TA06642A',
-    pdf: 'p_d_orbital.pdf',
     group: 'first_author',
   },
   {
@@ -278,7 +275,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 643,
     pages: '158724',
     doi: '10.1016/j.apsusc.2023.158724',
-    pdf: 'SiFeN6_graphene.pdf',
     group: 'first_author',
   },
   {

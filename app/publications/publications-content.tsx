@@ -19,7 +19,6 @@ function PublicationCard({
   volume,
   pages,
   doi,
-  pdf,
   link,
   reportLabel,
 }: (typeof PUBLICATIONS)[number] & { reportLabel: string }) {
@@ -46,20 +45,6 @@ function PublicationCard({
               className="underline underline-offset-4 transition-colors hover:text-zinc-950 dark:hover:text-zinc-100"
             >
               DOI
-            </a>
-          </>
-        ) : null}
-        {pdf ? (
-          <>
-            {' '}
-            ·{' '}
-            <a
-              href={pdf.startsWith('/') ? pdf : `/paper/${pdf}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-4 transition-colors hover:text-zinc-950 dark:hover:text-zinc-100"
-            >
-              PDF
             </a>
           </>
         ) : null}
