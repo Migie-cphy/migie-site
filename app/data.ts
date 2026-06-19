@@ -227,13 +227,15 @@ export const BLOG_POSTS: BlogPost[] = [
 export const PUBLICATIONS: Publication[] = [
   {
     order: 6,
-    title: 'A geometric-electronic principle for curvature-driven catalysis',
+    title:
+      'A geometric-electronic principle for curvature-driven single-atom catalysis',
     authors:
-      '**Meijie Wang**, Yuxing Lin, Zhulin Huang, Yang Sun, Zi-zhong Zhu, Shunqing Wu, Xinrui Cao',
+      '**Meijie Wang**, Yuxing Lin, Zhulin Huang, Yang Sun, Shunqing Wu, Xinrui Cao',
     journal: 'ACS Catal.',
     year: 2026,
     pages: 'ASAP',
     doi: '10.1021/acscatal.6c02847',
+    pdf: 'a-geometric-electronic-principle-for-curvature-driven-single-atom-catalysis.pdf',
     group: 'first_author',
   },
   {
@@ -315,7 +317,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 17,
     pages: '1805-1814',
     doi: '10.1021/acs.jpclett.5c03749',
-    pdf: 'mos2-grain.pdf',
     group: 'co_author',
   },
   {
@@ -330,7 +331,6 @@ export const PUBLICATIONS: Publication[] = [
     issue: 2,
     pages: '475-482',
     doi: '10.1021/acs.jpclett.4c03349',
-    pdf: 'FeC4_NO_Reduction.pdf.pdf',
     group: 'co_author',
   },
   {
@@ -344,7 +344,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 447,
     pages: '116139',
     doi: '10.1016/j.jcat.2025.116139',
-    pdf: 'Electrochemical_synthesis.pdf',
     group: 'co_author',
   },
   {
@@ -358,7 +357,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 16,
     pages: '23199-23208',
     doi: '10.1021/acsami.4c00973',
-    pdf: '2D_Mn2C12_CO2_to_CH4.pdf',
     group: 'co_author',
   },
   {
@@ -372,7 +370,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 637,
     pages: '157887',
     doi: '10.1016/j.apsusc.2023.157887',
-    pdf: 'NiB_Monolayer_NORR.pdf',
     group: 'co_author',
   },
   {
@@ -386,7 +383,6 @@ export const PUBLICATIONS: Publication[] = [
     volume: 111,
     pages: '104406',
     doi: '10.1103/PhysRevB.111.104406',
-    pdf: 'Room_temperature.pdf',
     group: 'co_author',
   },
   {

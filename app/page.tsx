@@ -454,6 +454,22 @@ export default function Personal() {
                     </a>
                   </>
                 )}
+                {pub.pdf && (
+                  <>
+                    {' '}
+                    ·{' '}
+                    <a
+                      href={
+                        pub.pdf.startsWith('/') ? pub.pdf : `/paper/${pub.pdf}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
+                    >
+                      PDF
+                    </a>
+                  </>
+                )}
                 {pub.link && (
                   <>
                     {' '}
