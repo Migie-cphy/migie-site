@@ -28,3 +28,8 @@ pnpm-debug.log*
 # misc
 *.swp
 *.swo
+
+# local-only — never commit (LaTeX CV sources, source PDFs, internal handoff notes)
+cv/
+mpa.pdf
+HANDOFF.md
