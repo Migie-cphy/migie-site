@@ -91,7 +91,7 @@ export const EXPERIENCE: Experience[] = [
   },
   {
     organization: { en: 'Xiamen University', zh: '厦门大学' },
-    title: { en: 'Ph.D. Candidate', zh: '博士研究生' },
+    title: { en: 'Ph.D. Student', zh: '博士研究生' },
     start: { en: 'Sep 2022', zh: '2022.09' },
     end: { en: 'Present', zh: '至今' },
     link: 'https://www.xmu.edu.cn',
@@ -233,7 +233,8 @@ export const PUBLICATIONS: Publication[] = [
       '**Meijie Wang**, Yuxing Lin, Zhulin Huang, Yang Sun, Shunqing Wu, Xinrui Cao',
     journal: 'ACS Catal.',
     year: 2026,
-    pages: 'ASAP',
+    volume: 16,
+    pages: '12620-12631',
     doi: '10.1021/acscatal.6c02847',
     group: 'first_author',
   },
