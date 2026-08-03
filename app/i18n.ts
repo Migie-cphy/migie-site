@@ -35,8 +35,7 @@ export const BLOG = {
 export const BLOG_CATEGORY: Record<string, Bilingual> = {
   AI4S: { en: 'AI4S', zh: 'AI4S' },
   计算材料: { en: 'Computational Materials', zh: '计算材料' },
-  科研工程: { en: 'Research Engineering', zh: '科研工程' },
-  工具与环境: { en: 'Tools & Environment', zh: '工具与环境' },
+  工具: { en: 'Tools', zh: '工具' },
 }
 
 export const PUB: Record<string, Bilingual> = {

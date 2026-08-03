@@ -24,7 +24,7 @@ type BlogPost = {
   description: string
   link: string
   uid: string
-  category: 'AI4S' | '计算材料' | '科研工程' | '工具与环境'
+  category: 'AI4S' | '计算材料' | '工具'
 }
 
 type SocialLink = {
@@ -122,7 +122,7 @@ export const BLOG_POSTS: BlogPost[] = [
     description: 'Brillouin zone、溶剂化模型、恒电位计算详解',
     link: '/blog/jdftx',
     uid: 'blog-jdftx',
-    category: 'AI4S',
+    category: '计算材料',
   },
   {
     title: 'CHGNet 结构预优化',
@@ -143,14 +143,14 @@ export const BLOG_POSTS: BlogPost[] = [
     description: '基于 mp_api 批量获取晶体结构数据',
     link: '/blog/mp-api',
     uid: 'blog-mp-api',
-    category: 'AI4S',
+    category: '计算材料',
   },
   {
     title: 'Python 科学计算加速',
     description: 'Numba JIT、多进程与 NumPy 向量化实战',
     link: '/blog/numpy-accelerate',
     uid: 'blog-numpy',
-    category: '科研工程',
+    category: '工具',
   },
   {
     title: 'Matplotlib 科研绘图',
@@ -164,21 +164,21 @@ export const BLOG_POSTS: BlogPost[] = [
     description: 'Zsh、SSH、文件传输与插件配置',
     link: '/blog/linux',
     uid: 'blog-linux',
-    category: '科研工程',
+    category: '工具',
   },
   {
     title: 'macOS 开发环境搭建',
     description: 'Homebrew、iTerm2、Oh My Zsh 全套配置',
     link: '/blog/macos',
     uid: 'blog-macos',
-    category: '工具与环境',
+    category: '工具',
   },
   {
     title: 'Shell 常用命令手册',
     description: '文件操作、文本处理、批量任务与通配符',
     link: '/blog/shell',
     uid: 'blog-shell',
-    category: '工具与环境',
+    category: '工具',
   },
   {
     title: 'VESTA 命令行批处理',
@@ -199,28 +199,28 @@ export const BLOG_POSTS: BlogPost[] = [
     description: '从源码编译 Zsh 与 ncurses 依赖',
     link: '/blog/ohmyzsh',
     uid: 'blog-ohmyzsh',
-    category: '工具与环境',
+    category: '工具',
   },
   {
     title: '远程 Jupyter Notebook',
     description: '通过 SSH 隧道连接服务器 Jupyter',
     link: '/blog/remote-jupyter',
     uid: 'blog-remote-jupyter',
-    category: '科研工程',
+    category: '工具',
   },
   {
     title: '并行计算工具集',
     description: 'pigz 多线程压缩、aria2 下载与并行执行',
     link: '/blog/parallel',
     uid: 'blog-parallel',
-    category: '科研工程',
+    category: '工具',
   },
   {
     title: 'Linux 科学计算服务器搭建',
     description: 'SLURM、CUDA、JDFTx 完整部署指南',
     link: '/blog/root',
     uid: 'blog-root',
-    category: '科研工程',
+    category: '工具',
   },
 ]
 
