@@ -189,7 +189,7 @@ export default function Personal() {
                     Deep Principle. My recent work focuses on the materials
                     property-prediction foundation model (
                     <a
-                      href="https://doi.org/10.5281/zenodo.20521216"
+                      href="https://www.deepprinciple.com/papers/mpa.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"
@@ -251,7 +251,7 @@ export default function Personal() {
                     厦门大学凝聚态物理博士生（博二在读），现于 Deep Principle
                     从事 AI for Science 方向研究。近期聚焦材料性质预测基础模型（
                     <a
-                      href="https://doi.org/10.5281/zenodo.20521216"
+                      href="https://www.deepprinciple.com/papers/mpa.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 dark:decoration-zinc-700 dark:hover:text-zinc-100"

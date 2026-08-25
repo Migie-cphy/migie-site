@@ -389,7 +389,7 @@ export const PUBLICATIONS: Publication[] = [
     authors: 'Deep Principle Team',
     journal: 'Technical Report · Deep Principle',
     year: 2026,
-    doi: '10.5281/zenodo.20521216',
+    link: 'https://www.deepprinciple.com/papers/mpa.pdf',
     group: 'co_author',
     featured: true,
   },
