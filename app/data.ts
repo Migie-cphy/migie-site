@@ -111,6 +111,14 @@ export const EXPERIENCE: Experience[] = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: '三维几何对称性与等变神经网络',
+    description:
+      '从 invariant / equivariant、SO(3) / O(3) / SE(3) / E(3) 到 SchNet、MACE、LEFTNet 的四条技术路线',
+    link: '/blog/equivariance',
+    uid: 'blog-equivariance',
+    category: 'AI4S',
+  },
+  {
     title: 'SISSO 与 pysisso',
     description: '从 SISSO 本体、传统使用方式，到 pysisso 这个 Python 包装层',
     link: '/blog/sisso',
