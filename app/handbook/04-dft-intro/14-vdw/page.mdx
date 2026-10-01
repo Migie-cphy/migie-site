@@ -1,0 +1,81 @@
+export const metadata = {
+  title: '3.11 范德瓦尔斯相互作用',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.11 范德瓦尔斯相互作用',
+}
+
+# 3.11 范德瓦尔斯相互作用
+
+范德瓦尔斯相互作用（Van der Waals, vdW）是偶极矩之间的弱吸引作用，在没有电子云没有重叠成键的情况下也会存在。一般在层状堆叠材料和分子体系中尤为显著，比如多层石墨烯，气体吸附模型或者有机物体系等，如下图：
+
+<img src="/dft-intro/image210.webp" alt="" width={539} loading="lazy" />
+
+VASPwiki对vdW的介绍：
+
+[https://www.vasp.at/wiki/index.php/Category:Van_der_Waals_functionals](https://www.vasp.at/wiki/index.php/Category:Van_der_Waals_functionals)
+
+可以简单理解为，在做vdW校正时，有两类方法：
+
+（1）基于半经验模型，在原泛函（比如PBE）的基础上，考虑色散力，并不修改泛函本身，或许可以理解为对最后总能和力的一个修正。常用的是比如D2和D3两种等，VASP中INCAR只需要设置IVDW一个参数即可；该方法几乎不增加计算量。
+
+（2）vdW-DF（nonlocal vdW functionals），通过修改交换关联泛函来考虑vdW修正，比如optPBE-vdW，需要设置GGA等一系列参数来实现。该方法会增加计算量。
+
+至于哪个方法更好，可能取决于体系。
+
+[https://blog.sciencenet.cn/blog-478347-1121081.html](https://blog.sciencenet.cn/blog-478347-1121081.html)
+
+介绍vdW-DF方法的一篇综述：Reports on Progress in Physics, 2015, 78(6): 066501.
+
+1\. DFT-D3和vdW-DF2为例，计算双层石墨烯的层间距
+
+[https://www.vasp.at/wiki/index.php/DFT-D3](https://www.vasp.at/wiki/index.php/DFT-D3)
+
+VASP中控制vdW的参数是IVDW：[https://www.vasp.at/wiki/index.php/IVDW](https://www.vasp.at/wiki/index.php/IVDW)
+
+（1）首先构建一个双层石墨烯：
+
+自行从数据库下载一个石墨的结构，层间距取3.5Å左右，z方向真空层20Å
+
+<img src="/dft-intro/image211.webp" alt="" width={569} loading="lazy" />
+
+（2）在PBE泛函下，进行固定基矢的离子优化ISIF=2，同时设置IVDW=12。附：原则上要先结构优化得到合理的面内晶格常数（需要做固定c轴的relax），但在这里，数据库直接下载得到的面内晶格常数一般是合理的，所以舍去这一步。
+
+（3）采用vdW-DF2泛函，ISIF=2，INCAR中注释掉IVDW参数，加入下面参数（POTCAR和前面一样）：
+
+<img src="/dft-intro/image212.webp" alt="" width={288} loading="lazy" />
+
+此时会看到result文件中有如下信息：
+
+<img src="/dft-intro/image213.webp" alt="" width={554} loading="lazy" />
+
+官方建议我们在当前路径下放一个vdw_kernel.bindat文件，下载地址：
+
+[https://github.com/drmewes/vasp_tools/blob/master/vdw_kernel.bindat](https://github.com/drmewes/vasp_tools/blob/master/vdw_kernel.bindat)
+
+下载成功后放到刚刚做vdw-DF计算的INCAR那些文件所在计算目录下，再重新提交即可。
+
+最后不同方法优化得到的层间距对比：
+
+|                     |  PBE   | DFT-DF3 | vdW-DF2 | experimental |
+| :-----------------: | :----: | :-----: | :-----: | :----------: |
+| Interlayer distance | 4.357Å | 3.435Å  | 3.533Å  |    3.48Å     |
+|    Time (s/step)    |  0.5   |   0.5   |    2    |      --      |
+
+VASP还支持各种vdW-DF泛函类型，具体设置见官网：
+
+[https://www.vasp.at/wiki/index.php/Nonlocal_vdW-DF_functionals](https://www.vasp.at/wiki/index.php/Nonlocal_vdW-DF_functionals)
+
+附：如果你采用方法（1）考虑vdw作用，在PBE泛函下，则只需要额外设置IVDW=12一个参数即可。如果你需要在LDA泛函下考虑IVDW=12，则还需要额外设置VDW_A1，VDW_A2和VDW_S8三个参数。对于PBE+IVDW=12的计算时，这三个参数取值分别是VDW_S8=0.7875, VDW_A1=0.4289, VDW_A2=4.4407，可以从OUTCAR中查看。对于LDA+IVDW12，官网没有给这些参数的推荐值，或许可以考虑取PBE下一样的值。
+
+2\. vdW主要影响层状体系的层间距、某些分子体系的键长键角等，以及分子在某材料表面的吸附能。此外，还可能对其它性质有影响
+
+（1）不同vdW-DF在研究贵金属（Au/Ag/Cu）各类性质的表现
+
+<img src="/dft-intro/image214.webp" alt="" width={542} loading="lazy" />
+
+Physical Review B, 2016, 94(4): 045124.
+
+（2）不同vdW-DF方法研究磷的同素异形体之间的能量
+
+<img src="/dft-intro/image215.webp" alt="" width={581} loading="lazy" />
+
+Physical Review B, 2017, 95(21): 214115.

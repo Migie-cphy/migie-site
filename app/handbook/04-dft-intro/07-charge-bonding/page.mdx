@@ -1,0 +1,311 @@
+export const metadata = {
+  title: '3.4 电荷密度与成键分析',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.4 电荷密度与成键分析',
+}
+
+# 3.4 电荷密度与成键分析
+
+在研究体系原子间成键情况时，通常会涉及到电荷密度相关的分析，这里主要介绍五种：电荷密度、差分电荷密度、Bader电荷（以Bader电荷为代表的原子电荷）、电子局域函数（ELF）、晶体轨道哈密顿布居（COHP）
+
+## 3.4.1 电荷密度
+
+DFT以体系的（电子）电荷密度作为基本量，其它物理量是通过对电荷密度求泛函得到的。在静态计算的INCAR中设置LCHARG=.TRUE. 时，当计算完成（收敛且无报错）就会输出CHGCAR文件，里面就是体系的电荷密度信息。这里我们以Si-金刚石结构为例，直观上认识一下电荷密度。
+
+（1）首先得到一个Si-金刚石的晶胞结构（非原胞）
+
+可以用前面例子中的结构参数（结构优化好的），或者从数据库中下载（这里推荐两个，Materials Project和Atomly，前者可能需要梯子）。这里使用的是中科院物理所等机构开发的数据库：[https://www.atomly.net/](https://www.atomly.net/)
+
+找到这个Fd-3m空间群的Si并点进去
+
+<img src="/dft-intro/image77.webp" alt="" width={515} loading="lazy" />
+
+Download下载Conventional Cell（晶胞），可以自行下载晶胞和原胞比较区别
+
+<img src="/dft-intro/image78.webp" alt="" width={398} loading="lazy" />
+
+下载完成拖到vesta里面查看一下，并重新选取坐标原点，去除bond显示，得到下右图（具体操作请自行网上搜索“vesta使用教程”关键词），这里给出一份vesta官方手册的中文解释：[https://mp.weixin.qq.com/s/eJ3ReRB3N8MqqN_HZAXtJg](https://mp.weixin.qq.com/s/eJ3ReRB3N8MqqN_HZAXtJg)
+
+<img src="/dft-intro/image79.webp" alt="" width={500} loading="lazy" />
+
+随后用vesta导出为vasp的POSCAR格式并上传到服务器的工作目录
+
+<img src="/dft-intro/image80.webp" alt="" width={401} loading="lazy" />
+
+原则上需要对数据库中下载的结构再做一次结构优化（常压），我们这里省略这一步。
+
+（2）将前面的静态计算INCAR复制过来，这里LCHARG参数取为TRUE，表示计算完成后，输出CHGCAR文件。并准备好POTCAR和KPOINTS以及任务脚本。（这里KPOINTS取0.025的密度，用vaspkit生成）
+
+POTCAR中ENMAX=245，所以在INCAR中设置ENCUT=500是可以的
+
+<img src="/dft-intro/image81.webp" alt="" width={347} loading="lazy" />
+
+基于先验知识，我们知道Si-金刚石结构是半导体，所以ISMAER最好取-5，取0也不会有太大问题（但是不能取1）。这里EDIFF取的是1E-6（对于静态计算足够），默认1E-4
+
+（3）检查完四个文件确认无误之后，通过脚本向服务器提交任务，等计算成功完成之后（查看result、OUTCAR和OSZICAR，确认计算成功收敛），把CHGCAR文件下载到自己电脑，直接拖进vesta里面查看。
+
+<img src="/dft-intro/image82.webp" alt="" width={554} loading="lazy" />
+
+其中，黄色区域就是电荷密度（可以自行调节Objects-Properties-Isosurfaces参数得到不同的显示效果）。很容易看到，电子密度局域在了Si-Si原子之间，形成一种“共价网络”，类似sp3杂化形成了四个杂化轨道一样。但是，一般不用电荷密度来直接分析体系的成键情况，因为电荷密度很难在不同体系之间直接定量对比，更多的是用电子局域函数ELF，后面会介绍。
+
+找一个合适的截面，显示2D 图
+
+（操作可以参照：[https://zhuanlan.zhihu.com/p/576256133](https://zhuanlan.zhihu.com/p/576256133)）
+
+<img src="/dft-intro/image83.webp" alt="" width={276} loading="lazy" />
+
+另外，建议自己打开CHGCAR文件查看一下，需要对里面的内容格式有个基本认识，详细说明参照官网：
+
+[https://www.vasp.at/wiki/index.php/CHGCAR](https://www.vasp.at/wiki/index.php/CHGCAR)
+
+## 3.4.2 差分电荷密度
+
+差分电荷密度（charge density difference，电荷密度差分，一个意思），可以简单理解为同一个结构在成键（自洽计算）前后的电荷密度差值，用来直观定性地判断体系成键时不同区域的电子流向（A区域的电子流向B区域，使得成键）。
+
+以CO分子为例：
+
+（1）手动写一个POSCAR文件：先构建一个大胞（晶格大于10Å，尽可能减弱周期性带来的分子之间相互作用），在合适的位置放置C和O原子各一个，并且保证它们的距离合适。网上查找CO实验键长1.1283Å，所以建模型时键长也取1.128Å（取Cartesian坐标比较方便）。POSCAR内容如下
+
+<img src="/dft-intro/image84.webp" alt="" width={153} loading="lazy" />
+
+（2）（这一步结构优化可以省略）再做ISIF=2的结构优化（固定晶格，只优化原子位置）来得到理论键长（PBE泛函）。其中，KPOINTS只取111即可，ENCUT=520eV（C的ENMAX=400，这里取1.3倍比较安全）。POTCAR中C考虑了4个价电子，O考虑了6个价电子。基于先验知识，CO分子没有孤立电子，所以应该没有磁性，ISPIN=1即可。为了检验磁性，也可以在结构优化完，自己设置ISPIN=2（为简单起见，不额外设置初始磁矩，让程序自动设置）做一次scf计算，看OSZICAR中是否有磁矩来初步简单地判断是否有磁性。
+
+确认结构优化成功后，从CONTCAR中读取得到的CO键长是1.143Å（比实验偏大，有可能是计算精度不够，不过PBE泛函的老毛病就是通常会高估键长和晶格）
+
+（3）在新的目录下，用结构优化好的CONTCAR作为新的POSCAR，做一次静态自洽计算，并确保INCAR中设置了LCHARG=.TRUE.以保证输出自洽电荷密度文件。注：这一步的CHGCAR也可以直接用relax输出的CHGCAR。这一步我们获得了CO分子自洽的电荷密度文件，记为CHARGE-scf
+
+（4）在新的目录下，做非自洽计算(NSCF)计算。这里的INCAR和上一步静态自洽计算的INCAR基本一样，唯一区别的参数就是ICHARG=12 （12的含义是生成初始电荷密度后，在后续迭代中不更新电荷密度）。这一步计算结束，得到了nscf的CHGCAR。这里的CHGCAR是VASP程序初猜的体系波函数，可以理解为未成键时的CHGCAR。
+
+（5）将scf和nscf计算得到的CHGCAR文件都用vesta可视化，直观感受一下差别（文件有点大，打开需要点时间）
+
+<img src="/dft-intro/image85.webp" alt="" width={175} loading="lazy" /> <img
+  src="/dft-intro/image86.webp"
+  alt=""
+  width={164}
+  loading="lazy"
+/>
+
+左边是scf的CHGCAR，右边是nscf的，可以看到左边经过自洽迭代得到的电荷密度上头大，下头小（红色是氧O原子），与右边不同。
+
+（6）做scf和nscf的电荷密度差分：
+
+方法一：可以在vesta里面做差，请自行网上搜索“vesta做电荷差分”关键词
+
+[https://blog.csdn.net/xk6891/article/details/104779701](https://blog.csdn.net/xk6891/article/details/104779701)
+
+方法二：借助辅助程序，这里使用vaspkit 的31 → 314 功能来处理：
+
+<img src="/dft-intro/image87.webp" alt="" width={422} loading="lazy" />
+
+<img src="/dft-intro/image88.webp" alt="" width={420} loading="lazy" />
+
+<img src="/dft-intro/image89.webp" alt="" width={396} loading="lazy" />
+
+注意是用scf的CHGCAR减去nscf的CHGCAR，所以两个CHGCAR的路径要注意前后顺序（有可能这一步会卡住，一直没有输出，当遇到这种情况时建议更换服务器或者用方法一）。将得到的CHGDIFF.vasp直接用vesta打开即可（下方最右侧）：
+
+<img src="/dft-intro/image90.webp" alt="" width={554} loading="lazy" />
+
+黄色区域对应的是电荷增多，蓝色对应减少（vesta默认设置）。这意味着CO分子中C与O在成键时，C和O（红色）的电子会往中间区域和上下两侧转移（相比于未成键时的孤立原子来说），中间黄色区域增加的电子可以理解为CO分子中的共用电子对。
+
+有时候需要在vesta里面调整Objects-Properties-Isosurfaces来调整显示效果，请自行研究。
+
+另外一个例子是MgB2（层状材料，常压下超导转变温度39K的超导体）。可以作为差分电荷密度的练习。MgB2的晶体结构数据如下：
+
+<img src="/dft-intro/image91.webp" alt="" width={476} loading="lazy" />
+
+这里直接给出差分电荷结果（橙色小球为Mg原子）：
+
+<img src="/dft-intro/image92.webp" alt="" width={269} loading="lazy" />
+<img src="/dft-intro/image93.webp" alt="" width={272} loading="lazy" />
+
+黄色区域对应的是此处电荷增多，蓝色对应减少。很明显，定性上看，Mg的电子向B层转移了。有时候需要在vesta里面调整Objects-Properties-Isosurfaces来调整显示效果，请自行研究。
+
+注意，这里画的差分电荷密度都是原子成键之后自洽的电荷密度，与每个原子之间未成键时的孤立原子电荷密度叠加，之间的差。实际上，差分电荷密度有很多种定义。取决于研究的问题，电荷密度差分的其它情况，请参考刘锦程博士的blog：[https://blog.shishiruqi.com/2019/07/12/chgdiff/](https://blog.shishiruqi.com/2019/07/12/chgdiff/)
+
+## 3.4.3 Bader电荷
+
+通过分析“电荷密度差分”，可以直观、定性地分析出结构的原子在成键前后的电荷转移情况，比如在层状材料MgB2的电荷密度差分中，很容易看出B-B层间有电子聚集，而相应的Mg周围的电子减少了。因此可用推断Mg向B原子层转移了电子，符合我们朴素的化学直觉，即金属向非金属原子转移电子。是否可用定量地分析转移的电子数目呢？有一种直观地分析方法，即“分子中的原子”（Atom in Molecular, AIM）方法，计算出来的电荷叫Bader电荷（因为该方法提出者是Bader）。基于该方法，通过分析计算出来的Bader电荷可以简单地知道电荷转移数目，并粗略地估计元素化合价。
+
+下面是对AIM方法的介绍：“AIM方法将电子密度零通量面定义为原子间的分界面, 划分出的每个原子独立的空间被称为原子盆. 在分界面上没有电子密度梯度线穿过, 即满足 Δ _ρ_(**_r_**ʹ)·**_n_**(**_r_**ʹ)=0, 这里**_r_**ʹ为原子界面上的任意点, **_n_**为界面上的单位法矢量, *ρ*是电子密度函数. 这样的空间划分从量子力学角度来看理论意义明确, 在每个原子盆内维里定理得到满足. 对原子盆内电子密度积分并与核电荷求差值即得到原子电荷 _q_<sub>A</sub> = _Z_<sub>A</sub> -∫<sub>*Ω*A</sub> _ρ_(**_r_**) d**_r_** 。这里*Ω*<sub>A</sub>代表A原子盆. 注意以AIM的划分, 在特殊条件下可能会出现不含原子核的原子盆, 被称为赝原子. 例如锂金属的两个锂原子间就存在赝原子,这是由金属键所导致的. 另外还可能出现一个盆内包含不止一个原子核的情况, 如 KrH+体系中 Kr 由于电子分布范围过广而淹没了氢. 这些情况都无法使用AIM方法来计算原子电荷。”
+
+简单来说，AIM方法就是对三维空间中的电荷密度以某种规则进行分割，把不同电荷密度归属到不同的原子上，再计算这个原子周围的电子密度积分，得到电荷数。
+
+在这里，我们以MgB2为例采用AIM方法计算Bader电荷。步骤参照于链接：[VASP计算笔记-Bader电荷分析 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/541611145)
+
+（1）首先需要准备两个程序 bader 和chgsum.pl
+
+bader官网: [theory.cm.utexas.edu/henkelman/code/bader/](http://theory.cm.utexas.edu/henkelman/code/bader/)
+
+<img src="/dft-intro/image94.webp" alt="" width={554} loading="lazy" />
+
+chgsum.pl: [http://theory.cm.utexas.edu/code/vtstscripts.tgz](http://theory.cm.utexas.edu/code/vtstscripts.tgz)
+
+将下载后的压缩包上传到服务器的某个目录，比如\~/bin/Bader目录下
+
+然后用tar命令将文件解压缩（可自行搜索tar命令使用，或者gpt查询如何在linux下对压缩文件解压）：
+
+tar -xvzf bader_lnx_64.tar.gz
+
+tar -xvzf vtstscripts.tgz
+
+这时候得到了一个bader文件和一个vtst文件夹，我们只需要这个文件夹里面的chgsum.pl文件，用cp命令拷贝到\~/bin/Bader目录下即可
+
+再对bader和chgsum.pl两个文件赋予可执行权限（之后它们变绿了）：
+
+chmod +x bader
+
+chmod +x chgsum.pl
+
+（2）接着VASP计算
+
+MgB2的POSCAR
+
+<img src="/dft-intro/image91.webp" alt="" width={476} loading="lazy" />
+
+INCAR文件在普通的静态自洽计算的基础上再加上LAECHG=.TRUE.和LCHARG=.TRUE. 即可。POTCAR和KPOINTS采用vaspkit生成，取2πx0.025的密度。计算完成时，会输出三个后续bader电荷涉及到的文件：CHGCAR，AECCAR0，AECCAR2
+
+（3）运行\~/bin/Bader/chgsum.pl AECCAR0 AECCAR2 ， 这时候会多出一个CHGCAR_sum
+
+<img src="/dft-intro/image95.webp" alt="" width={541} loading="lazy" />
+
+（4）运行 \~/bin/Bader/bader CHGCAR -ref CHGCAR_sum
+
+<img src="/dft-intro/image96.webp" alt="" width={530} loading="lazy" />
+
+最后输出ACF.dat BCF.dat和AVF.dat三个文件，这些文件的含义请查前面的bader官网，这里我们只需要分析第一个ACF.dat文件
+
+（5）ACF.dat文件
+
+<img src="/dft-intro/image97.webp" alt="" width={554} loading="lazy" />
+
+最底下一行，是体系的总价电子数=8，Mg的POTCAR是2个价电子，B是3个，可以用grep ZVAL POTCAR查看POTCAR的价电子数。
+
+然后看CHARGE，左边123对应的就是POSCAR的原子坐标顺序，这里第一个是Mg，可以看到Mg的电荷数是0.853, 2-0.853=1.147，意味着Mg失去了1.147个电子；B的电荷数是3.565和3.582，意味着两个B原子分别得到0.565和0.582个电子（0.565+0.582=1.147）。结合前面的电荷密度差分，于是我们定量上得到了MgB2体系的电子转移情况。
+
+注意：
+
+- 需要测试bader电荷随k点和截断能以及FFT网格的收敛情况吗？
+
+这里的ENCUT=500eV，Kspacing=2πx0.025，一般是足够的，可以自行测试。并且PREC=Accurate，基本上保证了电荷计算的精度。同时NGX,NGY,NGZ等参数对bader电荷的结果精度也有一定影响
+
+- 可以自行比较选用更多价电子的赝势计算得到的bader电荷差别
+
+- Bader电荷真的能准确反映电荷转移量吗？
+
+这个问题首先需要给出严格定义“电子属于哪个原子”的方法。在Bader电荷里面是通过电荷密度的零通量面来划分电子属于哪个原子的。但是这能否对应到化学里面的那些化合价是有待商榷的，具体请查看文献：
+
+_卢天, 陈飞武. 原子电荷计算方法的对比\[J\]. 物理化学学报, 2012, 1._
+
+## 3.4.4 电子局域函数（Electron Localization Function, ELF）
+
+ELF的原始文献：_\[1\]Becke A D, Edgecombe K E. A simple measure of electron localization in atomic and molecular systems\[J\]. The Journal of chemical physics, 1990, 92(9): 5397-5403._
+
+ELF一般用来描述分子和固体中的化学键类型，其公式定义如下\[1\]：
+
+<img src="/dft-intro/image98.webp" alt="" width={421} loading="lazy" />
+
+ELF的取值在0\~1之间，ELF=1对应的是该处的电子完全局域化，ELF=0.5对应的是该处的电子行为就像自由电子气一样，ELF=0对应该处电子完全离域化。
+
+成键类型主要分三类：离子键、共价键和金属键（范德瓦尔斯键和氢键太弱，这里不讨论），请自行翻阅固体物理教材了解，这里给出两个介绍的链接：
+
+[https://mp.weixin.qq.com/s/gtdSMqoXLOA222gGVMlzIQ](https://mp.weixin.qq.com/s/gtdSMqoXLOA222gGVMlzIQ)
+
+[https://mp.weixin.qq.com/s/Ke0_h3nsGcaRKjjkypKGPQ](https://mp.weixin.qq.com/s/Ke0_h3nsGcaRKjjkypKGPQ)
+
+在VASP中，只需要对结构做一次静态自洽计算，在INCAR中额外加入参数LELF=TRUE，就会输出一个ELFCAR文件，该文件可以用vesta进行可视化分析。
+
+现在我们通过一些具体的例子来初步了解如何借助ELF判断成键情况
+
+（1）CO分子——共价键
+
+新建工作目录，取前面优化好的CO分子结构CONTCAR作为POSCAR。
+
+在SCF计算的INCAR参数基础上加入LELF=TRUE。KPOINTS采用k111，POTCAR用vaspkit-103生成
+
+<img src="/dft-intro/image99.webp" alt="" width={387} loading="lazy" />
+
+通过查看result和OUTCAR文件确认计算收敛并成功结束。此时会输出一个ELFCAR文件，可以自己打开查看，格式和CHGCAR类似。
+
+ELFCAR文件可以直接拖进vesta可视化：左图是直接拖进去得到的，一般会做2D切片，得到右边的图。Vesta中显示2D切片图的具体操作与电荷密度2D显示一样：[https://zhuanlan.zhihu.com/p/576256133](https://zhuanlan.zhihu.com/p/576256133)
+
+<img src="/dft-intro/image100.webp" alt="" width={354} loading="lazy" />
+
+Silice设置如下（确保CO分子所在直线能穿过所选中的平面）：
+
+<img src="/dft-intro/image101.webp" alt="" width={391} loading="lazy" />
+
+ELF的值是严格在0-1之间的（也可能是0.01-0.98这种情况，可能和精度有关），右边图色标尺上的0和1需要手动P图处理（用PPT处理即可）。
+
+分析：右边ELF图中间蓝色的小区域就是C原子所在位置，蓝色区域上方绿色小区域应该就是O原子的位置。根据ELF的定义，接近1（图中红色）表明此处电子几乎完全局域化。从图中可以得到的信息是：C和O之间的区域呈现偏红，表明此处电子局域化很强，CO之间以共价键形式连接。
+
+（2）单层石墨烯（Graphene）——共价键
+
+POSCAR如下（可以自行数据库下载），右边是示意图（vesta）
+
+<img src="/dft-intro/image102.webp" alt="" width={386} loading="lazy" /> <img
+  src="/dft-intro/image103.webp"
+  alt=""
+  width={160}
+  loading="lazy"
+/>
+
+<img src="/dft-intro/image104.webp" alt="" width={451} loading="lazy" />
+
+左图是设置了Edit-Lattice Planes，并取Miller指数（001），Distance=10Å
+
+另外，为了显示效果，需要设置Objects-Properties-Sections
+
+<img src="/dft-intro/image105.webp" alt="" width={453} loading="lazy" />
+
+这里的Max和Min即对应ELF的1和0（略微有偏差）
+
+分析：很明显，C-C之间电子局域化程度很高（红色，ELF接近1），表明C-C之间有共价键的特点。事实上，对于单层Graphene，C-C之间以sp2方式杂化，每个C与周围三个C以共价键形式连接。C外层4个电子，第四个电子的pz轨道在z方向分布（这里没有显示）。
+
+（3）bcc-Li——金属键
+
+手写一个Li-bcc晶胞的POSCAR结构，并取晶格常数为3Å，然后在常压下做ISIF=3的结构优化，并取优化后的CONTCAR为新的POSCAR，计算ELF。
+
+<img src="/dft-intro/image106.webp" alt="" width={554} loading="lazy" />
+
+左图的画法和前面Graphene左图的画法一样。为了避免默认的Li原子太大挡住ELF的信息，我将Li的大小重新设置成了默认离子半径，具体设置如下：Objects-Properties-Atoms
+
+<img src="/dft-intro/image107.webp" alt="" width={352} loading="lazy" />
+
+分析：右图四角的红色位置对应的就是Li（离子）所在位置。Li原子外围区域的ELF几乎为0（深蓝色），表明此处的电子是完全离域化的（可以理解为电子不会被束缚在此处），Li-Li原子的中间区域是绿色，对应ELF=0.5左右，说明Li晶格内部区域的电子如同“自由电子气”一样，具有金属键的特点，符合我们在固体物理中对Li金属的认识。同时，注意到Li原子格点附近，发现有红色区域（ELF\~1），这是Li的两个1s电子，因为1s电子属于深能级电子，被束缚在Li3+附近就很正常了。
+
+（4）NaCl——离子键
+
+从Atomly数据库中下载一个NaCl结构的晶胞，注意是Fm-3m空间群，Nsites=2（原胞里面两个原子），下载完自己用vesta看一遍确认一下。
+
+<img src="/dft-intro/image108.webp" alt="" width={554} loading="lazy" />
+
+选用Na_sv赝势，价电子为2p6 3s1 共七个，选用Cl的价电子为3s2 3p5共七个。原则上需要做一次ISIF=3的relax，这里只是看ELF显示情况，所以可以省略relax。
+
+<img src="/dft-intro/image109.webp" alt="" width={586} loading="lazy" />
+
+分析：右图的边角格点上对应Na原子位置（左图的黄色小球），边上的中点被红色区域包围的就是Cl原子位置。很明显电子局域在Cl的附近了（ELF\~1），Na周围的电子非常离域，有离子键的特点。
+
+在前面的例子中，我们基本上都是取的结构的晶胞，而非原胞，这主要是因为晶胞在直观上更容易看出结构的特点（可以自行比较原胞和晶胞在vesta中可视化效果）
+
+计算ELF时，为了进行数值分析，需要精细的网格；此时INCAR里面要设置NGX三个参数，可以自行查看OUTCAR中这个参数，一般取的是默认值。ELFCAR的网格密度可以用NGX参数直接控制；网格上的值就是ELF的值。
+
+CHG和ELFCAR文件格式完全一样。CHG的网格密度用NGFX参数控制；CHG文件网格上的值是电荷密度与Vgrid的乘积；因此后续读取电荷密度时要除以Vgrid；换句话说，如果对格点上所有数字求和，并除以Vgrid值，得到的数字就是体系的价电子数，即NELECT或者OUTCAR中的“number of electron”。
+
+CHGCAR文件比CHG文件多了一些附加信息。
+
+关于借助ELF分析成键情况，请进一步阅读：
+
+[http://bbs.keinsci.com/thread-2100-1-1.html](http://bbs.keinsci.com/thread-2100-1-1.html)
+
+<img src="/dft-intro/image110.webp" alt="" width={566} loading="lazy" />
+
+_文献：Koumpouras K, Larsson J A. Distinguishing between chemical bonding and physical binding using electron localization function (ELF)\[J\]. Journal of Physics: Condensed Matter, 2020, 32(31): 315502._
+
+## 3.4.5 晶体轨道哈密顿量布局（COHP）
+
+<img src="/dft-intro/image111.webp" alt="" width={387} loading="lazy" />
+
+不是所有问题都有送到眼前现成的答案，关于COHP的计算和分析，请自行网上搜索，并学会根据COHP开发组官方提供的手册学习如何设置计算参数： [https://blog.shishiruqi.com/2019/04/22/cohp/](https://blog.shishiruqi.com/2019/04/22/cohp/)
+
+[https://zhuanlan.zhihu.com/p/660119374](https://zhuanlan.zhihu.com/p/660119374)
+
+[http://www.cohp.de/](http://www.cohp.de/)

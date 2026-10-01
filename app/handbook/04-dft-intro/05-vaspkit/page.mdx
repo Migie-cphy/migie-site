@@ -1,0 +1,78 @@
+export const metadata = {
+  title: '3.2 用 vaspkit 生成输入文件',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.2 用 vaspkit 生成输入文件',
+}
+
+# 3.2 用 vaspkit 生成输入文件
+
+在这里我们安装VASP的辅助工具vaspkit，在后续生成INCAR和数据后处理中会用到该软件。
+
+**（1）官网下载并安装vaspkit**
+
+网上直接搜索“Vaspkit”，进入官网，找到左侧的Installation（安装）
+
+<img src="/dft-intro/image43.webp" alt="" width={415} loading="lazy" />
+
+按照里面的操作下载-解压-配置环境（第一次做这个都会摸不着头脑，这是正常现象，需要耐心看官网慢慢习惯）。在vim \~/.vaspkit这一步时，需要我们提供我们自己的赝势库路径（自己找组里的师兄师姐要到VASP的POTCAR压缩包，并自行上传到服务器的自己的目录下），比如我这里的路径如下（注意要用绝对路径，用pwd命令可以显示当前的绝对路径）：
+
+<img src="/dft-intro/image44.webp" alt="" width={551} loading="lazy" />
+
+后面我们会使用Vaspkit帮我们从这个路径中复制POTCAR到计算目录下。
+
+另外说明一下最后一步“配置环境”，下图是vaspkit官网给的操作步骤
+
+<img src="/dft-intro/image45.webp" alt="" width={554} loading="lazy" />
+
+最后一句replace the absolute path……意思是要我们对/home/vaspkit.1.00/bin这部分内容替换成自己服务器下安转的vaspkit路径。可以通过cd命令进入vaspkit的文件夹，用pwd命令显示当前（vaspkit）的绝对路径。最后记得要source，让\~/.bashrc文件生效。
+
+当你跟着官网的安装以及配置步骤走完，输入vim \~/.bashrc并回车会看到里面有一条这样的信息：
+
+<img src="/dft-intro/image46.webp" alt="" width={635} loading="lazy" />
+
+接下来我们学习使用vaspkit来基于POSCAR文件，辅助生成INCAR，KPOINTS和POTCAR. 首先建立一个工作目录，并准备一个POSCAR文件，用前面的金刚石单质Si即可。
+
+**（2）vaspkit生成INCAR：输入vaspkit并回车**
+
+<img src="/dft-intro/image47.webp" alt="" width={554} loading="lazy" />
+
+大致浏览一下这些内容，我们输入1并回车，显示如下
+
+<img src="/dft-intro/image48.webp" alt="" width={554} loading="lazy" />
+
+输入101
+
+<img src="/dft-intro/image49.webp" alt="" width={554} loading="lazy" />
+
+输入ST并回车（大写）
+
+<img src="/dft-intro/image50.webp" alt="" width={554} loading="lazy" />
+
+说明vaspkit帮我们生成了INCAR，用cat命令查看INCAR
+
+<img src="/dft-intro/image51.webp" alt="" width={363} loading="lazy" />
+
+这里有很多参数，注意，vaspkit生成的INCAR默认把ENCUT注释掉了，意味着VASP计算时会默认取POTCAR中的ENMAX的最大值，这通常是不太够的。所以我们需要对这份INCAR文件手动修改，并且参照下面的内容，使用dd命令把Vaspkit生成的INCAR中多余的行删除（请自行搜索vim编辑器下dd命令的使用），最后得到一个干净的INCAR：
+
+<img src="/dft-intro/image52.webp" alt="" width={422} loading="lazy" />
+
+必须非常强调的一点是，vaspkit自动生成的INCAR不一定足够合理，尤其是ENCUT，你必须明确知道vaspkit帮你生成的INCAR中的每一个参数代表的含义（查VASP的wiki网页）。
+
+**（3）vaspkit生成KPOINTS和POTCAR**
+
+类似前面生成INCAR步骤，运行vaspkit，输入1并回车，再输入102并回车
+
+<img src="/dft-intro/image53.webp" alt="" width={554} loading="lazy" />
+
+有三种Kmesh方案可以选择，我们选择第一种，输入1并回车
+
+<img src="/dft-intro/image54.webp" alt="" width={554} loading="lazy" />
+
+在这里我们输入的是0.03（0.03意思就是前面提到的$2\pi \times 0.03Å^{- 1}$密度）。
+
+<img src="/dft-intro/image55.webp" alt="" width={554} loading="lazy" />
+
+我们可以看到此时Vaspkit输出了倒空间第一布里渊区的b1b2b3基矢长度，并给出了MP下的Kmesh 6 6 6，生成了KPOINTS文件和POTCAR文件，且给出了体系的总价电子数32。
+
+我们在生成KPOINTS时，vaspkit也自动生成了POTCAR文件。这是因为当前目录并没有POTCAR文件，所以尽管我们没有给出“让vaspkit生成POTCAR的指令”，但vaspkit识别到当前路径下没有POTCAR文件时，会自动在生成KPOINTS时帮我们从赝势路径中把POTCAR复制到当前目录。注意，vaspkit生成POTCAR的逻辑是自动读取我们给定的POTCAR路径，然后自动把那里的POTCAR文件复制到当前路径。如果多元素时，会自动把两个POTCAR按照POSCAR的元素顺序进行拼接。这是因为前面我们在安装Vaspkit时，在vim \~/.vaspkit那一步实际上把我们自己服务器下VASP的赝势库的路径写进去了，所以vaspkit能自动在这些路径里面找到POTCAR
+
+你也可以直接使用vaspkit-103功能来生成POTCAR

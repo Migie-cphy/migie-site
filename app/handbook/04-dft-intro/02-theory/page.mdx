@@ -1,0 +1,56 @@
+export const metadata = {
+  title: '一、DFT 计算的理论框架',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 一、DFT 计算的理论框架',
+}
+
+# 一、DFT 计算的理论框架
+
+## 1.1 单电子近似与Kohn-Sham方程
+
+<img src="/dft-intro/image2.webp" alt="" width={465} loading="lazy" />
+
+基于平均场近似，多电子体系问题简化为单电子问题，每个电子的状态的波函数满足一个Kohn-Sham方程（单电子的方程）。以电荷密度为基础，体系能量、原子受力力等物理量可以写成电荷密度的泛函。电荷密度是所有电子的波函数模方的代数和。
+
+<img src="/dft-intro/image3.webp" alt="" width={378} loading="lazy" />
+
+对这个方程我们主要关心三个部分，一是该方程中的波函数$\varphi_{i}$；二是描述电子-离子相互作用以及电子之间库伦相互作用的$V_{eff}$;三是描述量子效应的交换-关联项$\mu_{XC}$。
+
+**基组选取**：对于波函数项$\varphi_{i}$，我们可以用原子轨道基函数展开（比如ABACUS），也可以用平面波基（Planar Waves ,PW，大部分DFT软件，VASP、QE、ABINIT、 PWmat……）
+
+**电子离子处理**：对于$V_{eff}$的处理，有全电子法、赝势方法（pseudopotential，PP）和投影缀加波方法（Projected augmented wave，PAW）有时候为了方便表述也会把PAW归入到赝势方法中，但实际上是不一样的。在本文后面内容里，对于VASP的赝势，默认指代PAW方法。关于PAW方法的介绍可以参阅:
+
+[https://zhuanlan.zhihu.com/p/575479762](https://zhuanlan.zhihu.com/p/575479762)
+
+**泛函处理**：对于$\mu_{XC}$的处理，应用最多的主要是两大类：LDA（局域密度近似，Local Density Approximate）和GGA（广义梯度近似Generalized Gradient Approximation, GGA）。当然还有其它的处理方式，比如meta-GGA和杂化泛函，见Jacob’s Ladder，后面我们会涉及到这些高级泛函的计算，这里不做赘述。
+
+<img src="/dft-intro/image4.webp" alt="" width={435} loading="lazy" />
+
+计算结果依赖于泛函和赝势类型的选取，对于VASP来说，采用平面波PW基组；赝势方面，目前几乎都是采用PAW方法，很少用超软赝势USPP。泛函方面，绝大部分体系采用GGA下的PBE泛函，PBE是三个人名字缩写。后面我们会遇到一些特殊的泛函选取。VASP中更多的泛函类型见:
+
+[https://www.vasp.at/wiki/index.php/GGA](https://www.vasp.at/wiki/index.php/GGA)
+
+## 1.2 Kohn-Sham方程迭代求解
+
+Kohn-Sham方程的求解核心是采用自洽场迭代方法，先给定一个初猜合理的波函数，进入下图的迭代计算流程，多次迭代直至预设的收敛值。
+
+<img src="/dft-intro/image5.webp" alt="" width={375} loading="lazy" />
+
+## 1.3 DFT到TD-DFT
+
+以VASP为代表的大部分DFT计算软件都只能处理基态，即基于Born-Oppenheimer近似，电子时刻处于基态排布。基于单粒子近似下的KS-DFT理论可以很好地描述体系的基态键长、键能等。与基态相对应的是激发态，可以是温度激发、电磁场激发（激光、光照）等。有一些实验就依赖激发态的检测，比如光学光谱、光电子发射等。如果要研究激发态的问题，需要借助Time-Dependent DFT理论(TD-DFT)以及相应的程序。当然，VASP也可以做GW的计算以研究激发态的问题，这不在手册范畴。
+
+DFT理论的原始文献
+
+Physical review, 1964, 136(3B): B864.
+
+Physical review, 1965, 140(4A): A1133.
+
+TD-DFT理论及应用
+
+Physical review letters, 1984, 52(12): 997.
+
+Annual review of physical chemistry, 2012, 63: 287-323.
+
+The Journal of chemical physics, 2008, 129(5): 054110.
+
+The Journal of Physical Chemistry Letters, 2023, 14: 576-583.

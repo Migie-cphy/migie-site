@@ -1,0 +1,449 @@
+export const metadata = {
+  title: '3.5 能带结构和电子态密度',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.5 能带结构和电子态密度',
+}
+
+# 3.5 能带结构和电子态密度
+
+能带论是量子力学在晶体中的成功应用之一，它很好地解释了金属、半导体、绝缘体之分，具体内容请查阅任何一本固体物理教材。在这里，我们以bcc-Lithium为例，计算它常压下的（投影）能带结构，费米面和（投影）电子态密度。
+
+## 3.5.1 计算bcc-Li的能带结构
+
+能带图是电子能量-波矢色散关系的二维可视化。能带计算主要步骤：scf计算+nscf计算+数据提取+作图（主要前两个，假设已经结构优化）
+
+**（a）对优化好的Li-bcc结构做一次静态自洽SCF计算。**
+
+这一步的目的是得到CHGCAR和准确的费米能级（DOSCAR文件），用于后续BAND计算的NSCF计算。
+
+POSCAR要采用标准原胞（注意，一定要原胞，可以用vaspkit 602命令寻找原胞PRIMCELL.vasp，再把这个原胞cp成POSCAR）
+
+<img src="/dft-intro/image112.webp" alt="" width={543} loading="lazy" />
+
+SCF计算的INCAR（LCHARG=TRUE，输出CHGCAR用来后续nscf计算）
+
+<img src="/dft-intro/image113.webp" alt="" width={554} loading="lazy" />
+
+先验知识，bcc-Li常压下没有磁性，所以ISPIN=1，金属体系ISMEAR=1，SIGMA=0.2，NEDOS=2001（默认301太少）是为了得到准确的费米能级，用于下一步能带的费米能级读取，LORBIT是输出分波态密度。
+
+KPOINTS取2πx0.025的spacing，要在整个布里渊区采样，由vaspkit生成，POTCAR选取3个价电子的赝势。提交任务，确保计算收敛。
+
+**（b）选取高对称点路径做非自洽NSCF计算。**
+
+这一步目的是得到布里渊区高对称点路径上的电子能量-波矢色散关系，即能带结构。
+
+新建工作目录band，把前面SCF计算的INCAT、POSCAR和POTCAR复制过来；INCAR需要在前面SCF的参数基础上把ICHARG由2改为11，11的含义是读取当前路径下的CHGCAR文件做非自洽计算。INCAR其余参数不变，记住，算band时，ISMEAR建议取0，而非-5.
+
+NSCF这一步计算一定要和前一步SCF用的POSCAR一样，否则电荷密度信息不匹配，会算出不物理的结果。且要保证这一步INCAR中的PREC参数和SCF中设置一致。
+
+能带计算的关键是KPOINTS的取法：先借助vaspkit生成KPATH.in文件，具体做法是vaspkit-3-303（3D材料303，2D材料302）
+
+<img src="/dft-intro/image114.webp" alt="" width={554} loading="lazy" />
+
+再次自己确认POSCAR是vaspkit生成的原胞（阅读蓝色框内容），以及空间群没错（bcc-Li的空间群是Im-3m），并且vaspkit给出的能带路径是G-H-N-G-P-H\|P-N，关于路径问题后面会进一步解释。以及路径信息的文件KPATH.in
+
+<img src="/dft-intro/image115.webp" alt="" width={520} loading="lazy" />
+
+然后把KPATH.in复制为KPOINTS。这里看到一共有6条路径，每条路径之间插点20个，所以一共计算了约120个k点的信息。相比于一般静态自洽计算的不可约k点多了一些。在能带计算中，可以适当减少一些不必要的路径，以及降低插点数（20改成10），以提高计算速度。但如果要获得某些局域位置精细的能带结构，这个数字建议提高到50甚至100以上。
+
+于是现在有个五个输入文件（INCAR，POSCAR，POTCAR，KPOINTS，CHGCAR）+一个任务提交脚本。随后提交计算，确保计算成功结束。
+
+**（c）寻找正确的费米能级，并vaspkit用提取能带数据**
+
+这时候band文件夹会有一个DOSCAR文件，我们看最前面几行
+
+<img src="/dft-intro/image116.webp" alt="" width={554} loading="lazy" />
+
+2001就是INCAR中的NEDOS，控制能量步长，1.2327就是当前计算给出的费米能级。下方第一列就是能量（没有进行费米能shift），第二列是total-DOS，第三列是价电子数（在费米能级处的价电子数要与体系总价电子数一致），这个文件的内容请自行查阅vasp的wiki官网对DOSCAR文件的说明。
+
+注意，band计算时因为只对布里渊区高对称点以及路径上的k点采样了，因此得到的费米能级1.23是不准确的，并且用改KPOINTS下算得的体系能量、力和压强也是不对的。正确的费米能级需要查看前面一步SCF计算时的DOCAR，那里的费米能级是0.6734。
+
+在vaspkit提取能带数据时，为了确保取到正确的费米能级，有两种办法：
+
+（1）在当前band计算路径下用vim编辑器写一个名为FERMI_ENERGY.in的文件，里面两行内容，如下：
+
+<img src="/dft-intro/image117.webp" alt="" width={554} loading="lazy" />
+
+第一行用注释符号开头，后面内容不重要。
+
+第二行就是指定的费米能级，从scf计算或者dos计算的DOSCAR中读取。
+
+或者
+
+（2）把SCF计算的DOSCAR复制到band目录，把band目录的DOCAR覆盖掉。或者直接手动修改band计算下DOSCAR文件中的费米能级数据。
+
+这里，优先建议采用第一种写一个FERMI_ENEARGY.in文件的方法。后面的演示采用的是第二种（不建议）
+
+然后运行vaspkit-21-211（从EIGENVAL文件中提取能带数据）
+
+<img src="/dft-intro/image118.webp" alt="" width={506} loading="lazy" />
+
+这时候能带数据就在BAND.dat和REF_BAND.dat文件里了。这里我们采用BAND.dat，KLINES.dat以及KLABELS数据画图，可以自行查看这几个文件的数据情况。
+
+**（d）origin画能带图**
+
+把BAND.dat和KLINES.dat文件用orgin打开
+
+<img src="/dft-intro/image119.webp" alt="" width={243} loading="lazy" /> <img
+  src="/dft-intro/image120.webp"
+  alt=""
+  width={237}
+  loading="lazy"
+/>
+
+右边是KLINES.dat数据，先选中这两列A(X), B(Y)，绘制折线图如下（可能orgin版本或者模板不同，画出来略有差别，不重要），这是高对称路径的划分
+
+<img src="/dft-intro/image121.webp" alt="" width={372} loading="lazy" />
+
+然后选“图——图层内容”
+
+<img src="/dft-intro/image122.webp" alt="" width={371} loading="lazy" />
+
+在弹窗中选中左边的能带数据BAND，并点击中间的右箭头，把能带数据导入，并“应用-确定”
+
+<img src="/dft-intro/image123.webp" alt="" width={554} loading="lazy" />
+
+于是得到了能带数据和高对称路径划分
+
+<img src="/dft-intro/image124.webp" alt="" width={456} loading="lazy" />
+
+现在开始调整图像参数，提升图片可读性。
+
+把能带曲线调整为红色（或者其它你觉得好看的，且不阴间的颜色）；横轴范围调整为0- 8.507153（8.507源于KLINES.dat数据第一列最大值）；纵轴能量范围调整为-5\~3eV（我们只关心费米能附近的能带结构，因为远低于费米能的那些电子不会参与成键或者相互作用，所以深能级那个-45eV的能级不用管，实际上它是Li的1s2电子能级）
+
+<img src="/dft-intro/image125.webp" alt="" width={320} loading="lazy" />
+
+接下来将高对称点导入横轴位置：
+
+还记得band计算输出的KLABLE文件么，把那个文件里面的高对称点符号以及对应的x坐标copy到origin的工作目录book1（下左图）
+
+<img src="/dft-intro/image126.webp" alt="" width={248} loading="lazy" /> <img
+  src="/dft-intro/image127.webp"
+  alt=""
+  width={217}
+  loading="lazy"
+/>
+
+并把GAMMA替换为Γ（双击GAMMA那个格子，右键选择“字符表”，里面就有）
+
+这时候回到刚才绘制的能带图，双击坐标轴
+
+水平——刻度——按自定义位置——Sheet1B——确定/应用，这时候得到
+
+（book1中col(B)是高对称点在x轴的坐标）
+
+<img src="/dft-intro/image128.webp" alt="" width={392} loading="lazy" />
+
+<img src="/dft-intro/image129.webp" alt="" width={282} loading="lazy" />
+
+<img src="/dft-intro/image130.webp" alt="" width={390} loading="lazy" />
+
+然后刻度线标签——类型（数据集文本）——数据集名称（Sheet1A）——应用确定，得到下右方的能带图（将字体调整为times new roman或者Arial）
+
+<img src="/dft-intro/image131.webp" alt="" width={554} loading="lazy" />
+
+绘制能带图的步骤也可以b站搜索“origin绘制能带图和导入高对称点”关键词。目前为止，我们成功得到了Li-bcc的能带结构（取体系的费米能级为0eV）。
+
+再次强调，能带计算时，最为关键的就是要从scf计算的DOCAR中读取准确的费米能级。直接取band计算的DOSCAR中的能量作为费米能级，会得到错误的能带图，尤其是对于金属体系，这个点十分重要。
+
+关于能带图的分析在最后会详细介绍，
+
+## 3.5.2 计算bcc-Li费米面
+
+费米面是电子色散关系在布里渊区的可视化方案之一，原则上从能带图中也可以看出费米面的情况。
+
+步骤为：自洽计算+vaspkit数据提取+可视化软件
+
+和前面scf一样的POSCAR(原胞！！！)，INCAR，POTCAR
+
+用vaspkit-26-261-0.01生成KPOINTS，可以自行查看此时生成的KPOINTS格式，类似IBZKPT文件
+
+提交计算，计算完成，运行vaspkit-262或者263得到可用于可视化的数据文件，这里我用的是FermiSurfer软件，所以选用263，得到FERMISURFACE.frmsf文件（下载到windows电脑），直接在windows系统下把这个文件拖进FermiSurfer软件，就可以看到费米面了（下图）。Bcc-Li的费米面是个球面，与自由电子气模型一致。
+
+<img src="/dft-intro/image132.webp" alt="" width={251} loading="lazy" />
+
+软件请自行网上搜索；[https://mitsuaki1987.github.io/fermisurfer/](https://mitsuaki1987.github.io/fermisurfer/)
+
+这里提供一个vaspkit给出的计算Cu-fcc费米面例子：
+
+[http://vaspkit.cn/index.php/44.html](http://vaspkit.cn/index.php/44.html)
+
+## 3.5.3 计算bcc-Li-的电子态密度
+
+**（1）做一次ISMEAR=-5的非自洽计算**
+
+新建文件夹dos，将前面SCF计算的CHGCAR，POSCAR，INCAR，POTCAR都复制过来。并且INCAR中的ISMEAR=-5；ICHARG=11，其余参数与scf一致即可。尤其是INCAR的PREC参数也要和SCF中保持一致。特别强调，要确保dos计算时INCAR中LORBIT参数开启，因为这关系到后面分波态密度数据的提取。
+
+这里ISMEAR=-5相当于对态密度数据的一种校正，可以自行vaspwiki上面了解。ICHARG=11，是为了读取当前路径下的CHGCAR文件，做非自洽计算。
+
+关键在于KPOINTS要在整个布里渊区采样更密的k点（相比于一般relax或者scf计算）。建议2πx0.015以上，我个人一般用0.01（原则上也要测试dos随kmesh的变化）。但有时候0.01算不动，可以选择在0.02\~0.01，对于大体系来说甚至0.03也可以。
+
+这一步一定要和前一步SCF用的POSCAR一样，否则电荷密度信息不匹配，会算出不物理的结果。
+
+提交任务，确保计算完成。注意，dos计算时，ISMEAR=-5和LORBIT=11的情况下，自洽结束后会输出原子部分电荷，这一步可能会耗时很久（对于大体系），耐心等待即可。
+
+首先需要比较此时dos计算输出的DOSCAR文件中的费米能级与前面scf的费米能级区别，二者差别一般很小\~0.01eV量级，可以忽略。如果差别很大，超过0.1eV，可能是scf和dos-nscf计算的NEDOS不一致，或者scf计算的k点太少了。注意，对于半导体来说，ISMEAR=-5，VASP输出的DOSCAR中可能会把费米能识别在导带底，而非价带顶，要根据情况注意辨别。
+
+**（2）用vaspkit从DOSCAR中读取态密度数据**
+
+运行vaspkit-11-111，得到总态密度数据TDOS.dat和态密度的积分ITDOS.dat（I就是积分的英文首字母）
+
+<img src="/dft-intro/image133.webp" alt="" width={554} loading="lazy" />
+
+这里vaspkit已经对费米能进行了shift，把TDOS.dat导入orgin画图（费米能级已经设为0eV）
+
+<img src="/dft-intro/image134.webp" alt="" width={259} loading="lazy" /> <img
+  src="/dft-intro/image135.webp"
+  alt=""
+  width={284}
+  loading="lazy"
+/>
+
+（左图）在-45eV处有一个尖峰，这个和能带图中-45eV处的平坦能带对应，就是Li的1s能级的电子。查看ITDOS积分，会发现这一段峰的积分值为2，对应两个1s电子（原胞只有一个Li原子），把横轴能量范围设为-5\~3eV（和能带图对应），纵轴根据数据情况设置为0\~2，单位是states/eV/f.u.，其中f.u.意思是一倍化学式，即Li。单位问题在3.5.5（2）中会进一步介绍。并添加了一条虚线来表示费米能级位置，得到右图。关于态密度图的分析，后面会讨论。
+
+## 3.5.4 能带图与态密度图合并（纯粹图片合并操作）
+
+能带图和态密度本质上反映的信息大部分是等价的，通常会把它们合并在一张图中绘制，步骤如下：图——合并图表——打开对话框（或者自行网上搜索origin合并图片）
+
+<img src="/dft-intro/image136.webp" alt="" width={554} loading="lazy" />
+
+能带图是graph1，保证它顺序在态密度graph2的上面，行数1列数2，右边是预览效果，然后保存。
+
+<img src="/dft-intro/image137.webp" alt="" width={359} loading="lazy" />
+
+现在开始对图片排版进行调整
+
+先鼠标点一下右边dos图，选中，再点击“图——交换xy轴”，得到下右图
+
+<img src="/dft-intro/image138.webp" alt="" width={269} loading="lazy" /> <img
+  src="/dft-intro/image139.webp"
+  alt=""
+  width={261}
+  loading="lazy"
+/>
+
+点击“图——图层管理”，对图片设置大小和位置
+
+<img src="/dft-intro/image140.webp" alt="" width={335} loading="lazy" />
+
+<img src="/dft-intro/image141.webp" alt="" width={514} loading="lazy" />
+
+设置适当的图层大小以及对文字进行调整，最终得到下图
+
+<img src="/dft-intro/image142.webp" alt="" width={531} loading="lazy" />
+
+## 3.5.5 能带与态密度分析Ⅰ
+
+**（1）能带图是倒空间1BZ色散关系在高对称点路径上的信息。**
+
+横轴是波矢，量纲是长度的倒数，类似“电子准动量”，具体内容请复习能带理论。一条能带容纳两个电子（自旋兼并），所以对于bcc-Li原胞，体系3个价电子，能带图中费米能级下方只有两条能带，一条在-40eV深能级处，这里两个1s电子，另外一条穿过费米能级，这里只有一个电子，能带没有被占满，体系为金属。不过，如何严格定义“一条完整的能带”，似乎有不同的标准，有的会根据能量来划分不同能带，有的是根据对称性来划分。这一点可能需要查更多资料。
+
+纵轴是能量，单位是eV，一般以体系的费米能级E<sub>F</sub>作为0eV。能带图沿着横轴被划分成了多个区域，每个区域就是一个高对称点路径。这些高对称点和路径取决于晶体结构的对称性(Bravais格子+轴比)，目前大部分计算的文献，都会采用一些大家公认的原胞选取方式和倒空间布里渊区的高对称点选取方式，比如前面的bcc-Li结构，对应原胞和倒空间1BZ的高对称点和路径选取如下
+
+<img src="/dft-intro/image143.webp" alt="" width={359} loading="lazy" />
+
+<img src="/dft-intro/image144.webp" alt="" width={329} loading="lazy" />
+<img src="/dft-intro/image145.webp" alt="" width={454} loading="lazy" />
+
+对于三维晶系，全部可能的倒空间BZ在文献（建议仔细阅读）：
+
+Computational materials science, 2010, 49(2): 299-312.
+
+Computational Materials Science, 2017, 128: 140-184.
+
+以及网页[https://www.materialscloud.org/work/tools/seekpath](https://www.materialscloud.org/work/tools/seekpath)
+
+二维晶系，有5类不同的倒空间布里渊区，
+
+The Journal of Physical Chemistry Letters, 2022, 13: 11581-11594.
+
+<img src="/dft-intro/image146.webp" alt="" width={558} loading="lazy" />
+
+Vaspkit是以文献Computer Physics Communications, 2021, 267: 108033.的路径为准生成的原胞和倒空间1BZ以及能带路径。注意，能带的路径选取不是固定的，即不是必须要按照这些论文里给出的“建议默认路径”。有些论文会自己选取一些真正有价值的路径，比如反映出半导体的价带顶和导带底的位置，反映出金属体系中的某些有特征的色散关系（如Van-Hove奇点，或者平带）。对于一些复杂的晶体结构，少取一些不必要的路径，也可以有效地减少KPATH.in中的k点数量，减少计算所需内存和时间，尤其在某些大体系的HSE06计算中。
+
+**（2）态密度具体值的含义**
+
+VASP算出来的DOS，用vaspkit-111处理后得到的total-dos数据，从深能级开始积分到费米能级，得到的积分值正对应体系POSCAR中所有原子的价电子数之和（由POTCAR决定）。因此态密度DOS默认的单位是states/eV/cell ，其中cell的含义是指一个单位的POSCAR，一般文献中也是用的这个单位，有时候写法会省去cell。
+
+费米面附近态密度的具体值是有物理含义的，一般来说，如果Ef处单原子的态密度值超过1states/eV/atom时（1是个经验判断标准），意味着当前体系很可能不稳定，会自发出现自旋极化，从而诱导出磁性，体系变成更稳定的铁磁态，见Stoner criterion. [https://pubs.acs.org/doi/10.1021/jacs.4c05478](https://pubs.acs.org/doi/10.1021/jacs.4c05478)（方法部分）。
+
+有些文献会把DOS平均到分子式上，用states/eV/f.u.作为单位。对于磁性体系，就是states/eV/f.u./spin。举个例子，如果你的POSCAR里面有两个Li，那么算出来的DOS积分到Ef的电子数就是两个Li的价电子数，为6。此时一般把DOS再除以2，得到一倍化学式Li对应的DOS。如果你的体系的化学式写成了C2H2，但是POSCAR中是4个C，4个H，那么得到的DOS需要除以2，以匹配一倍化学式C2H2。
+
+另外对于ISMEAR=-5算出来的dos曲线，积分值会与价电子数有偏差（通常会比实际价电子数高），尤其是当dos图存在很多很高的尖峰，比如深能级的电子，或者d/f电子。这可能是ISMEAR=-5时对dos曲线有某种修正带来的后果，一般不影响分析。如果取ISMEAR=0，算得的dos曲线积分就是严格等于价电子数。不过后者得到的dos曲线有时存在过多峰和低谷，不符合物理实际，所以一般算dos都以ISMEAR=-5。可以自行计算比较两种ISMAER得到的dos曲线。
+
+**（3）能带图与态密度图的对应**
+
+这二者本质上都是色散关系的反映，因此对于某个能量位置，如果这里有能带，那对应在态密度上必须得有值，否则就是算错了。比如前面bcc-Li，能带图在-3.6eV位置开始有能带，对应在态密度上就是-3.6eV处开始有值。另外，能带平坦的地方，对应在态密度上就有一个尖峰（Van Hove奇点），比如前面bcc-Li的band图的N点在费米面上方0.2eV附近是平坦的，对应在dos图上这个能量区间有个尖峰。对于那些深能级的电子，比如Li的1s电子，能带是非常平坦的，因为电子局域性非常强，对应在dos上就有尖峰（可以自行画出深能级的情况）。含有d电子或者f电子的体系，在能带图中也会有很多平坦的能带，对应在dos上就有很多峰。所以有时候不需要做投影能带分析，也很容易根据不同轨道电子的色散特征来判断该区域大致是什么电子轨道贡献。
+
+比如fcc-Cu的能带结构，选取的赝势中，Cu外层价电子是3d10 4s1（11个价电子）
+
+<img src="/dft-intro/image147.webp" alt="" width={555} loading="lazy" />
+
+在能带图中能量范围-4eV\~-2eV的能带很平坦，对应着Cu的3d10电子局域性强，在dos图中这个能量范围就有尖峰。在-10\~-5eV范围内，Gamma点沿着X/L/K等方向的能带是类似二次函数，对应的正是近自由电子的色散关系，与前面的Li的能带类似。可以大致推测这个能量范围的能带主要是被Cu的4s电子占据（可以看出在费米面附近也存在一些二次色散关系，这些是Cu的4p轨道），这一点可以自行通过投影能带图以及投影态密度验证。
+
+同时，对于非磁性体系，记住一条能带占据两个电子（自旋上下简并），在计算中，Cu的赝势里面有11个价电子，采用的是原胞，因此体系一共11个价电子。对应在能带图中就是有5条能带完全占据，低于费米能级，第六条能带半满，穿过费米能级。所以很容易推断，当你计算能带时的POSCAR很多原子时，价电子数一般也很多，就会看到费米能级下方的能带很多条。
+
+错误示例下图（左图来源materials project；右图来源Atomly），很明显能带图和态密度对应不上，这应该是在计算band时错误选取了费米能级导致。
+
+<img src="/dft-intro/image148.webp" alt="" width={568} loading="lazy" />
+
+**（4）判断金属/半金属（semi-metal）/半导体/绝缘体**
+
+对于没有自旋极化的体系来说：费米能级E<sub>F</sub>（前面的图中0eV处，因为vaspkit处理数据时自动进行了能量shift）处有能带穿过，即为金属；同时这也是费米能级的定义：0K下金属的电子在能量波矢空间的最高占据态。如果费米能级上下出现了间隙（band gap），就是半导体，比如金刚石Si结构的gap是1.12eV。如果这个gap大到一定程度，就视为绝缘体，这个“一定程度”没有十分严格的划分，不过5eV开始一般都叫绝缘体了（C金刚石的gap=5.45eV），在3-4eV可能还可以叫宽禁带半导体（SiC，gap\~3eV）。Gap大小信息在dos图中同样可以映出来。同时，从能带图中可以看出半导体是“直接带隙”还是“间接带隙”。如果这个gap非常小，比如1meV量级甚至0，那就是半金属（semi-metal），金属性介于金属和半导体之间。
+
+<img src="/dft-intro/image149.webp" alt="" width={554} loading="lazy" />
+
+带隙大小、是否直接/间接带隙，可以从vaspkit生成的BAND_GAP文件中查看（vaspkit-211提取完能带数据后就会生成，或者直接vaspkit-911读取INCAR和EIGENVAL文件生成）。左图对于金刚石Si结构，算得的带隙band gap约0.55eV，比实验1.12eV小得多，这是PBE泛函的缺点，可以自行再用LDA泛函计算带隙，与PBE对比。后面我们会提到如何从计算上得到与实验媲美的带隙（HSE/GW）。右图的dos图有两条线，灰色是原始提取出来的数据，蓝色是通过origin适当平滑处理得到的（请自行查找相关资料，平滑处理需要符合实际，不能平滑过度）。Dos中的gap和band数据中的gap可能略有偏差，个人建议以dos的为准。
+
+注意，带隙是有温度依赖的。而一般DFT计算得到的带隙都是0K下的（KS-DFT是基态理论，没法直接处理激发态），如果要得到有限温度下重整化带隙，见：
+
+[https://www.vasp.at/wiki/index.php/Band_gap_renormalization_in_diamond_using_one-shot_method](https://www.vasp.at/wiki/index.php/Band_gap_renormalization_in_diamond_using_one-shot_method)
+
+对于半导体/绝缘体，有时候VASP输出的DOSCAR中给定的费米能级可能会取在导带底（按照习惯一般对于半导体，费米能级取在价带顶或者价带导带中间），可以自行根据scf计算输出的DOSCAR第三列（电子态密度积分值，即电子数）来寻找正确的费米能级。DOSCAR中的电子数等于体系总电子数时的能量作为费米能级，然后手动修改FERMI_ENERGY.in文件中指定的费米能级，再用vaspkit后处理即可。但有一些例外，对于一些半导体材料，我发现从scf或是dos的DOSCAR中读取费米能级，得到的能带仍然无法使得价带顶处在0eV位置，而是略有偏差。此时，我的建议是从vaspkit-911生成的BAND_GAP文件中读取价带顶（VBM）的能量值，并将以此作为DOSCAR中的费米能级，再重新运行vaspkit生成能带数据。[http://muchong.com/t-3237725-1](http://muchong.com/t-3237725-1)
+
+思考题：能带的CBM和VBM一定会出现在高对称点或者其路径上吗？如果不是，计算能带时只对高对称点及其路径采样是否可能漏掉CBM和VBM？
+
+**（5）反映是否有磁性**
+
+对于一些铁磁材料，如常温常压下的bcc-Fe，其能带图就会有两部分，一部分是自旋向上，另外是自旋向下，通常用颜色区分。同样，dos图也会有两部分，分别用正负值区分。但对于反铁磁体系，能带图和态密度中中上下自旋是完全一致的，见3.6.2
+
+<img src="/dft-intro/image150.webp" alt="" width={530} loading="lazy" />
+
+同样，对于Fe-bcc的能带结构，很容易可以分析出-7eV\~-5eV能量范围的上下自旋的色散关系是二次，这里应该是Fe的两个4s电子分别占据，sp电子离域性强，能带展宽大（分布的能量范围）。在-3eV那附近的平坦的能带应该是Fe的六个3d电子占据（局域化，能带展宽小）。这一点可以通过投影能带和投影态密度来分析得到。
+
+## 3.5.6 投影能带与投影态密度
+
+**（1）投影态密度**
+
+以前面bcc-Li为例，我们在INCAR中已经设置了LORBIT=11所以直接查看dos计算的结果即可。如果dos计算时INCAR没有设置LORBIT=11，则需要设置LORBIT=11重新做一次nscf计算。OUTCAR最后几行有如下信息：
+
+<img src="/dft-intro/image151.webp" alt="" width={554} loading="lazy" />
+
+因为原胞POSCAR只有一个原子，所以这里只有一行。Tot-charge=2.075，并非Li-POTCAR中的价电子数3，这是因为这个total charge电子数是这样计算的：以Li离子为中心，RWIGS为半径把空间分成一个一个硬球，硬球之间有间隙。在硬球内部对电荷密度积分，得到的就是电荷数。所以这里的电荷数始终会小于体系的价电子数目。而这个RWIGS半径一般是从POTCAR中读取。这部分内容可以自行查看vasp的wiki：[https://www.vasp.at/wiki/index.php/LORBIT](https://www.vasp.at/wiki/index.php/LORBIT)
+
+当原子间距小到接近RWIGS时，这里得到的total charge就会接近体系价电子数：可以测试Li-bcc原胞对晶格基矢缩放到0.6，（此时bcc-Li体系的压强接近272GPa，1GPa=1万个大气压），再进行scf (LORBIT=11)计算，如下：
+
+<img src="/dft-intro/image152.webp" alt="" width={487} loading="lazy" />
+
+<img src="/dft-intro/image153.webp" alt="" width={497} loading="lazy" />
+
+<img src="/dft-intro/image154.webp" alt="" width={529} loading="lazy" />
+
+可以自行查看DOSCAR文件和PROCAR文件，在后面会有电子态划分到不同轨道的情况，即投影态密度（projected DOS，PDOS），具体说明见
+
+[https://www.vasp.at/wiki/index.php/DOSCAR](https://www.vasp.at/wiki/index.php/DOSCAR)
+
+[https://www.vasp.at/wiki/index.php/PROCAR](https://www.vasp.at/wiki/index.php/PROCAR)
+
+可以手动设置合适的RWIGS值，以及LORBIT=1以使得total-charge与价电子一致[https://www.vasp.at/wiki/index.php/Ni_100_surface_DOS](https://www.vasp.at/wiki/index.php/Ni_100_surface_DOS)
+
+一般情况下，借助PDOS来进行电子结构分析时，只是定性的，因此设置LORBIT=11（此时INCAR中的RWIGS参数忽略）即可。
+
+现在我们借助vaspkit来提取PDOS数据。投影的选择有很多：以原子投影，投影到某个或某几个原子或某一类原子（当体系有多个/种原子），其本质就是对单个原子的投影结果相加；以轨道投影，可以投影到spdf等轨道及其分量（px/py/pz, dx2等）。在这里我们以Li-bcc为例演示对态密度做sp轨道的投影。
+
+确保你的DOS计算时INCAR中有LORIBIT=11，并且计算成功结束。运行vaspkit-11-115（116等其它功能可以自行尝试） 可以自行选择输出某个原子某条轨道的贡献。在这里我们选择输出Li的s轨道和p轨道，以及all。All的结果等于是把s和p的贡献做代数相加。得到PDOS_USER.dat文件，并画图如下：
+
+<img src="/dft-intro/image155.webp" alt="" width={563} loading="lazy" />
+
+注意，这里的Li_all并不是bcc-Li的total-DOS，而是Li_s和Li_p的PDOS的代数和，会比total-DOS小得多（在这里，这二者差了一个数量级），这里的Li_s曲线积分到0eV，数值就会等于OUTCAR的total-charge中的s电子数（2.034-2=0.034，因为2个s电子在深能级，这里没有画出来，所以扣掉2）；Li_p曲线积分即为0.041。
+
+投影态密度PDOS可以理解为：对于分布在离子实附近的价电子电子密度（不包含芯电子，价电子数量取决于POTCAR），以离子为中心，以此处对应元素的RWIGS（在POTCAR中）为半径画球，把电子密度分布划分成一个一个的硬球区域，这些区域一般都是没有重叠的（在LORBIT=11，RWIGS默认值情况下）。然后把球内的电子态往角动量量子数l和磁量子数m投影，得到s/px/py/pz/d等一系列投影态密度。由于这样的硬球划分总是会有间隙区域，因此PDOS的代数和总是会小于TDOS。
+
+特别地，对于磁性体系，投影态密度会暗含磁矩的信息，具体请查看3.6.2节。
+
+**（2）投影能带**
+
+要确保band计算时，LORBIT=11开启。然后用vaspkit提取投影能带数据，再次强调，对于金属，要注意确保DOSCAR中费米能级是正确的，取scf或者DOS计算中的费米能级，见3.5.1（c）。运行vaspkit-21-216，依次输入元素和相应的轨道，这里我们提取的是Li-s和Li-p，最后会得到两个PBAND_SUM.dat文件，里面前两列就是band数据，第三列就是该轨道在此处的权重。在画图时，通过色标来反映权重（或者通过气泡图，即点的面积大小）。请自行网上搜索“origin画颜色映射”关键词学习画图。最终效果如下：
+
+<img src="/dft-intro/image156.webp" alt="" width={567} loading="lazy" />
+
+很明显，在费米能级下方-3.6eV\~-0.5eV范围主要是Li-2s轨道贡献。在以上则为2p，与PDOS数据对应。一般在文献中会把不同轨道或者元素的贡献画在一张图中，比如：
+
+<img src="/dft-intro/image157.webp" alt="" width={495} loading="lazy" />
+
+Vaspkit官网给出的一些投影能带图[https://vaspkit.com/gallery.html#](https://vaspkit.com/gallery.html)
+
+网上投影能带例子[https://mp.weixin.qq.com/s/dbyeNFftdeAvp5c2A9iuDw](https://mp.weixin.qq.com/s/dbyeNFftdeAvp5c2A9iuDw)
+
+目前我们画能带图都是手动vaspkit后处理+手动画图软件画图。也可以采用一些第三方库画图，比如：
+
+Vaspvis和Pymatgen：[https://zhuanlan.zhihu.com/p/580857656](https://zhuanlan.zhihu.com/p/580857656)
+
+Pymatgen:[https://blog.shishiruqi.com//2019/05/19/pymatgen-band/](https://blog.shishiruqi.com//2019/05/19/pymatgen-band/)
+
+## 3.5.7 能带与态密度分析Ⅱ
+
+（1）相同晶体类型，价电子类似的结构其能带图类似
+
+能带图很大程度上取决于晶体结构和元素的价电子类型（多少个价电子，最外层是sp电子还是df电子）。所以对于同一族的元素，如果它们晶体结构相同（可能晶格常数有差异），那么它们的能带结构也是类似的。比如，常压下碱金属都是bcc结构，感兴趣可以自行计算碱金属Li/Na/K/Rb/Cs的bcc结构的能带。还有C/Si/Ge一族的金刚石结构单质，其能带结构也是大致类似的，区别在于带隙大小不同。
+
+（2）投影态密度中的px，py等xyz方向，直接和POSCAR中结构的朝向有关。
+
+考虑一个二维单层石墨烯结构的原胞（2个原子）。首先考虑将石墨烯放置在xy面内，z方向加真空层，如下图左，注意真空层取在了z方向。根据前面的教程，你可以自行计算其电子态密度以及分波态密度（s，px，py，pz）；然后，把该石墨烯放置在yz平面内，x方向加真空层，如下图右，注意真空层位置，以及相对原子坐标中x和z需要轮换。同样计算其分波态密度。
+
+<img src="/dft-intro/image158.webp" alt="" width={554} loading="lazy" />
+
+对于总态密度来说，无论结构取向如何，结果是一样的，这里不画出。对比分波态密度，很容易发现s轨道是一样的，因为s轨道没有取向性。而对于p轨道来说，左侧结构的pz分量和右侧结构的px分量等价。到这里你应该能理解“投影态密度中xyz反向取决于结构朝向”这一说法了。同时，很容易注意到左侧结构的px和py轨道分量是一样的，因为面内对称。
+
+由于能带和态密度反应的是类似的信息，所以当你对一个结构取不同的坐标基失时，如果取的KPATH.in还是一样的，那就会得到不一样的能带图，但区别只是某些高对称的名字需要进行轮换。可以自行拿一个长方体结构进行测试。
+
+（3）能带结构的调控——电子/空穴掺杂
+
+实验上对于一个结构，可以掺杂其它元素来实现电子/空穴掺杂，依次调控材料性质。直接的方法是采用超胞法，间接的方法是采用虚晶近似(VCA)，再次一点的方法是改变整个体系的电子数来实现。因为掺杂一般是选用临近族元素，主要影响就是电子数的变化。在计算上可以通过对体系添加/移走背景电荷（体系总电子数）来实现。在VASP中通过设置NELECT参数来控制体系总电子数的（默认等于POTCAR中的价电子数）。引入电子/空穴掺杂时，一般要考虑重新relax，掺杂一方面会导致晶格膨胀或收缩（具体取决于体系和计算结果），同时也会使得费米能级移动。因为费米能级是0K下电子最高填充能级，如果拿走一个电子了（空穴掺杂），那费米能级就会下移；反之，电子掺杂则使得费米能级上移。并且这可能会对材料其它性质造成影响（比如声子、电声耦合）
+
+<img src="/dft-intro/image159.webp" alt="" width={501} loading="lazy" />
+
+The Journal of Physical Chemistry C, 2022, 126(48): 20702-20709.
+
+（4）能带结构的调控——应变/加压
+
+二维材料有时候会施加双轴应变（对POSCAR的xy面内两条轴做±1\~5%的应变，然后做ISIF=2的固定基矢的离子优化）来调控能带结构，尤其是费米面附近出现Van Hove奇点或者是Dirac点（拓扑）时。
+
+Physical review letters, 2013, 111(19): 196802.
+
+对于三维体系，则可以通过加压调控带隙（INCAR中设置PSTRESS）。
+
+（5）超胞（大胞）的能带以及能带反折叠
+
+越大的胞（POSCAR）对应的倒空间第一布里渊区就越小，最终画出来的能带也就会非常平坦，此时能带就失去了分析价值，因为很难看到色散，看到的基本上都是平带，此时一般借助态密度来分析。
+
+在研究原子掺杂的问题时，一般两种处理方法，一是直接采用超胞法计算，二是采用虚晶近似(VCA)方法。后者不是教程重点，请自行网上搜索了解。对于前者超胞法，做法是：根据掺杂比例对待掺杂结构进行扩胞，然后尽可能地考虑掺杂位点进行元素替换得到掺杂后的结构。由于掺杂后的原胞会比未掺杂的胞大得多，此时超胞的能带结构就会很杂乱，没法直接和一开始对比，可以进行能带反折叠处理。
+
+陈家鑫, 陈明星. 能带反折叠方法研究进展\[J\]. 物理学进展, 2023, 43(2): 25.
+
+刘锦程博士的博客：[https://blog.shishiruqi.com/2019/07/12/unfold/](https://blog.shishiruqi.com/2019/07/12/unfold/)
+
+## 3.5.8 能带与态密度计算总结
+
+我们总结一下能带图和电子态密度的计算
+
+（1）首先有一个结构优化完的结构，并取标准原胞（用vaspkit-602生成）作为POSCAR。
+
+（2）对原胞POSCAR进行静态自洽scf计算，得到CHGCAR文件。
+
+（3）基于CHGCAR，分别做band和dos的nscf计算（ICHARG=11，读取CHGCAR）
+
+算DOS时ISMEAR=-5，且k点密度要大，建议2πx0.02以上.（如果算不动，可以适当降低）；并且NEDOS取大一些，建议2001。Band计算时ISMEAR不取-5，一般用0或1. band计算和dos计算是平行的，没有先后关系。Dos计算和band计算INCAR中建议开启LORIBIT=11，以获得原子/轨道投影数据。
+
+（4）数据后处理+画图（这里采用的是vaspkit程序提取数据）
+
+尤其要注意的是，在对band数据提取时，一定要从scf计算（或者dos计算）的DOSCAR中选取正确的费米能级（尤其是金属），不能直接从band计算生成的DOSCAR中读取费米能级。但有一些例外，对于一些半导体材料，我发现从scf或是dos的DOSCAR中读取费米能级，得到的能带仍然无法使得价带顶处在0eV位置，而是略有偏差。此时，我的建议是从vaspkit生成的BAND_GAP文件中读取价带顶（VBM）的能量值，并将以此作为FERMI_ENERGY.in中的费米能级，再重新运行vaspkit生成能带数据。但有时候vaspkit识别出来的VBM和CBM可能出现bug，需要依赖检验甄别。
+
+态密度纵轴DOS的具体值是有物理含义的，因此其单位不可乱写，详细介绍在3.5.5（2）中。
+
+（5）如果体系有磁性，或者要考虑加U等，那从relax开始的所有计算都需要在INCAR中加上这些模块的相应参数。
+
+（6）能带计算时，有时候最上面一些能带可能呈现锯齿形，这是INCAR中NBANDS不够导致，在band计算那一步设置更大的NBANDS重新从band开始算即可。NBANDS默认取0.6倍的体系价电子数，可以考虑增加到0.7甚至0.8.
+
+（7）当你熟练理解能带计算中倒空间路径时，可以不取标准原胞，而取晶胞进行能带计算。注意，此时的KPATH.in和标准原胞完全不一样。比如一个含2原子的bcc晶胞结构，其晶胞的KPATH.in应该用一个simple cubic结构的路径。可以手动建一个simple cubic的POSCAR，再用vaspkit303生成KPATH.in。
+
+问题1：计算band和dos时如果不采用原胞，会怎么样？
+
+算dos时采用n倍超胞得到的态密度数据就是原胞的n倍（由于计算精度可能略有差异），因此影响不大。但是算band时涉及布里渊区高对称点正确选取的问题，因此一般需要采用原胞，详见：[http://vaspkit.cn/index.php/55.html](http://vaspkit.cn/index.php/55.html)。如果你是个经验丰富的老手，可以取晶胞，此时路径就不能取vaspkit根据当前POSCAR直接生成的KPATH.in
+
+问题2：算DOS时ISMEAR一定要-5吗？
+
+可以自行对比1和-5以及0时得到的band图结果。并且自行对比不同smearing方法下的dos数据图。一般情况下，ismear=-5得到的dos数据更合理，但对于某些d电子很多/分子体系，取-5会出现很多尖刺。如果只关心DOS图中峰的位置，那在dos计算中用ISMEAR=0也可以。但我个人测试时，发现ISMEAR=0和1的情况下，不断增大K点，并不能使得DOS在费米能级附近的曲线收敛，ISMEAR=-5可以。
+
+问题3：直接从scf那一步中提取态密度数据可以吗？
+
+可以。只要设置NEDOS=2000，LORBIT=11以输出更详细的态密度数据即可。但一般来说算态密度比一般的自洽计算需要更密的k点以获得收敛的结果，因此通常都会先做一步自洽得到CHGCAR，再基于该CHGCAR用更密的k点计算。直接一次性取很密的k点做dos计算也是可以的，此时DOS计算的INCAR取ICHARG=2即可。原则上态密度数据也是需要做k点的收敛性测试，当你不想测试时，用auto50或者vaspkit-的0.02密度对应的KPOINTS是个合适的选择。有些体系可能需要Auto100才能收敛。

@@ -1,0 +1,184 @@
+export const metadata = {
+  title: '3.6 磁性体系',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.6 磁性体系',
+}
+
+# 3.6 磁性体系
+
+磁性来源于原子核的磁矩和电子的磁矩，前者在大部分情况下忽略不记。而电子的磁矩来源于轨道角动量和自旋角动量。抗磁性是材料对外加磁场的一种排斥，出现在一切材料中。但有一些材料的抗磁性会被其他磁性掩盖，比如顺磁性，铁磁性，反铁磁性和亚铁磁性。
+
+<img src="/dft-intro/image160.webp" alt="" width={554} loading="lazy" />
+
+[https://zh.wikipedia.org/wiki/%E7%A3%81](https://zh.wikipedia.org/wiki/%E7%A3%81)
+
+[https://en.wikipedia.org/wiki/Magnetism#Types_of_magnetism](https://en.wikipedia.org/wiki/Magnetism#Types_of_magnetism)
+
+在计算中，我们一般关心体系的三种状态：无磁（原子磁矩为0）、铁磁和反铁磁。简单来说每个原子格点位置都对应一个磁矩（可能是0或非0，有正有负，正负表示一种方向）。如果所有磁矩都为0，体系就不表现出磁性；如果磁矩不全为0，且这些磁矩都同向，即为铁磁；如果磁矩不全为0，且这些磁矩有的方向相反，并且净磁矩为零（磁矩的代数和），即为反铁磁；显然，反铁磁构型（一般需要扩胞）可以有很多种。
+
+<img src="/dft-intro/image161.webp" alt="" width={386} loading="lazy" />
+
+## 3.6.1 如何确定体系的磁基态
+
+这里我们以单质Fe的bcc结构为例。已知它是Fe单质在低温低压下的稳定结构，也叫α相。如何确认它在常压0K下是否有原子磁矩，如果有，是铁磁还是反铁磁呢？思路就是，考虑不同的磁构型，分别做静态自洽计算得到能量，通过比较能量来确定是否有磁性，以及其属于铁磁还是反铁磁。
+
+（1）遵循First-principle原理，我们直接手写一个bcc的POSCAR：
+
+<img src="/dft-intro/image162.webp" alt="" width={509} loading="lazy" />
+
+这里晶格常数可以从数据库中查到。也可以直接从数据库中下载结构，再转为POSCAR格式，记得用晶胞，更容易看出结构特征。
+
+（2） INCAR用一个静态计算的INCAR，INCAR中要设置LORBIT=11，用于后面输出原子磁矩。其中分别设置ISPIN=2和ISPIN=1，得到两个INCAR，做两个不同的计算。KPOINTS用vaspkit-102生成，取0.025密度。POTCAR取含8个价电子的赝势。然后提交两个任务，确认计算收敛且成功结束。
+
+（3）从OSZICAR中看两次计算输出的能量E0，很容易发现设置ISPIN=2时能量更低，比ISPIN=1得到的E0低了0.52eV/atom。这是一个很大的能量差，相比于室温300K的热波动\~26meV/atom。并且从ISPIN=2的OSZICAR最后一行可用看到体系的总磁矩为4.363，单位是波尔磁矩$\mu_{B}$。每个原子的原子磁矩可以从OUTCAR中最后部分读取：
+
+<img src="/dft-intro/image163.webp" alt="" width={381} loading="lazy" />
+
+从上面文件可以看到两个Fe原子各自都有2.179的磁矩，加和得到的总磁矩为4.359。这一值与OSZICAR中的总磁矩不一样。这与“投影态密度加和不等于总态密度”的原因类似。详细说明可见经验贴：
+
+[https://www.researchgate.net/post/Why-does-the-total-magnetic-moment-differ-between-OSZICAR-and-OUTCAR-file-in-VASP](https://www.researchgate.net/post/Why-does-the-total-magnetic-moment-differ-between-OSZICAR-and-OUTCAR-file-in-VASP)
+
+磁矩大小受晶格常数（压强）、泛函类型影响。
+
+Wang K, Shang S L, Wang Y, et al. Martensitic transition in Fe via Bain path at finite temperatures: A comprehensive first-principles study\[J\]. Acta Materialia, 2018, 147: 261-276.
+
+目前我们还没有考虑bcc铁的反铁磁构型。INCAR中设置ISPIN=2，如果不设置初始磁矩的话，VASP会默认给所有原子加上1$\mu_{B}$的磁矩，且默认铁磁态。可以从result文件前面几十行的WARNING信息中看到。一般来说，当设置初始磁构型为铁磁时，最后优化结果也大概率还是铁磁。因此，要进一步计算来确认铁磁和反铁磁构型的能量。不过一般来说，非磁和铁磁之间能量差别很大（可能100meV/atom量级），铁磁和反铁磁之间能量差别较小（约10meV/atom量级），因此我们第一步只需要设置ISPIN=2来初步判断体系是否有磁性，再进一步考虑反铁磁构型。
+
+（4）现在我们考虑bcc铁的反铁磁构型的能量
+
+取刚才的四个文件，其中INCAR加入下面内容，通过MAGMOM参数设置初始磁矩。体系中有2个Fe，给第一个铁设置磁矩为3（默认沿着x方向），第二个为-3，方向相反，总磁矩为0.初始磁矩稍微设置大一些比较合适。因为小磁矩很难往大磁矩演化，反之则容易得多。
+
+<img src="/dft-intro/image164.webp" alt="" width={230} loading="lazy" />
+
+做静态计算，观察最后输出的能量E0以及原子磁矩信息
+
+<img src="/dft-intro/image165.webp" alt="" width={421} loading="lazy" />
+
+（5）不同磁构型能量对比
+
+注意，原则上我们还需要继续扩胞考虑更多的反铁磁的构型，设置不同初始磁矩，得到相应的能量，进一步确定其磁基态。在这里我们只简单对比三种构型（非磁，铁磁，和反铁磁-1）的能量以及静态计算结束后OUTCAR中输出的压强，如下：
+
+|            | E0 (meV/atom) | Mag ($\mathbf{\mu}_{\mathbf{B}}\mathbf{)}$ | Pressure (GPa) |
+| :--------: | :-----------: | :----------------------------------------: | :------------: |
+| NM（非磁） |     526.7     |                     0                      |      -18       |
+| FM（铁磁） |       0       |                  2.3, 2.3                  |       2        |
+|    AFM1    |     449.6     |                 1.5, -1.5                  |       -6       |
+
+因此我们可以初步判断，bcc铁在常压下是铁磁的，并且每个原子磁矩约2.3$\mu_{B}$.
+
+（6）用vaspkit提取磁矩信息，并可视化
+
+用Vaspkit-1.5.1版本（直接运行vaspkit，查看输出信息，有显示版本），在每个磁性计算文件夹下运行vaspkit-62-629，并将生成的MAGNETIC_MOMENTS.cif文件直接拖进vesta查看
+
+<img src="/dft-intro/image166.webp" alt="" width={454} loading="lazy" />
+
+Vesta界面左上角Edit-Vectors-（右下角）Scale…因子调整一下，即可得到上图。这里的磁矩方向是沿着x方向的。
+
+注意，这里的磁矩方向沿着x方向只是一个显示，实际上对于一般的ISPIN=2的计算（不是非共线计算），磁矩在晶格中是没有明确朝向的，只有磁矩正负取值的相对朝向。VASP官网有这一段说明：
+
+“For a spin-polarized calculation (ISPIN=2), MAGMOM is a list of NIONS positive or negative values that specify the magnitude and relative orientation of the magnetization on each ion. The on-site magnetic moments have no direction in real space, i.e., no orientation in the lattice.”
+
+[https://www.vasp.at/wiki/index.php/MAGMOM](https://www.vasp.at/wiki/index.php/MAGMOM)
+
+## 3.6.2 铁磁和反铁磁体系的能带及态密度
+
+作为练习，可以自行计算bcc铁的铁磁和反铁磁构型下的能量结构和电子态密度。为了对比，我们不做relax，而是直接在2.83晶格常数下，算能带和态密度。在这里，我们没有取bcc的原胞（只含一个原子），因为反铁磁态至少需要两个原子。所以我们采用晶胞进行能带计算。此时KPOINTS需要取cubic结构对应的高对称点以及相应的路径，内容如下：（可以通过把bcc晶胞中0.5 0.5 0.5位置的原子改成非Fe原子，再采用vaspkit-303生成simple cubic下的高对称点和路径）
+
+<img src="/dft-intro/image167.webp" alt="" width={498} loading="lazy" />
+
+记得从SCF开始到NSCF，INCAR中都要设置ISPIN=2，对于反铁磁，还需要额外设置MAGMOM初始磁矩。计算完成后同样用vaspkit-11和21提取能带数据，此时能带和态密度数据都会有两组，分别对应UP和DOWN的自旋。
+
+这里直接给出画图结果：
+
+<img src="/dft-intro/image168.webp" alt="" width={554} loading="lazy" />
+
+不难发现，铁磁体系的能带结构出现了上下自旋色散分裂的情况；而反铁磁体系的能带则没有分裂，甚至和正常非磁体系的能带结构一样。同时，注意到此时铁磁态的能带与3.5.5节最后的铁的能带不同，这是因为这里我们取的是bcc晶胞画的能带。
+
+对于Fe-bcc-铁磁结构，从OUTCAR中可以看到每个Fe原子的d轨道电子数约6.247；磁矩2.279 μB，这是和dos数据对应的。具体来说，我们可以用vaspkit提取出每一个Fe原子的dos数据（up和down两个），以Fe-1原子为例（POSCAR中第一个Fe），在OUTCAR中d电子数6.247，磁矩2.279 μB。
+
+（1）用vaspkit-115命令提取的Fe-1原子的五个d轨道的dos之和，操作如下。
+
+在运行115之后，按照三个红框分别依次输入内容并回车。第三次直接回车即可。
+
+<img src="/dft-intro/image169.webp" alt="" width={554} loading="lazy" />
+
+注意有的vaspkit版本的dx2-y2轨道只会显示为dx2，但在交互界面输入时，需要输入dx2-y2，而非dx2。
+
+（2）将输出的PDOS_USER.dat文件中up和down的dos分别积分至费米能级，会得到两个数字，分别为：4.28和-1.97。这表示该Fe-1原子有4.28个d电子占据在up轨道，1.97占据在down轨道。二者绝对值之和就是6.25，对应OUTCAR中的d电子数。二者代数和（4.28+-1.97）=2.31，就是d轨道电子贡献的磁矩。
+
+（3）可以类似把Fe-2原子的d轨道也提取出来类似上面进行分析。这里的两个Fe原子的dos画出来是一样的，这是因为在该铁磁态下，两个Fe原子完全等价。但是对于反铁磁来说情况不一样。
+
+对于Fe-bcc-反铁磁结构，同样考虑Fe-1原子，从OUTCAR中可以看到d电子数为6.242，磁矩为1.497.磁矩与dos积分的分析与上面铁磁类似，这里不再赘述。如果看不懂上面铁磁部分的分析，请多看几遍。这里我们主要想强调反铁磁结构中不等价原子的d轨道的dos对比，如下图。
+
+<img src="/dft-intro/image170.webp" alt="" width={354} loading="lazy" />
+
+很容易发现，尽管前面从AFM-bcc-Fe的总能带和态密度数据的up和down是完全一样的，但是对于每个Fe原子来说，up和down是不一样的。并且Fe-1的up（蓝色实现）和Fe-2的down（红色虚线）是一样的。
+
+以上是对于分波态密度的分析，对于投影能带来说也是类似的。
+
+## 3.6.3 初始磁矩设置经验
+
+对于POSCAR中有多个原子，想对不同原子设置不同的初始磁矩，比如有的原子初始磁矩设置为0，的情况，MAGMOM写法稍微复杂一些，请跟从大师兄教程学习：[https://www.bigbrosci.com/2017/12/04/ex12/](https://www.bigbrosci.com/2017/12/04/ex12/)
+
+比如POSCAR里面是Fe和O的先手顺序，且数量分别是4和8。想要给Fe原子设置初始磁矩3，O的初始磁矩设置为0，INCAR中的MAGMOM写为：
+
+MAGMOM = 4\*3 8\*0
+
+注意空格，\*就是在英文模式下输入的星号。如果有4个Fe，8个O，12个H，只对Fe加初始磁矩3，则写为
+
+MAGMOM = 4\*3 8\*0 12\*0或者
+
+MAGMOM = 4\*3 20\*0
+
+磁性体系的计算，尤其是在考虑铁磁和反铁磁构型时，初始磁矩MAGMOM参数的设置非常关键。一般来说，当你确定一种磁构型时，无论你做铁磁还是反铁磁的计算，都建议初始磁矩稍微设置大一些（比默认1大一点），可以参照下面图片来设置初始磁矩 Advanced Science, 2022, 9(27): 2202756
+
+<img src="/dft-intro/image171.webp" alt="" width={540} loading="lazy" />
+
+如果考虑反铁磁构型，需要扩胞，并且在超胞基础上考虑多种反铁磁构型，尤其是一些二维磁性体系。一些常见2D体系的反铁磁构型：
+
+[https://zhuanlan.zhihu.com/p/366920034](https://zhuanlan.zhihu.com/p/366920034)
+
+## 3.6.4 高低自旋态
+
+以fcc铁为例，计算方面，fcc铁在常压下有两种铁磁态，磁矩大小不一样，体积也不一样。但是能量非常接近，比如下方图片
+
+<img src="/dft-intro/image172.webp" alt="" width={290} loading="lazy" />
+
+图片来源论文Fig2(c)：Wang K, Shang S L, Wang Y, et al. Martensitic transition in Fe via Bain path at finite temperatures: A comprehensive first-principles study\[J\]. Acta Materialia, 2018, 147: 261-276.
+
+对于这种体系，同样是铁磁情况，设置不同的初始磁矩大小，最后优化完的磁矩结果可能不一样，需要非常小心。
+
+J. Phys.: Condens. Matter 32 (2020) 165806
+
+J. Phys. Chem. C 2014, 118, 15863−15873
+
+## 3.6.5 磁性体系小结
+
+磁性体系，磁矩会影响声子谱
+
+Ikeda Y, Seko A, Togo A, et al. Phonon softening in paramagnetic bcc Fe and its relationship to the pressure-induced phase transition\[J\]. Physical Review B, 2014, 90(13): 134106.
+
+磁性体系的计算一般都比较复杂，一方面，磁性体系的结构优化、能带和电子态密度、声子等一系列计算都要加上磁性相关的参数（ISPIN和MAGMOM），这会使得计算量翻倍。另一方面，磁性体系常见于过渡元素的V到Ni族（含d电子）和稀土元素（含f电子），尤其是它们形成的氧化物。这些体系中强关联效应可能都很显著，需要做DFT+U的计算。最头疼的是，磁性体系的电子步一般容易不收敛。
+
+并且，磁性体系最后收敛的结果很依赖于初始磁矩的设置。不同的初始条件可能最后会收敛到不同的结果。在确保计算收敛的情况下，要对比不同磁构型的能量，取最低的。当要和实验条件对比时，需要考虑亚稳态的可能性，不再是简单地取“能量最低”，
+
+我们的计算中， INCAR中没有额外设置ISYM对称性参数，此时默认取2了，可以grep ISYM OUTCAR查看计算过程中参数取值。有些情况下，会设置ISYM=0或者-1来关闭对称性计算，此时计算量明显增加。
+
+并且，我们不考虑bcc铁中的强关联效应（+U）以及SOC效应，所以INCAR中没有设置相应的参数。关于更多磁性计算的例子，请从官网了解：
+
+[https://www.vasp.at/wiki/index.php/Magnetism\_-_Tutorial](https://www.vasp.at/wiki/index.php/Magnetism_-_Tutorial)
+
+磁性体系常见的计算还有磁各项异性能（MAE）、非共线磁计算（需要开启SOC）等，请自行网上搜索学习。当计算非共线或者开启SOC时，需要调用vasp_ncl版本。
+
+磁性体系，磁矩会影响声子谱
+
+Ikeda Y, Seko A, Togo A, et al. Phonon softening in paramagnetic bcc Fe and its relationship to the pressure-induced phase transition\[J\]. Physical Review B, 2014, 90(13): 134106.
+
+注意，磁性一般是材料在低温或不太高温度下的一种状态，当温度够高时，磁矩就无序排列体系就失去磁性了。因此对于磁性体系，在高于磁性转变温度下做AIMD模拟时，一般不开自旋。
+
+比如铁磁材料（亚铁磁）在达到一定温度时会失去磁性，转变温度称为居里温度Curie Tc，比如Fe的居里温度为1043K**。**反铁磁材料类似，其转变温度成为奈尔温度Neel，T<sub>N</sub>，比如MnO的奈尔温度为116K。
+
+[https://en.wikipedia.org/wiki/Curie_temperature#Magnetic_moments](https://en.wikipedia.org/wiki/Curie_temperature#Magnetic_moments)
+
+这两个温度的计算需要DFT程序+后续软件，参见：
+
+[https://www.zhihu.com/question/386477636/answer/2826407460](https://www.zhihu.com/question/386477636/answer/2826407460)

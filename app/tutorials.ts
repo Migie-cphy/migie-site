@@ -175,6 +175,115 @@ export const TUTORIAL_PHASES: Array<{
       },
     ],
   },
+  {
+    title: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+    description:
+      '厦门大学计算凝聚态物理研究组吴泽鹏编写的 VASP 入门手册（第三版），经作者同意收录。',
+    topics: [
+      {
+        slug: '04-dft-intro/01-preface',
+        title: '前言',
+        summary: '手册的定位、需要的基础，以及怎样使用这份手册。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/02-theory',
+        title: '一、DFT 计算的理论框架',
+        summary: 'Kohn-Sham 方程、SCF 迭代求解，以及从 DFT 到 TD-DFT。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/03-vasp-io',
+        title: '二、VASP 计算的输入输出文件',
+        summary: '四个输入文件、金刚石 Si 静态自洽计算的完整流程与输出文件。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/04-convergence',
+        title: '3.1 截断能和 k-mesh 收敛性测试',
+        summary: 'ENCUT 与 k 点的收敛性测试。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/05-vaspkit',
+        title: '3.2 用 vaspkit 生成输入文件',
+        summary: '借助 vaspkit 生成 KPOINTS、POTCAR 等输入文件。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/06-relax',
+        title: '3.3 结构优化',
+        summary: '结构优化参数、初始构型依赖、限制优化与不收敛的处理。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/07-charge-bonding',
+        title: '3.4 电荷密度与成键分析',
+        summary: '电荷密度、差分电荷、Bader 电荷、ELF 与 COHP。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/08-band-dos',
+        title: '3.5 能带结构和电子态密度',
+        summary: '能带、费米面、态密度、投影能带与投影态密度的计算和分析。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/09-magnetism',
+        title: '3.6 磁性体系',
+        summary: '磁基态的确定、铁磁/反铁磁能带、初始磁矩与高低自旋。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/10-phonon',
+        title: '3.7 声子谱与声子态密度',
+        summary: '有限位移法、DFPT、振动自由能、振动可视化与消除虚频。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/11-aimd',
+        title: '3.8 从头算分子动力学',
+        summary: 'NVT/NPT 系综 AIMD、热稳定性判断与 on-the-fly 机器学习力场。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/12-hybrid-gw',
+        title: '3.9 杂化泛函与 GW 方法',
+        summary: '杂化泛函与 GW 计算的设置与适用场景。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/13-dft-u',
+        title: '3.10 强关联效应（DFT+U）',
+        summary: 'DFT+U 的设置与 U 值选取。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/14-vdw',
+        title: '3.11 范德瓦尔斯相互作用',
+        summary: 'vdW 修正方法的选择与设置。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/15-soc',
+        title: '3.12 自旋轨道耦合',
+        summary: 'SOC 计算的设置与注意事项。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/16-faq',
+        title: '3.13 DFT 计算常见问题',
+        summary: '不同任务的输入文件、泛函设置、常见报错与快捷命令。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+      {
+        slug: '04-dft-intro/17-references',
+        title: '四、参考资料与总结',
+        summary: '进一步学习的网站、教程，以及手册总结。',
+        phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
+      },
+    ],
+  },
 ]
 
 export const TUTORIAL_TOPICS = TUTORIAL_PHASES.flatMap((phase) => phase.topics)

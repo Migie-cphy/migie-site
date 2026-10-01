@@ -1,0 +1,193 @@
+export const metadata = {
+  title: '3.8 从头算分子动力学',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.8 从头算分子动力学',
+}
+
+# 3.8 从头算分子动力学
+
+VASP可以进行从头算分子动力学（ab initio MD）的计算。基于绝热近似，离子和电子分开考虑，电子采用密度泛函理论计算，离子则基于牛顿力学（或分析力学）框架处理。给定一个状态（离子、电子密度分布），通过DFT计算出体系中离子的受力情况，再根据经典力学和系综理论得到离子下一时刻的位置与速度，如此反复来实现材料在外界条件（温度、体积、压强）下的动力学演化模拟。可以简单理解为：AIMD就是用一种高精度力场做MD模拟，MD模拟由牛顿运动方程控制，而“高精度力场”则表现在通过DFT计算每一时刻原子间受力。所以它和结构优化类似，但区别在于这里的“离子步”并不是朝着势能面极小值演化，而是具有温度热波动的原子运动。
+
+一方面，AIMD可以用来评估材料在温度环境下的稳定性。有的文献将其称为Thermal stability，也有的文献称其为Kinetic stability。其含义都是：材料在温度激发下原子进行热运动时对分解或重建为较低能量结构的抵抗能力。
+
+[https://pubs.acs.org/doi/10.1021/acs.jpclett.2c02972](https://pubs.acs.org/doi/10.1021/acs.jpclett.2c02972)
+
+[https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.166001](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.166001)
+
+可以通过一段时间的AIMD模拟，观察材料的能量变化以及化学键是否有断裂重组来评估体系的稳定性。
+
+<img src="/dft-intro/image191.webp" alt="" width={568} loading="lazy" />
+
+另一方面，AIMD可以研究原子的扩散运动，以计算离子电导率等输运性质，比如电池材料领域。同时在一些高温高压领域，常用AIMD模拟来计算物质高温下的力学性质，如状态方程，高温下的弹性系数Cij等。AIMD也可以用来研究相变，比如晶体的融化，固相之间的转变等。
+
+AIMD计算量很大，一方面是需要构建超胞来尽可能消除尺寸效应。原子数少时，在有限温度下原子热运动自由度就受限制，没法模拟真实的情况。一般来说扩胞至三条轴大于或者接近10Å以增加体系的自由度，其中10是大部分研究者接受的标准，有些特殊的问题可能需要更大的尺寸；另一方面需要做近万次DFT计算。
+
+用VASP做AIMD模拟时，几个关键的概念需要注意：模拟时的超胞多大；模拟的步长和时长多少；选用了什么系综（NVT, NPT, NVE，NPH）；在什么温度下模拟；选用什么热浴来控温。VASP-wiki的AIMD计算参数说明：
+
+[https://www.vasp.at/wiki/index.php/Molecular_dynamics_calculations](https://www.vasp.at/wiki/index.php/Molecular_dynamics_calculations)
+
+<img src="/dft-intro/image192.webp" alt="" width={569} loading="lazy" />
+
+官网给了一个Si的AIMD例子：[https://www.vasp.at/tutorials/latest/md/part1/](https://www.vasp.at/tutorials/latest/md/part1/)
+
+## 3.8.1 金刚石Si，300K下NVT系综的AIMD模拟
+
+POSCAR：常压下金刚石Si晶胞（8个原子）扩胞222，超胞64个原子，abc三个方向长度大于10Å
+
+INCAR：
+
+<img src="/dft-intro/image193.webp" alt="" width={554} loading="lazy" />
+
+前面两组参数是控制DFT计算的，就是普通的scf计算参数；LREAL=A时可以对大体系计算进行加速，参数具体含义见官网。注意，如果体系需要考虑SOC或者DFT+U，或者需要用其它泛函做AIMD模拟，则INCAR中需要加上相应的参数。
+
+单独强调，对于大部分磁性体系，一般跑MD不需要开磁性参数。因为一般MD都是在300K及以上模拟，很多磁性材料在这个温度（磁性材料有个转变温度）之上是非磁的，因此不开自旋跑MD或许更合理。
+
+第三组是控制AIMD计算，NVT参数设置要求见：\
+[https://www.vasp.at/wiki/index.php/NVT_ensemble](https://www.vasp.at/wiki/index.php/NVT_ensemble)
+
+IBRION=0即为开启MD计算，此时ISYM=0（关闭对称性）；
+
+NSW=10000，模拟1万步，与POTIM配套。（模拟时长一般10ps以上）
+
+POTIM=1，一步即1fs；如果体系有H原子（比如含H<sub>2</sub>O），POTIM=0.5
+
+ISIF=2 固定晶格和体积，移动离子，用于NVT模拟
+
+MDALGO=2 选用Nose-Hoover热浴控温，适用于NVT模拟
+
+SMASS参数对模拟过程影响较大，一般来说需要测试不同的SMASS。关于该参数的讨论，见本小节最后。
+
+TEBEG和TEEND就是模拟的温度，单位K。前者是起始温度，后者是最后温度。二者一致时，就是恒温的模拟；如果不一致，就是升温或降温过程。升温/降温的模拟一般与NPT系综参数搭配，可以用来模拟体系的融化/结晶过程。
+
+分子动力学中EDIFFG参数不起作用，即使你设置了，程序也会忽略掉。
+
+INCAR中可以加入NCORE/NPAR/KPAR等并行参数，来提高计算效率。需要自行针对超胞做测试。如果不想测试，那就取NCORE=2或者4（任务调用的核数的因数，要取小一些，KPAR=2）下面是网上一些测试结果：
+
+[https://mp.weixin.qq.com/s/uiWuvILE1WeiB5SC3_Frvg](https://mp.weixin.qq.com/s/uiWuvILE1WeiB5SC3_Frvg)
+
+NWRITE=2（默认值）时，会在OUTCAR中输出每一步MD的原子受力，如果你后面需要提取AIMD的数据用于后续训练机器学习势，强烈建议设置为2，这样方便后面dpdata直接提取DFT数据。
+
+有时候算MD时还会设置NBLOCK参数，默认为1，含义是把每一步的原子位置都输出到XDATCAR文件中，方便后续查看每一步动力学过程。如果你跑一个长时间的MD，比如几十万步，为避免输出的XDATCAR文件冗长，可以设置为10或者100，表示每隔10步把原子位置输出到XDATCAR。但建议取1.
+
+AIMD计算的INCAR文件也可以用vaspkit生成，再自己添加/修改参数。再次强调，当你用vaspkit辅助生成INCAR时，务必清楚INCAR中每一个参数的含义以及作用！！
+
+KPOINTS：原则上需要对超胞做能量收敛性测试得到合适的Kmesh；为了演示，我们这里只取Gamma点。
+
+<img src="/dft-intro/image194.webp" alt="" width={354} loading="lazy" />
+
+POTCAR取默认的4价电子的赝势。
+
+此时我们调用vasp的gam版本，可以对k111的计算进行加速。需要在任务提交脚本里面修改。之前我们算静态或者结构优化时，很少设置K111的情况，所以一般是调用vasp_std版本。这里调用gam版本。如果没有安装gam，找组里人或者工程师询问。\
+
+<img src="/dft-intro/image195.webp" alt="" width={213} loading="lazy" />
+
+分子动力学的计算一般很耗时，因此在有些对精度要求不太高的情况下，通常会降低计算精度。比如ECUT和K点。ECUT一般取到不同元素的ENMAX中最大值多一些，除了Li之外，常见元素的ENAMX＜400。K点只取gamma点。
+
+计算时，每一步的能量和温度信息会输出在OSZICAR文件
+
+<img src="/dft-intro/image196.webp" alt="" width={560} loading="lazy" />
+
+每一步的结构信息在XDATCAR文件（可以借助OVITO软件可视化）
+
+每一步的结构和原子速度以及Predictor-corrector coordinates信息在CONTCAR中 [https://www.vasp.at/wiki/index.php/CONTCAR](https://www.vasp.at/wiki/index.php/CONTCAR)
+
+我们一般关注OSZICAR和XDATCAR文件，前者反映温度和能量波动，后者反映结构的动力学演化情况。当然还有包含各种信息的OUTCAR
+
+**（1）OSZICAR中的能量**
+
+E即为体系总能量，是电子-离子体系的自由能F与离子动能EK的和，再加上恒温器的势能SP与动能SK。其中，离子动能Ek遵循经典统计力学的能量均分定理，等于3/2(N-1)kT（N为原子数），要扣除三个体系平动的自由度，因此要N-1。如果是NPT模拟，那F还包含了体积项pV。
+
+[https://www.vasp.at/wiki/index.php/OSZICAR](https://www.vasp.at/wiki/index.php/OSZICAR)
+
+一般在评估AIMD模拟过程体系的总能量时，以F或者E0为准。在计算结束时，可以采用grep命令从OSZICAR文件中提取温度/能量随时间变化的数据：
+
+grep E0 OSZICAR \|awk '\{print \$1 , \$3, \$9\}'\> ./Energy.dat
+
+当然，能量信息也可以从OUTCAR中抓取每一次离子步之后的能量。可自行查找。
+
+**（2）模拟过程中的温度波动**
+
+AIMD模拟时，最开始20步以内，温度可能会从预设温度（300K）迅速下降到100K，后面又升高到500K，50步以后稳定在300K附近波动。对于2D材料，这个波动幅度可能有±100K；这是正常现象。
+
+但有些体系，初始100步内，温度波动可能非常剧烈，比如预设是5000K，波动可能到9000K，这是因为初始结构原子位置太规整导致，这某些情况下可能会使得体系一开始温度太高而不稳定，比如变形或者融化，说明该模拟是不对的（我们需要的是在5000K附近的模拟，不应该到9000K），需要对初始的原子位置做一些微扰，可以考虑在低温下先NVT跑个100步得到带有原子位置扰动的结构，然后将CONTCAR拿去在高温下模拟；或者用vaspkit或是phonopy的原子位置扰动功能对原子位置做\~0.01Å微小扰动。注意MD模拟过程中体系的对称性几乎都是P1，即完全没有晶格对称性了。
+
+**（3）AIMD模拟中的压强**
+
+AIMD模拟过程中的压强有两部分，一部分是电子-离子之间相互作用导致的内压，有的地方称为virial，另一部分是动能带来的压强；后者遵循PV=NRT，两部分压强可以在OUTCAR中找到：
+
+<img src="/dft-intro/image197.webp" alt="" width={554} loading="lazy" />
+
+因此，如果要读取MD过程中的压强，应该读取这里的total pressure或者Total+kin部分。另外，需要强调的是，in kB部分的内压强本身也和热波动有关，即，它并不等于你用一个完美格点的原子结构做一次静态得到的压强，而是会大一些。
+
+**（4）SMASS参数的影响**
+
+官网对SMASS参数的说明：[https://www.vasp.at/wiki/index.php/SMASS](https://www.vasp.at/wiki/index.php/SMASS)
+
+<img src="/dft-intro/image198.webp" alt="" width={554} loading="lazy" />
+
+实测同一体系，不同SMASS的影响，如下图；上面的图是温度变化，下面是能量。SMASS=2的模拟显然是不对的，因为温度没有控制好。因此在一个AIMD模拟结束后，需要确认温度的波动是否合理（右下）。
+
+<img src="/dft-intro/image199.webp" alt="" width={555} loading="lazy" />
+
+SMASS似乎会影响系统达到平衡所需的模拟时间。
+
+[https://journals.aps.org/prb/abstract/10.1103/PhysRevB.46.13756](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.46.13756)
+
+## 3.8.2 NPT系综模拟
+
+则ISIF=3（变胞），MDALGO=3（郎之万热浴），设置PSTRESS参数，具体形式在第四栏（带注释那些参数）
+
+[https://www.vasp.at/wiki/index.php/MDALGO](https://www.vasp.at/wiki/index.php/MDALGO)
+
+[https://www.vasp.at/wiki/index.php/NpT_ensemble](https://www.vasp.at/wiki/index.php/NpT_ensemble)
+
+提示：在做AIMD和MLMD计算时，不要直接用relax后的CONTCAR文件作为POSCAR去跑MD。因为CONTCAR最后会保留速度信息，且这些信息都为0。程序读取到之后会让体系温度为0，是的系统很难做动力学演化达到平衡。需要先把CONTCAR里面原子坐标信息之后的部分内容删掉，再作为MD的POSCAR。
+
+## 3.8.3 从AIMD模拟来判断材料的热稳定性
+
+常见的文献中，采用AIMD研究结构的稳定性（通常考虑的温度在300K），大部分采用NVT模拟，先做relax得到一个合理的体积，再做NVT的AIMD模拟。这是因为300K的温度对体积影响较小，可以认为与静态接近。但如果考虑的温度超过1000K，那需要考虑做不同体积下的NVT模拟得到平均压强。然后通过P-V关系得到合适的体积V，再用该体积做NVT模拟；或者直接采用NPT模拟，但NPT模拟难控制住体系的形状保持不变。
+
+（1）看能量随时间演化的趋势，能量波动是很正常的，因为温度会波动。一个具有热稳定性的材料，其能量趋势应该是平的，不能出现明显的下降或者上升，或者断层。模拟时间很难严格界定，大部分文献会模拟到10ps。
+
+（2）看结构演化情况，如果明显有结构重组现象，那意味着原有结构是无法维持稳定的。
+
+ACS applied materials & interfaces, 2019, 11(28): 24876-24884.
+
+The Journal of Physical Chemistry Letters, 2022, 13: 11581-11594.
+
+## 3.8.4 On-the-fly机器学习力场
+
+VASP6.3版本开始支持机器学习力场MLFF (Machine Learning Force Field)，由参数ML_LMLFF=.TRUE.控制。简单理解为，在做MD计算10000个离子步（NSW控制总步数）时，通过一些算法判断，只对其中算法认为有价值的原子构型做DFT计算，其余的构型通过机器学习力场来获得体系的能量和离子受力，从而大大加速MD模拟，时间缩短约3个数量级。这样做的物理逻辑源于：原子受力主要取决于局域环境，在MD过程中，可能有很多时刻原子局域构型是等价的，因此可以用一些算法来预测“原子受力和体系能量”。有了机器学习力场，就可以研究更大尺寸的模型（\~1000原子以上）和做更长时间的模拟（\~100ps量级）。
+
+VASP的机器学习力场与Gaussian approximation potential (GAP) 思路类似，其原理部分见官网
+
+[https://www.vasp.at/wiki/index.php/Machine_learning_force_field:\_Theory](https://www.vasp.at/wiki/index.php/Machine_learning_force_field:_Theory)
+
+[https://www.vasp.at/wiki/index.php/Category:Machine-learned_force_fields](https://www.vasp.at/wiki/index.php/Category:Machine-learned_force_fields)
+
+要在VASP中实现MLFF只需要在原来AIMD的INCAR中加这几个参数：
+
+<img src="/dft-intro/image200.webp" alt="" width={395} loading="lazy" />
+
+ML_MODE参数适用于6.4版本以上，如果是6.3版本，则采用ML_ISTART=0
+
+一般有这两个参数就可以开始进行MLMD模拟了.
+
+可以自行从官网提供的MLFF例子来学习：
+
+[https://www.vasp.at/wiki/index.php/Liquid*Si*-\_MLFF](https://www.vasp.at/wiki/index.php/Liquid_Si_-_MLFF)
+
+如果你要使用VASP自带的MLFF，请仔细阅读官方在vaspwiki上给出的说明和参数设置建议，见上面两个链接，并建议多看使用VASP的MLFF的文献：
+
+[https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.122.225701](https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.122.225701)
+
+[https://journals.aps.org/prb/abstract/10.1103/PhysRevB.100.014105](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.100.014105)
+
+[https://journals.aps.org/prmaterials/abstract/10.1103/PhysRevMaterials.7.L030801](https://journals.aps.org/prmaterials/abstract/10.1103/PhysRevMaterials.7.L030801)
+
+需要强调的是，MLFF的精度如何，是需要慎重考虑的，粗糙评估力场精度的方法是查看能量/力/应力三个方面，ML与DFT的误差：grep ERR ML_LOGFILE
+
+研究不同的问题有不同的精度要求。常见的机器学习势函数（如Deep Potential的势函数）的能量误差在5meV/atom以内，力的误差在100meV/Å量级。如何判断一个机器学习势函数是否“可信”（达到DFT精度），除了看基本的能量、力和压强差别之外，还需要通过一些物理性质进一步判断。比如对于固体自由能相关的计算，还需要满足MLFF得到的声子和DFT得到的声子一致。
+
+The Journal of chemical physics, 2023, 158(12).
+
+Nature Computational Science, 2023, 3(12): 998-1000.

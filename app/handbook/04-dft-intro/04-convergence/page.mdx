@@ -1,0 +1,50 @@
+export const metadata = {
+  title: '3.1 截断能和 k-mesh 收敛性测试',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.1 截断能和 k-mesh 收敛性测试',
+}
+
+该教程只作为初学者入门使用，因此只会强调一些简单体系的，基本的计算任务的参数设置以及物理含义。对于一些复杂体系或者高阶性质的计算，比如电声作用、化学反应的过渡态、复杂的分子动力学计算等，不在本教程范畴。请在掌握本教程基本内容之后，自行网上搜索学习。希望初学者至少能跟着教程学习3.1-3.3三节内容。
+
+# 3.1 截断能和 k-mesh 收敛性测试
+
+为什么需要做收敛性测试？原则上ENCUT和KPOINTS越多越好，但我们需要在有限的计算时间和资源下找到一个尽可能符合计算精度的设置，因此需要通过做收敛性测试，找到一组合适的ENCUT和KPOINTS，在满足计算精度的同时尽量减少计算量。
+
+**（1）K-mesh测试**
+
+在前面关于单质Si的静态自洽计算中，我们在KPOINTS中设置了auto20，对应kmesh为4 4 4。但是，4 4 4 的Kmesh够吗？这随之带来的另外一个问题是：多少的Kmesh算够？原则上Kmesh无穷大即可，但不现实。因此需要对Kmesh进行收敛性测试，即选取某一个量，测试该量对Kmesh变化的依赖，当随着Kmesh增加，该量不再明显继续增加时，可以认为此时的Kmesh合理。通常我们选取体系的“总能”作为这个量，即前面OSZICAR中的E0。有时也会选取体系的压强。
+
+首先确认INCAR中ENCUT的合理值：grep命令查看Si的POTCAR中的ENMAX
+
+<img src="/dft-intro/image40.webp" alt="" width={441} loading="lazy" />
+
+这里给出了POTCAR的ENMAX参数，通常INCAR中设置的ENCUT要是这个值的1.3倍以上比较安全，所以在这里我们设置INCAR=400eV（一般来说，400\~600eV是绝大部分元素的POTCAR所需要的合适的截断能，部分POTCAR可能需要高达1000eV，比如Fe_sv）
+
+分别考虑Kmesh取 (4 4 4 )，( 5 5 5 )，(6 6 6 )，(7 7 7 )，( 8 8 8)，(9 9 9)共六组（采用前面提到的第二种KPOINTS写法），用刚才的INCAR、POSCAR、POTCAR计算分别作六组不同KPOINTS下的静态自洽计算，并从OSZICAR提取出相应的能量E0，画出E0随kmesh的变化。
+
+<img src="/dft-intro/image41.webp" alt="" width={337} loading="lazy" />
+
+一般来说，收敛性测试要求是E0随着Kmesh的增加，其变化量小于1meV/atom时可以认为达到收敛（注意，纵轴是对体系总能E0除以POSCAR中的原子个数得到的）。所以在这里我们认为Kmesh=5x5x5及以后的Kmesh是能使得E0收敛的。另外，请自行比较不同Kmesh下的IBZKPT文件中的不可约k点数目。
+
+比较不同kmesh下的计算速度：在任意一个Kmesh的计算目录下输入grep LOOP OUTCAR，查看不同k点数量下电子步所需时间，自行体会计算速度与k点的关系。
+
+**（2）ENCUT测试**
+
+> 与Kmesh测试一样，之前的计算中，INCAR的ENCUT参数取的是400eV，现在分别从200eV到500eV以50eV为步长（为什么从200开始？因为POTCAR的ENMAX=245，ENMIN=184，我们选取高于ENMIN开始测试），统一在kmesh=5x5x5下分别在不同ENCUT下做静态自洽计算，并画出能量E0随ENCUT的图像
+>
+> <img src="/dft-intro/image42.webp" alt="" width={303} loading="lazy" />
+>
+> 类似地，因此我们认为ENCUT=400eV是足够的。
+>
+> 输入grep "maximum number of plane-waves" OUTCAR查看不同ENCUT下体系所需要的平面波数量（或者自行查看OUTCAR中每个k点处所需要的平面波数量），ENCUT越大，所需要的平面波越多，计算量也越大。
+>
+> 综上，我们认为对于该POSCAR，ENCUT=400eV，Kmesh=5x5x5是合理的。
+>
+> 事实上，我们考虑E0对Kmesh和ENCUT的收敛性，应该需要多非常多组(Kmesh,ENCUT)做测试。如果以Kmesh和ENCUT各自为轴组成一个平面，那就应该得到一个二维的散点分布，每个点代表一组(Kmesh,ENCUT)，每个点的第三个维度就是E0.前面我们是固定了一个ENCUT，然后测试Kmesh。实际上只是遍历了这个二维分布区域的两条线，中间区域并没有遍历，可自行测试中间区域，得到完整的三维图（第三个维度是E0）。关于ENCUT和Kmesh的详细讨论请查看教材Density Functional Theory(David S. Sholl，中英文版都有)第三章。
+>
+> **（3）可以不做Kmesh和ENCUT的收敛性测试吗？**
+>
+> ENCUT：如果不想每次都测试ENCUT，可以对所有元素一律取ENCUT=520eV ，通常是足够保证能量E0收敛的（不排除一些例外）；或者取POTCAR中所有元素的ENMAX中最大的那个的1.3倍以上：
+>
+> [https://www.vasp.at/wiki/index.php/PREC](https://www.vasp.at/wiki/index.php/PREC)；
+>
+> Kmesh：对于Kmesh来说，POSCAR的胞越大（体积、正格矢长度），所需要的Kmesh就越小（因为越大的正格子原胞所对应倒空间的1BZ体积就越小）。所以一般会考虑用“密度”标定Kmesh，大部分的计算情况下，金属体系需要更密的k点，因为需要计算费米能级附近的电子占据， Kmesh的密度取到$2\pi \times 0.025Å^{- 1}$是足够的；对于半导体绝缘体，取到$2\pi \times 0.04Å^{- 1}$也足够（建议先测试）。$2\pi \times 0.025Å^{- 1}$密度对应Auto 40，$2\pi \times 0.04Å^{- 1}$密度对应Auto 25. 有时候考虑到计算量，对于金属，也会适当放宽到$2\pi \times 0.033Å^{- 1}$，即Auto 30.

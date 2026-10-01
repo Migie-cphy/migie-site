@@ -1,0 +1,276 @@
+export const metadata = {
+  title: '3.7 声子谱与声子态密度',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.7 声子谱与声子态密度',
+}
+
+# 3.7 声子谱与声子态密度
+
+声子phonon是晶格振动（格波）的量子。与电子能带和电子态密度类似，声子也有band和dos，称为声子色散谱（声子谱）和声子态密度（phonon dos，有的文献记为PHDOS或者vibration DOS）。声子谱反映晶格振动的色散关系（原理请自行复习固体物理），最常来判断体系的动力学稳定性（dynamic stability）特征。这里给出金刚石Si的声子谱和声子态密度（简谐近似+0K）：
+
+<img src="/dft-intro/image173.webp" alt="" width={416} loading="lazy" />
+
+声子谱纵轴是声子的频率，单位是THz，有时也用cm<sup>-1</sup>和meV作为单位，换算关系是100cm<sup>-1</sup>=2.998THz=12.398meV，可以自行查找“原子单位换算”。原胞里面有N个原子，那声子谱就有3N条（无论是二维材料还是三维材料），由于体系有对称性，因此某些声子模（phonon mode）会简并。
+
+声子态密度横轴是频率，纵轴是态密度的大小，单位一般是modes/THz/f.u.或写为states/THz/f.u.声子态密度的积分即为晶格振动的总自由度3N。声子态密度可以用来计算有限温度下晶格振动的熵和自由能，从而得到晶体的吉布斯自由能或者亥姆霍兹自由能，或者做零点能（zero point energy，ZPE）校正。
+
+对于一个动态稳定的晶体结构，在温度（300K）激发下原子在平衡位置附近振动（振幅通常很小\~0.02Å），声子谱和声子态密度不应存在负频率的区域（虚频）。换句话说，如果算得的声子谱有虚频（排除计算精度误差），意味着这个虚频对应的phonon mode是不稳定的（软模），体系就会相变（变形），即必然存在一个比当前结构能量更低的新结构，可能是当前结构某些原子的轻微移动。
+
+声子相关的计算原理是晶格动力学理论，本科固体物理中有初步介绍，也可以阅读论文：
+
+Journal of the Physical Society of Japan, 2023, 92(1): 012001.
+
+Reviews of modern Physics, 2001, 73(2): 515.
+
+首先你需要一个relax好的结构，然后开始做声子计算。计算声子谱分两步，（1）DFT计算受力；（2）提取力常数信息，计算声子色散关系。
+
+步骤（1）通过VASP实现（当然也可以通过其他DFT软件计算）。对于VASP来说，计算材料的声子谱可以采用两种方法：有限位移法（也叫冻声子法，frozen phonon）和密度泛函微扰（DFPT）法。一般情况下两种方法得到的声子谱结果是一样的。
+
+步骤（2）通过一些声子后处理程序实现，比如phonopy，alamode，在这里我们主要是基于VASP+phonopy来计算声子谱的，phonopy软件请自行从官网安装：[https://phonopy.github.io/phonopy/index.html](https://phonopy.github.io/phonopy/index.html)
+
+<img src="/dft-intro/image174.webp" alt="" width={570} loading="lazy" />
+
+接下来以金刚石Si为例，分别介绍有限位移法和DFPT法的流程
+
+## 3.7.1 有限位移法（冻声子法）
+
+有限位移法的计算流程其原理大致为：
+
+- 采用phonopy扩胞的同时生成一系列施加displacement后的POSCAR-n（超胞）；
+
+- 分别对这些超胞做静态自洽计算，得到力和能量；
+
+- 收集力常数信息+计算声子色散关系；
+
+（1）首先准备一个relax好的结构的Si的原胞，用vaspkit-602命令寻找标准原胞，并将生成的PRIMCELL.vasp命名为POSCAR，如下
+
+<img src="/dft-intro/image175.webp" alt="" width={554} loading="lazy" />
+
+注意，VASP在计算时实际是通过POTCAR文件来标定原子类型的。换句话说，POSCAR中原子名字是什么对于VASP来说不重要。但是在使用phonopy处理数据时，phonopy会读取POSCAR中的元素符号来赋予其相应的质量以用于后续处理声子频率。因此，强烈建议要确认POSCAR中元素符号是否正确。
+
+查看abc三条轴的长度，vaspkit-601读取原胞POSCAR，显示为3.9Å
+
+（2）phonopy扩胞至三个轴长度接近或者超过10Å
+
+<img src="/dft-intro/image176.webp" alt="" width={333} loading="lazy" />
+
+此时会生成一个3x3x3方式扩胞的SPOSCAR超胞文件和在超胞基础上做原子位移的一系列POSCAR-xxx文件。
+
+（3）准备静态自洽计算的INCAR，KPOINTS和POTCAR以及任务提交脚本
+
+INCAR采用静态计算的即可。由于单质Si不需要考虑磁性，或者加U等，因此不需要额外加这些参数。如果你的体系有磁性或者需要加U，那么用于算声子时的INCAR也需要加这些参数。
+
+特别强调，有时候某些特殊结构VASP进行计算时，可能会报错并提示修改SYMPREC参数。该参数默认是1E-5，是用于判断结构对称性的。在用有限位移法计算声子时，不能轻易将该参数改到1E-3或者1E-2（或者更宽松的精度），否则会导致VASP对改“原子位移结构”又错误地识别回未位移的结构，导致后续phonopy提取出错误地力常数信息，进而导致声子结果错误。
+
+POTCAR可以用vaspkit-103生成。
+
+KPOINTS在超胞的基础上取Auto40或者2πx0.025密度（也可以Auto30或者2πx0.033）。再次强调，如果你采用vaspkit-102生成KPOINTS的话，需要读取超胞结构来生成。具体做法就是新建文件夹，把SPOSCAR文件复制进去并命名为POSCAR，再用vaspkit-102生成超胞对应的Kmesh.
+
+（4）对每一个POSCAR-xxx文件新建文件夹disp*xxx。强烈建议，文件夹名字最好和POSCAR-后缀相符，如果POSCAR-后缀有001，那么disp*后缀也建议001，而非1，否则这可能影响后面读取文件夹顺序。做静态自洽计算。记得在每个disp_xxx文件夹里面把POSCAR-xxx文件命名为POSCAR，再提交任务。这一步提交可以用shell的for循环实现。请自行GPT学习shell中的for循环语法。
+
+（5）当所有POSCAR-xxx的静态计算成功收敛时（超胞计算通常比较慢），开始提取力常数数据。
+
+<img src="/dft-intro/image177.webp" alt="" width={310} loading="lazy" />
+
+此时会生成一个FORCE_SETS文件
+
+（6）准备一个KPATH.phonopy文件（名字不重要），用于计算声子色散
+
+用一开始的原胞作为POSCAR，运行vaspkit-305-3（3D结构），生成一个KPATH.phonopy文件。并修改里面部分内容，其中DIM就是前面扩胞的方式，注意红框中的内容。#表示注释，即不起作用。BAND是声子的波矢路径，其物理含义和电子能带的路径类似。可以自行琢磨BAND和BAND_LABELS的写法规律。
+
+<img src="/dft-intro/image178.webp" alt="" width={295} loading="lazy" />
+
+MP是计算PHDOS时采样的q点，取10\~30足够；
+
+BAND_CONNECTION=TRUE时，不同声子曲线会用颜色区分，
+
+其余参数请查阅phonopy说明[https://phonopy.github.io/phonopy/setting-tags.html#](https://phonopy.github.io/phonopy/setting-tags.html)
+
+（7）处理声子谱并自动画图
+
+<img src="/dft-intro/image179.webp" alt="" width={386} loading="lazy" />
+
+声子态密度数据在total_dos.dat和projected_dos.dat（如果设置了PDOS）文件中。
+
+命令指令的含义请查阅：[https://phonopy.github.io/phonopy/command-options.html#](https://phonopy.github.io/phonopy/command-options.html)
+
+该命令运行成功后，生成的band_dos.pdf就是phonopy自动画的图，可以用于快速查看声子谱，观察是否有虚频。
+
+（8）为了得到方便画图的声子谱数据，运行命令，得到phband.dat文件，第一行就是高对称q点坐标。声子谱的画图方式和能带图一样。
+
+<img src="/dft-intro/image180.webp" alt="" width={414} loading="lazy" />
+
+## 3.7.2 密度泛函微扰法（DFPT）
+
+（1）INCAR（可以用vaspkit101-DT生成，但是vaspkit生成的INCAR需要自己稍加修改，尤其是ENCUT）。IBRION=8控制DFPT计算，DFPT方法不能设置NCORE为非默认参数1，否则会报错。如果你的体系需要考虑磁性或者+U等，INCAR中需要加入相应的参数，否则力常数就算不对。
+
+<img src="/dft-intro/image181.webp" alt="" width={554} loading="lazy" />
+
+（2）超胞POSCAR，生成方式与前面3.7.1一样，记得把phonopy生成的SPOSCAR直接命名为POSCAR；
+
+（3）KPOINTS和POTCAR生成方式与前面3.7.1一样，KPOINTS要在超胞下生成。
+
+（4）提交任务，确认计算成功结束。由于计算超胞，所以速度会较慢，可能要几个小时，对于大体系或者对称性很低的结构甚至要几天。
+
+可以自行查看OUTCAR/OSZICAR/result等文件，对比DFPT计算与scf或者relax的不同。
+
+（5）从vasprun.xml中提取FORCE_CONSTANTS文件，（此时会生成一个力常数文件），注意，提取命令和有限位移法不一样。
+
+<img src="/dft-intro/image182.webp" alt="" width={235} loading="lazy" />
+
+（6）准备KPATH.phonopy文件（名字不重要）
+
+KPATH.phonopy与有限位移法的文件唯一区别在于：
+
+要设置FORCE_CONSTANTS=READ
+
+（7）计算声子色散与态密度
+
+<img src="/dft-intro/image183.webp" alt="" width={377} loading="lazy" />
+
+这里需要提供一开始用于333扩胞时的标准原胞，命名为ucell（名字可任意）
+
+（8）为了得到方便画图的声子谱数据，运行命令，得到phband.dat文件，第一行就是高对称q点坐标，画图方式和能带图一样。
+
+<img src="/dft-intro/image180.webp" alt="" width={414} loading="lazy" />
+
+讨论
+
+（1）算声子时，有限位移法（Finite Displacement，FD）和密度泛函微扰（DFPT）两种方法该选哪个？
+
+我个人算的大量例子中，两种方法得到的声子谱结果是几乎一样的，并且两种方法计算量差别不大。但是由于有限位移法可以提交很多个任务，同时算多个displacement下的结构，因此可以实现“多任务同时计算”来更短时间内得到结果。而DFPT方法只能提交一个任务进行计算，不同displacement下的计算需要依次进行（可以查看OSZICAR和OUTCAR），而且INCAR中没法设置NCORE进一步加速计算，因此相比于FD方法耗时更久。一旦总时长超过超算单个任务时间限制（大部分超算中心单个任务时间限制在48h以内），或者由于断电导致任务中断时，DFPT是没法进行续算的。
+
+因此，总得来说，当你可以同时提交很多个任务时，建议优先考虑FD方法；否则，DFPT方法从操作上来说是更简便的，因为不需要像FD那样写for循环对多个displacement下的结构建立计算文件夹。
+
+（2）对于VASP来说，DFPT方法和有限位移法都需要扩胞，那么扩多大的胞合适？扩胞越大越好吗？
+
+原则上要测试不同扩胞下算得的结果，即做收敛性测试。如果想偷懒，那扩胞得到的超胞三条轴长度都超过10Å会是一个不错的选择（有时可能需要15A）。
+
+<img src="/dft-intro/image184.webp" alt="" width={554} loading="lazy" />
+
+同时，实测发现，有些体系频率对扩胞大小和扩胞方式十分敏感；扩胞方式指的是221，222，332这种扩胞方式，这可能还需要更多的测试研究。
+
+（3）在DFPT方法和Finit-Displacement方法时，KPOINTS该取多少？
+
+原则上做超胞的能量-k点收敛性测试，想偷懒的话，取0.025\~0.04的密度会是不错的选择。特别强调，有些时候只取Gamma点是不够的。
+
+有些特殊情况下，Phonopy处理得到的声子谱中，存在一些很平坦的线，理论上phdos里面在相应的频率区间内应该也有峰。但是画出来的phdos里面对应的频率区间没有看到峰。这可能是由于计算phdos时选用了四面体法导致的bug，改成高斯展宽方法可以解决（https://zhuanlan.zhihu.com/p/1938351431577997979）
+
+## 3.7.3 晶格的振动自由能
+
+声子计算不单单可以给出声子谱来说明体系的动力学稳定性，还可以从声子态密度数据中获得晶格振动的自由能。前面我们提到过，对于一个结构单纯做DFT静态自洽计算得到的能量，是不包含晶格振动的自由能的。要获得晶体的振动自由能，比较主流的方法之一就是算声子，其晶格振动的自由能与声子态密度的关系表达式如下（具体推导见固体物理教材）：
+
+$$
+F_{vib}(V,T) = \sum_{q,j}^{}\left\lbrack \frac{\hslash\omega_{qj}(V)}{2} + k_{B}Tln\left( 1 - \exp\left( - \frac{\hslash\omega_{qj}(V)}{k_{B}T} \right) \right) \right\rbrack
+$$
+
+求和写成积分形式则是：
+
+$$
+F_{vib}(V,T) = \int_{0}^{+ \infty}{\left( \frac{\hslash\omega(V)}{2} + k_{B}Tln\left( 1 - \exp\left( - \frac{\hslash\omega(V)}{k_{B}T} \right) \right) \right)\rho(\omega)d\omega}
+$$
+
+其中$\rho(\omega)$就是声子态密度。晶体的总自由能可以写成：
+
+$$
+F(V,T) = F_{elec}(V,T) + F_{vib}(V,T)
+$$
+
+其中$F_{elec}(V,T)$可以直接从OUTCAR的能量中的Free energy部分获得，即OSZICAR中的F（注意，不是E0）。DFT直接做relax可以获得0K下的体积（没有原子热振动效应），如果假设体积不随温度膨胀的话，那么用该体积算一次声子，得到声子态密度；并且假设不考虑电子熵，再结合上面的公式就可以得到体系的自由能随温度的变化。这一“体积不随温度变化”的假设就是简谐近似，Harmonic Approximate（HA）。更严格一点的是准谐近似Qusia-Harmonic Approximate（QHA）；QHA考虑了晶格热膨胀效应，但是忽略了温度对力常数（频率）的修正。QHA常用于计算固态物质的热膨胀系数、或是高温高压下的相图。
+
+现在我们用phonopy来获得给定体积V下，体系的晶格振动的自由能数据：
+
+只需要在前面的KPATH.phonopy基础上，加上如下参数：
+
+<img src="/dft-intro/image185.webp" alt="" width={150} loading="lazy" />
+
+然后运行phonopy -c xxx KPATH.phonopy那一串命令即可。此时band相关的参数不起作用并且运行过程中屏幕会输出当前体积下晶格振动自由能随温度的变化，如下图。第二列F就是晶格振动自由能，E是晶格振动的内能，S是晶格振动熵，F=E-TS。0K下晶格振动内能不为0，因为谐振子存在零点能，具体内容请复习固体物理。并且这里的mol是以原胞为单元的，并非每原子，可以从thermal_properties.yaml文件前几行中了解这一点。
+
+<img src="/dft-intro/image186.webp" alt="" width={509} loading="lazy" />
+
+单位换算，1KJ/mol\~0.0103643eV/f.u.
+
+注意，计算晶格振动自由能的前提是体系的声子谱和态密度总没有虚频。否则得到的自由能是有问题的。当然，phonopy提供了一种灵活但不保证准确性的处理方式，即把虚频设置为正值，通过PRETEND_REAL参数实现，具体见phonopy官网的参数说明。
+
+[https://phonopy.github.io/phonopy/setting-tags.html#thermal-properties-tag](https://phonopy.github.io/phonopy/setting-tags.html#thermal-properties-tag)
+
+上面获得晶格振动自由能是建立在简谐近似的基础，即认为晶体没有热膨胀。对于大部分体系，热膨胀效应不可忽略，可以通过QHA来研究。QHA的教学不属于基础计算教学内容，请自行从phonopy官网学习。
+
+提示：在做QHA过程中时，需要拟合F-V数据。如果不加振动自由能，F-V数据很光滑；如果加入振动自由能，F-V数据可能没那么光滑；可能原因是声子计算精度不够，考虑INCAR中加入ADDGRID = .TRUE. ; LREAL = .FALSE. ; PREC = Accurate三行参数。
+
+## 3.7.4 原子振动可视化
+
+如有兴趣，请自行计算单层石墨烯的声子谱（z方向真空层设置为15Å以上），注意，二维材料只需要在ab轴上扩胞，c方向不需要。
+
+在这里我们采用两种扩胞，K点密度0.025。ECUT=600eV
+
+<img src="/dft-intro/image187.webp" alt="" width={554} loading="lazy" />
+
+左边的声子谱在Gamma点附件有很明显虚频（下沉包），而右边的“下沉包”似乎变弱了。这一点稍后讨论。
+
+现在我们将声子模式进行可视化。在KPATH.phonopy文件中中设置参数EIGENVECTORS=.TRUE.，此时运行phonopy -c POSCAR KPATH.phonopy -p -c后，输出的band.yaml文件中就有每个mode的本征矢量和本征频率信息，请自行查看并下载到电脑。
+
+将band.yaml文件上传到网站：
+
+[http://henriquemiranda.github.io/phononwebsite/phonon.html](http://henriquemiranda.github.io/phononwebsite/phonon.html)
+
+在网页右边的声子谱中点击某一点，就可以看到该点对应的原子实空间振动情况。对于二维材料来说，G点附近的第一条（最低频）声学支对应的振动是原子在z方向振动，格波在xy面内传播，即为横波（波矢方向与振动方向垂直），命名为ZA，Z的含义应该是z方向振动；A的含义就是acoustic，声学；其余两条声学支是TA和LA。这条ZA支通常都是抛物线型的，但在块体材料或者厚度较大的准二维材料中，这条最低频率的声学支是近乎线性。
+
+二维材料的ZA模很容易在G点附近出现微小下沉包，即虚频区域（尤其对于一些纯平的2D材料，如下图左）。遇到这种情况，首先要做更高精度的relax，以及更多k点和扩更大胞计算声子，有可能会消除虚频。比如前面Graphene，通过扩更大的胞得到的声子谱虚频更少了，原则上继续扩胞增大k点可以消除虚频；另一方面，有可能当前结构本身无法维持纯平状态，它会畸变为略微有褶皱的情况。但是有时候对结构施加一个双轴应变，虚频可能消除，对应在实验上就是把纯平二维材料放在（生长）某一个衬底上，由于晶格失配，二维材料受到衬底的应力作用而维持纯平状态，尽管纯平的2D材料在G点附近存在小虚频。但如果这个下沉包分布很广，那大概率结构本身就是不稳定的，如下图最右侧。
+
+<img src="/dft-intro/image188.webp" alt="" width={554} loading="lazy" />
+
+关于这部分的讨论，请查阅：
+
+Physical Review B, 2009, 80(15): 155453.
+
+The Journal of Physical Chemistry Letters, 2022, 13: 11581-11594.
+
+ACS applied materials & interfaces, 2019, 11(28): 24876-24884.
+
+声子谱也可以类似能带那样，投影到不同元素，或者不同振动方向上，原理就是读取每一个q点特定频率处的本征矢量，再从中得到该声子模式的“投影权重”数据，然后画图。可以通过vaspkit的789功能或者95模块（对于vaspkit-151版本）实现。
+
+## 3.7.5 如何消除虚频
+
+（1）虚频意味着什么？为什么虚频对应着动力学失稳？
+
+我们说虚频，指的是某个phonon mode的振动频率为虚数（在画图时通过负数来体现）。而基于简谐近似（harmonic），原子振幅很小，做能量-位移展开时只考虑到二阶项，频率平方和这个二阶导有直接联系，请自行翻看固体物理。如果这个二阶导为正，频率即为正值，对应在势能面上就是一个谷底，体系可以在谷底附近来回运动，是稳定平衡；如果二阶导为负，频率为虚数（虚频），对应势能面上是在谷顶，体系一旦受到微小扰动就会彻底偏离平衡位置，对应着动态失稳。如果声子谱的一整条谱线都是虚频，那说明这一条线对应的每一个phonon mode都是不稳定的。
+
+[https://mp.weixin.qq.com/s/ysC0NtejLwm53rvfftV3qw](https://mp.weixin.qq.com/s/ysC0NtejLwm53rvfftV3qw)
+
+（2）如何消除虚频？
+
+分四种情况：计算精度不够；当前结构本身无法稳定，会畸变；非谐效应
+
+a.对于第一种情况，只需要(ENCUT=2\*ENMAX):
+
+结构优化时提高精度，EDIFFG=-0.001，Kmesh=2πx0.025，EDIFF=1E-8；
+
+在做超胞计算时（DFPT/Finit Disp），扩更大的胞（有时甚至需要超过15A）并且取适当大的k点，EIDFF=1E-8。特别强调，对超胞只采样Gamma点一般都是不合理的。
+
+b.对于第二种情况，原理就是移动某些原子，构造新的结构，重新计算声子谱。但“移动哪些原子，移动多少距离”是不太好确定的。针对虚频出现的地方不同，有不同的解决办法。主要有两种方法：扩胞重新结构优化；根据软模移动原子。
+
+[https://mp.weixin.qq.com/s/amhu3Zq6uKFJNIylRHtywg](https://mp.weixin.qq.com/s/amhu3Zq6uKFJNIylRHtywg)
+
+[https://mp.weixin.qq.com/s/9dmE_QuMY7bw-0a2--S1sw](https://mp.weixin.qq.com/s/9dmE_QuMY7bw-0a2--S1sw)
+
+[https://mp.weixin.qq.com/s/Ze7dQo3xkK0-UfZY5W5Q5Q](https://mp.weixin.qq.com/s/Ze7dQo3xkK0-UfZY5W5Q5Q)
+
+<img src="/dft-intro/image189.webp" alt="" width={583} loading="lazy" />
+
+Nakano K, Hongo K, Maezono R. Scientific reports, 2016, 6(1): 29661.
+
+c.第三种是简谐近似失效，需要考虑非谐效应修正（Anharmonic）即温度/势能高阶项。
+
+非谐效应（Anharmonic Effect）：常规情况下，计算声子谱时，一方面是基于简谐近似（harmonic）下的，即只考虑到二阶力常数，忽略高阶项；另一方面所做的DFT计算都是基态计算，没有温度激发，即不考虑有限温度下原子振动对力常数的影响。大部分体系中，这样的近似都是合理的，但轻质元素体系尤其是含H/He时，比如高压下的固体H和固体He晶体，由于体系的德布罗意波长已经可以与晶格常数相当，此时原子波动振幅甚至可以达到0.2Å，简谐近似有可能会失效，需要考虑非谐效应的修正。另一方面一些具有立方结构的体系，在高温下实验往往观察到是稳定的，但是简谐近似的声子计算又显示虚频。通常就需要考虑温度对频率的修正。常见的比如钙钛矿体系，以及某些元素的bcc或者simple cubic结构等。
+
+<img src="/dft-intro/image190.webp" alt="" width={554} loading="lazy" />
+
+要处理非谐效应，目前主要两类方法：一类是声子气模型，考虑温度对力常数的修正，该方法需要做AIMD模拟，可以通过DynaPhoPy程序处理；一类基于声子自洽场理论(SCPH)，比如ALAMODE程序和SSCHA程序。
+
+Reviews of Modern Physics, 2017, 89(3): 035003.
+
+Physics Reports, 2020, 856: 1-78.
+
+Physical Review B, 2014, 89(9): 094109.
+
+Physical review letters, 2011, 106(16): 165501.

@@ -1,0 +1,430 @@
+export const metadata = {
+  title: '二、VASP 计算的输入输出文件',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 二、VASP 计算的输入输出文件',
+}
+
+# 二、VASP 计算的输入输出文件
+
+在这里我们将以金刚石结构的单质Si的静态自洽计算为例，简要介绍VASP计算的输入输出文件，你需要做的事情就是在教程的帮助下对输入输出文件以及里面的内容有最基本的了解。**其中，你需要做的重要操作用红色特别标注。**
+
+## 2.1 服务器登录以及Linux系统基本操作
+
+通常我们会用服务器（超级计算机，或者高性能计算机）而非自己的电脑执行计算任务。服务器可能是课题组自备的，也可能是超算平台的，因此你需要知道：
+
+1.  **如何用自己的电脑连接上服务器；**
+
+2.  **如何在服务器和个人电脑之间传输文件（上传和下载）。**
+
+3.  **和课题组师兄/师姐或者超算的工程师确认超算上已经成功安装了VASP**
+
+这一点不同课题组情况不同，请向组里师兄师姐当面请教，并记得感谢他们（疯狂星期四）。如果你是组里第一个做VASP计算的，请网上搜索VASP安装教程，自己在服务器上安装。
+
+绝大部分情况下，做VASP计算的服务器都是Linux系统，而Linux系统的一些基本操作与Windows不同：比如进入某文件夹、复制文件a为文件b、编辑文本文件a里面的内容并保存、查看某文件a里面的内容等。在Linux下我们需要在终端输入命令行来进行操作，因此首先需要掌握Linux一些基本命令。这一点非常重要！**请自行网上搜索学习Linux基本命令，初学阶段你至少需要掌握的Linux命令**是：pwd ls cat cd cp mv rm mkdir grep head tail vim, 推荐b站视频:
+
+[https://www.bilibili.com/video/BV1xN4y137Ja/?spm_id_from=333.337.search-card.all.click&vd_source=4dff88dfcb4f4278137f8af12224aa06](https://www.bilibili.com/video/BV1xN4y137Ja/?spm_id_from=333.337.search-card.all.click&vd_source=4dff88dfcb4f4278137f8af12224aa06)
+
+**在自己的windows/mac电脑下安装VESTA**，这个软件后续用于查看和编辑晶体结构以及电荷密度等信息非常方便。如果你不习惯直接搜索官网安装，那网上搜索“windows系统 VESTA安装”的教程。同时建议你在服务器下安装Anaconda，搜索b站“Linux服务器安装anaconda3”。假设现在你已经学会了如何使用自己的电脑连接服务器，以及在电脑和服务器之间上传和下载文件，并且掌握了上面说的Linux最基本的命令使用，下一步就是开始进入第一个VASP算例。在开始之前，请先在服务器个人路径下用mkdir命令新建一个名为test或者work的文件夹，我们在该路径下进行第一个计算任务。
+
+## 2.2 VASP四个输入文件
+
+（1） POSCAR：研究对象的原子排列结构
+
+原子结构和电子结构决定物质的性质。首先我们需要知道研究对象的结构信息，即原子的空间排列。在这里我们研究对象是常温常压下具有金刚石结构的单质硅Si，其空间群为Fd-3m，结构示意图如下：
+
+<img src="/dft-intro/image6.webp" alt="" width={130} loading="lazy" />
+
+请注意，这里我们取的是cubic的晶胞，含有8个原子，并非原胞。如果你对上面提到的这些概念陌生，请复习《固体物理》或者《晶体物理学》。
+
+将其写成POSCAR文件内容如下：
+
+<img src="/dft-intro/image7.webp" alt="" width={438} loading="lazy" />
+
+**在刚刚新建的test文件夹里面，用vim命令创建一个名为POSCAR，内容如上的文件。注意，文件名需严格为POSCAR，不能小写或其它字母。创建成功之后下载到本地windows并用vesta查看。**
+
+现在我们对POSCAR文件的格式和内容做一些说明：
+
+第一行内容任意，建议写成体系的名称；
+
+第二行是无量纲的晶格缩放系数，通常取1就行；
+
+三到五行是胞的晶格信息，即三个基矢a1 a2 a3在xyz基矢下的坐标，单位是Å
+
+第六行是元素类型，这里只有一种元素Si
+
+第七行是胞里面元素对应的原子个数，这个胞里有8个Si原子，所以数字是8
+
+第八行只有两种写法，要么Direct要么Cartesian，这里D和Direct以及任何以大写D开头的词效果都是一样的。类似的，Ca和Cartesian以及C也是一样效果。注意，这一行强烈建议顶格，前面不要空格。
+
+第九行开始是原子坐标信息，和第八行配套。在这里，第八行开头是D，表示分数坐标，所以第九行0.25 0.25 0.25意思就是以a1 a2 a3为基矢，在(0.25 0.25 0.25)坐标上放置一个Si原子，其余类似；如果是Cartesian，表示笛卡尔坐标，是以xyz为基矢的绝对坐标。D和C只是两种表示方法而已，他们可以相互转换。比如同样是刚才的结构，现在以Cartesian坐标给出如下：
+
+<img src="/dft-intro/image8.webp" alt="" width={486} loading="lazy" />
+
+因此这个POSCAR表示了一个晶格常数为5.4687Å的cubic结构，里面特定位置处有8个Si原子。如果在Direct坐标下，把第二行的1改成2，其余不变，就相对于把整个体系边长扩大2倍，体积扩大了8倍。但如果你是在Cart下把第二行改成了2，那情况就不一样。可以自行尝试，并用vesta可视化。
+
+注意：由于计算精度有限，坐标到第六七位开始其实就没有意义了。比如晶格常数3.333013887156和3.333014本质上并没有太大差别。
+
+如果结构里有多种元素，比如4个Si，4个C，写法如下图。这表示Direct下面开始的前4行是Si原子，之后的4行是C原子的坐标。因此，你很容易知道更多原子类型的POSCAR应该怎么写了。
+
+<img src="/dft-intro/image9.webp" alt="" width={465} loading="lazy" />
+
+（2） INCAR：控制计算参数，做scf/relax/band……
+
+**在Linux下用vim创建一个名为INCAR的文件，里面内容如下（右边#后面的内容不写）**。
+
+<img src="/dft-intro/image10.webp" alt="" width={421} loading="lazy" />
+
+INCAR的内容取决于计算任务，比如静态计算、结构优化、分子动力学模拟的INCAR就各有不同。上面是一个用于我们稍后的静态自洽计算对应的INCAR。
+
+INCAR格式问题：编写INCAR时避免在Linux下使用tab键，可以使用键盘上的空格键；参数后面的“=”前后是否有空格无所谓；
+
+INCAR中实际的参数有上百个，没有给出的参数就意味着取默认值。前面用#表示注释掉，即在计算时软件会自动取默认值。INCAR中的参数可以分四类：
+
+a\. 计算模型的参数：比如截断能ENCUT、自旋参数ISPIN、LDA+U的参数、离子步NSW、力收敛EDIFFG、能量收敛EDIFF等。
+
+b\. 控制输出文件的参数：是否写下波函数/电荷密度文件LWAVE/LCHARG）
+
+c\. 帮助自洽迭代能收敛的参数：比如IALGO、AMIX、ADDGRID等
+
+d\. 提升计算效率的参数：NCORE，NPAR等
+
+这些参数的含义在2.3.3节中解释，在这一步中，你只需要写出这个一个INCAR文件，然后跟着教程往下走即可。
+
+\(3\) KPOINTS：直接决定了计算精度和时长
+
+**用vim创建一个名为KPOINTS的文件，里面内容如下：**
+
+<img src="/dft-intro/image11.webp" alt="" width={118} loading="lazy" />
+
+KPOINTS写法有很多种，并且针对不同计算需要用不同的写法。对于常规的静态自洽计算和结构优化计算，上面是一种比较好用的KPOINTS的写法。这种格式的KPOINTS适用于不同晶格类型的3D体系的静态自洽计算和结构优化计算。第一行随便写内容，不能没有；第二行用0就行；第三行写Auto；核心在第四行的数字（整数）。这个数字越大，计算精度通常越高，计算所需时间越长，内存越大。其物理含义是在倒空间的第一布里渊区中，在三个倒格基矢b1 b2 b3方向上自动布点。20代表了在每个倒格矢上布点间隔为$2\pi \times 0.05\mathring{\mathrm{A}}^{- 1}$（其中0.05是20的倒数）。比如在我们的8原子的Si结构中，由固体物理知识，对于这种abc三条轴夹角90°的特殊结构，很容易计算三条倒格矢长度都是$2\pi \times 0.183\mathring{\mathrm{A}}^{- 1}$，其中0.183是晶格常数5.469的倒数。因此在每条基矢方向撒点的数目就约等于$\frac{2\pi \times 0.183}{2\pi \times 0.05} \approx 4$，所以撒点网格就是4x4x4，一共有64个点。这个撒点的目的是为了将连续积分离散化，变成求和，离散程度越高，对应的网格划分约密，求和值理论上就越接近积分值。但并不意味着21一定比20好，这涉及到一个k点收敛的问题。
+
+与之等价的另外一种KPOINTS的写法如下：
+
+<img src="/dft-intro/image12.webp" alt="" width={410} loading="lazy" />
+
+这样撒点的目的是在自洽计算中对整个第一布里渊区进行采样，计算每个k点的能量Ek。在这里，你只需要写出这样的KPOINTS文件即可。在真正做计算面对不同的体系时，我们借助vaspkit来自动生成这样格式的KPOINTS文件。如果是2D或者1D材料，建议采用这种写法的KPOINTS。具体取法在后面2.3.4节中介绍。
+
+同时，目前VASP支持将KPOINTS的内容写进INCAR中，用KSPACING和KGAMMA两个参数来代替KPOINTS文件。$2\pi \times 0.05\mathring{\mathrm{A}}^{- 1} = 0.314$，因而对应的KSPACING值为0.314。初学阶段仍建议写出KPOINTS文件。
+
+**在这个例子中，用于本次静态计算演示，建议你手写第一种格式**。
+
+（4） POTCAR：赝势文件，描述原子电子间相互作用
+
+**请自行向课题组里的师兄师姐寻求VASP的赝势文件，在本次例子中，你需要一个Si的POTCAR文件（不带后缀的文件夹里面的）**。POTCAR文件取决于体系的元素类型，具体来说就是取决于POSCAR中元素那一行内容。POTCAR文件是VASP官方生成的，计算时不需要人为改动（除了个别情况）。文件名需要严格为POTCAR，不可小写或其它名字。VASP是付费软件，它的赝势文件POTCAR是有版权的，因此在这里我不能轻易分享出来。另外，赝势随着VASP软件的更新也有不同版本，建议至少用5.4以及以后的赝势版本。
+
+POTCAR里面内容很长，上千行，我们只需要关心前面几十行，如下。
+
+<img src="/dft-intro/image13.webp" alt="" width={475} loading="lazy" />
+
+第一行PAW_PBE：表明是采用PAW方法描述电子离子作用，且是GGA-PBE泛函。
+
+LEXCH:泛函类型，PE就是PBE，CA就是LDA。
+
+ZVAL：该赝势（PAW势）所考虑的价电子数目，这里把Si外层的4个电子视为价电子。价电子构型可以从下面的Atomic configuration看到，这里最外层是3s<sup>2</sup>3p<sup>2</sup>. 对于其他元素，比如Fe，有26个电子，通常只会把最外层的8个或者16个电子视为价电子，其余的视为芯电子。因为内层电子通常不参与成键。
+
+RCORE：原子核+芯电子的半径(Bohr单位，1.9Bohr=1.9\*0.5292=1.005Å)，当原子间距接近该值时，赝势可能失效。
+
+RWIGS：把原子视为硬球时的半径，第一个数值是Bohr单位下的。后面算PDOS时会再次遇到。
+
+ENMAX：建议截断能（eV），和INCAR中的ENCUT设置密切相关
+
+其余内容可以参考：[https://blog.sciencenet.cn/blog-567091-729732.html](https://blog.sciencenet.cn/blog-567091-729732.html)
+
+由于本次演示的体系中只有Si一种元素，因此POTCAR文件直接用VASP的赝势库文件夹Si里面的POTCAR即可。如果POSCAR中有多种元素，比如含有Si C两种原子时，那就需要使用cat命令把Si和C各自的POTCAR拼接成一个，注意前后顺序要和POSCAR一致。
+
+cat xxx/Si/POTCAR xxx/C/POTCAR \> POTCAR （注意空格,xxx是赝势路径）
+
+这条命令会把C的POTCAR拼接在Si的POTCAR后面，并组成一个新的POTCAR。在实际的计算中，我们常常会使用vaspkit来自动实现这一步，在3.2中有介绍
+
+## 2.3 金刚石单质Si的静态自洽计算
+
+### 2.3.1 提交计算任务
+
+**（1）找课题组的师兄师姐或者超算管理员要一个用于向服务器提交VASP计算任务的脚本。**
+
+一般用VASP做DFT计算时，都是借助超算服务器实现（个人电脑算力不太够），所以需要一个脚本来告诉服务器，我需要调用多少算力（节点、核数），做什么任务的计算（运行VASP或者QE）。以下是PBS作业管理系统的提交脚本示意：
+
+<img src="/dft-intro/image14.webp" alt="" width={554} loading="lazy" />
+
+前两个红框意思是：调用用1个节点，32个核。这个文件直接决定了做VASP计算时可以调用的cpu计算资源（核数和内存），核数越多一般内存越大。核数设置一般需要经验，常见服务器单节点可以用的核数一般是20/24/32/48/64这样的数字，需要咨询服务器的管理员。在不跨节点的情况下，一般核数越多，计算速度越快，并且可以调用的内存也越多。所以对于大体系（原子数多）或者类似杂化泛函的计算，建议使用更多的核数。常规的计算任务，核数接近原子数是比较有性价比的选择。不同服务器的情况不一样，因此对于初学者来说，该脚本中涉及的的节点、核数选取请务必咨询课题组师兄/师姐或者超算工程师。
+
+后两个红框意思是：运行vasp_std程序开始计算，并把主要结果输出到result文件中。
+
+注意：当你有了任务提交脚本之后，**你需要确保前面的四个文件INCAR，POSCAR，KPOINTS和POTCAR，以及任务脚本一共4+1个文件处于同一目录下**
+
+（2）根据任务管理系统对应的提交命令，提交任务。
+
+**咨询课题组师兄师姐相关的任务提交命令**。不同服务器可能有不同的任务管理系统，常见的三种任务管理系统以及对应的任务提交命令如下：
+
+SLURM任务管理系统，sbatch vasp641.slurm
+
+PBS任务管理系统，qsub vasp641.pbs
+
+LSF 任务管理系统，bsub \< vasp641.sub （多了个\< 需要在键盘英文模式下输入）
+
+任务提交脚本文件名字以及后缀不重要，随个人喜好即可。
+
+（3）**任务提交之后，你需要查看任务是否在排队，还是在计算中，或是被异常中止**。
+
+对于SLURM任务系统，通过squeue查看任务情况；
+
+对于PBS任务管理系统，通过qstat查看；
+
+对于LSF任务管理系统，通过bjobs查看；
+
+请自行网上查询对应的任务管理系统更详细的命令用法。
+
+### 2.3.2 静态自洽计算的输出文件
+
+**在这里，你需要跟着教程初步了解VASP的主要输出文件及其含义**。
+
+提交计算任务之后，如果任务正常开始计算时，我们会看到当前路径下多了很多文件，用ls命令查看
+
+<img src="/dft-intro/image15.webp" alt="" width={550} loading="lazy" />
+
+在这里，我们重点需要关注的是result、OUTCAR、OSZICAR这三个文件，除了第一个文件名字取决于脚本里的写法，其余文件名字都是VASP程序固定的命名。
+
+（1）result文件
+
+Result文件最上面几行会给出此次计算调用的计算资源（核数）、vasp版本等。之后会进入自洽迭代步骤（俗称，电子步）。请注意，result文件电子步前面部分可能有warning，一般可以不管，感兴趣可用自行去阅读这些warning内容。但是如果最后出现了warning，通常意味着计算可能有问题。这一点我们会在第三章详细说明。
+
+（2）OUTCAR文件
+
+VASP的全部计算信息都会在这个文件显示。输入cat OUTCAR并回车，然后借助鼠标滚轮上滑从第一行开始看。OUTCAR中前面依次会有vasp的版本信息，计算资源（核数），INCAR内容，POTCAR主要内容（这里不做展示）。
+
+继续往下，看到了结构信息
+
+<img src="/dft-intro/image16.webp" alt="" width={546} loading="lazy" />
+
+注意，这里vasp默认对结构寻找了对称性，因此找到了一个更小单元的胞进行计算，这个小胞里只有两个原子。
+
+<img src="/dft-intro/image17.webp" alt="" width={548} loading="lazy" />
+
+以及K点的信息
+
+<img src="/dft-intro/image18.webp" alt="" width={324} loading="lazy" />
+
+回想我们设置的KPOINTS文件，取的k点应该有64个。由于体系具有对称性，很多k点是等价的，实际只需要计算那些不可约的点，这里只有4个。在IBZKPT文件中也可以查看到这些不可约k点。当我们把每个k点的权重Weight相加，就得到了64个k点。在k点信息之后，还会给出完整的INCAR参数，因此实际计算中INCAR取的参数值也可以在OUTCAR这里查看。
+
+<img src="/dft-intro/image19.webp" alt="" width={554} loading="lazy" />
+
+继续下滑，我们会看到这部分内容，左边就是4个不可约k点的坐标，最右边是每个k点对应的波函数所需要的平面波（可以理解为需要这么多平面波将该电子态的波函数做展开，这些平面波数量直接取决于INCAR中设置的ENCUT参数，参数越大，考虑的平面波越多，结果也越精确，代价就是贵（对于二维材料需要在z方向加真空层，真空层越大，所需要的平面波越多，后面我们会进一步了解）。
+
+<img src="/dft-intro/image20.webp" alt="" width={554} loading="lazy" />
+
+继续下滑，我们可以看到：
+
+<img src="/dft-intro/image21.webp" alt="" width={554} loading="lazy" />
+
+这是程序开始进行自洽迭代计算了，括号里的（1）意思是第一次循环，叫做第一个电子步。每次电子步算完，都会输出能量信息
+
+<img src="/dft-intro/image22.webp" alt="" width={554} loading="lazy" />
+
+经历多次电子步迭代，当前后两次能量差达到我们INCAR中设置的收敛阈值EDIFF时，程序停止迭代，开始计算电子结构和原子受力等信息。
+
+比如这里输出了费米能级E-fermi和每个k点在每个态band（能带）上的电子占据occupation情况。
+
+<img src="/dft-intro/image23.webp" alt="" width={554} loading="lazy" />
+
+继续下滑，会看到计算达到收敛相关的信息输出
+
+<img src="/dft-intro/image24.webp" alt="" width={554} loading="lazy" />
+
+随后开始计算压强和受力
+
+<img src="/dft-intro/image25.webp" alt="" width={554} loading="lazy" />
+
+其中，Total后面的六个数字是位力（Virial），单位是eV，六个数值分别对应XX, YY, ZZ, XY, YZ, ZX六个分量。请自行补“位力”相关的物理背景知识。in kB后面的六个数字也是Virial，单位是 kbar（1GPa=10kB，1B就是1bar，即一个标准大气压），数值上直接等于Total那一栏的数字除以当前这一帧结构的体积，注意单位换算。这个单位下的位力，可以简单理解为当前结构的静态压强。可以发现此时整个体系会有个负压强external pressure = -1kB（对应0.1GPa，1GPa=10kB，1B就是1bar，即一个标准大气压），说明晶格在此时有自发向内收缩的趋势；如果这个数值是正的，意味着晶格在当前压强下有膨胀趋势。对于晶体来说，0.1GPa对晶格常数、带隙等性质影响非常弱。
+
+压强之后会输出原子受力信息：
+
+<img src="/dft-intro/image26.webp" alt="" width={554} loading="lazy" />
+
+由于我们的结构POSCAR中原子位置非常高对称，因此每个原子受力TOTAL-FORCE都为0。这只是我们当前例子比较特殊导致的巧合。
+
+最后是关键的能量信息：
+
+<img src="/dft-intro/image27.webp" alt="" width={554} loading="lazy" />
+
+这之后就是整个计算所运行的时间（1.78秒）
+
+<img src="/dft-intro/image28.webp" alt="" width={442} loading="lazy" />
+
+当你看到OUTCAR最后出现这个信息时，意味着计算成功运行且结束了，但并不意味着自洽计算部分收敛了。需要结合前面提到的“EDIFF is reached”信息以及OSZICAR或者result文件中的电子步。
+
+**（3）OSZICAR**，输入cat OSZICAR并回车
+
+<img src="/dft-intro/image29.webp" alt="" width={554} loading="lazy" />
+
+说明程序运行了13个电子步达到收敛，每个电子步有一个dE，当dE小于INCAR中设置的EDIFF=1E-6时，scf结束。
+
+并且输出了基态总能量E0，以及F还有一个d E=-0.829E-3（这个d E和另外一个dE不同，前者是以正值EDIFFG为收敛阈值的）
+
+我们再查看一下OUTCAR中最后一个电子步给出的能量信息
+
+<img src="/dft-intro/image30.webp" alt="" width={554} loading="lazy" />
+
+关注最下面的三个能量：free energy，energy without entropy和energy(sigma-0)。这里的free energy就是OSZICAR中的F，energy(sigma-0)就是OSZICAR的E0. Free energy是对蓝色框中的全部能量求和，其中EATOM来源于POTCAR（可以自行查看POTCAR前面几行）。E0就是在F的基础上扣掉了电子熵对能量的贡献（entropy TS）并且对展宽sigma取极限得到的，所以基态能量取E0。由于金刚石Si在常压下是半导体，因此不需要考虑电子熵的贡献问题（费米面上没有电子态占据）；但如果是金属，电子熵影响就需要考虑了。无论如何，在常规的计算中，以E0即energy(sigma-0)作为体系的能量。特殊地，某些高温下的金属体系模拟，是需要考虑电子熵的。关于能量E0的理解可以阅读：[https://mp.weixin.qq.com/s/1rsCjl-f_w6Es1wZ6kw_Dw](https://mp.weixin.qq.com/s/1rsCjl-f_w6Es1wZ6kw_Dw)
+
+需要强调的是，这里直接算出来的能量可以简单理解为是电子和离子相互作用的势能，整个体系被认为是完全静止的。没有考虑原子振动对能量的贡献，这部分能量需要通过计算声子获得，超出了这一节范畴。
+
+其余输出文件除了WAVECAR之后，其余都可以直接以文本形式打开查看。在大部分计算中，用到较多的输出文件除了上面三个result，OUTCAR，OSZICAR之外，还有CONTCAR，CHGCAR，WAVECAR（不能直接打开查看），DOSCAR，EIGENVAL，IBZKPT，XDATCAR（结构驰豫或者AIMD过程中的原子轨迹）。这些文件的内容请查阅官网，直接在vaspwiki搜索栏输入文件名（大写）即可。
+
+### 2.3.3 静态自洽计算INCAR主要参数
+
+下面我们将详细介绍静态自洽计算时INCAR中的常用参数，并对主要用到的参数如何取值做一些说明
+
+<img src="/dft-intro/image10.webp" alt="" width={424} loading="lazy" />
+
+ISTART=1或者0，如果是1就是读取当前目录下已有的WAVECAR开始计算，0就是从头开始生成波函数。（在用有限位移法算声子谱时，合理利用这个参数可以节省计算时间）
+
+ICHARG = 2是以原子电荷叠加生成初始电荷密度，并做自洽计算。
+
+LWAVE和LCHARG，如果你的体系不是很大（比如近百个原子）那建议设为TRUE，因为后续可能会用到这一步生成的WAVECAR和CHGCAR.
+
+ENCUT，截断能，取POTCAR中最大ENMAX的1.3倍通常足够，或者直接一律520eV。有些特殊体系可能需要700甚至1000eV。
+
+ISPIN=1或者2 如果取1就是不考虑自选极化（即电子上下自旋完全简并），取2就是考虑。这个依赖于先验知识，如果我们研究的Si显然是不用考虑磁性，那取1就行。但是对于含有Fe、Co、Ni等元素，甚至含有d电子或者f电子的元素时，建议开启ISPIN=2确认是否有自旋极化，磁性相关参数在3.6节中介绍。
+
+LREAL=Auto针对大体系有加速效果，默认是FALSE
+
+NSW=0就是离子不动，即做静态计算，结合ICHARG=2的自洽，就是静态自洽计算了。有时候也用IBRION=-1来实现“静态”的功能。
+
+NELM是最大电子步。如果自洽迭代步数超过这个数值仍未达到收敛（OSZICAR中前后两次电子步的dE没有小于EDIFF），那么退出自洽计算，并输出此时的力和能量。请注意，一般60个电子步如果能量还没有收敛趋势（达到1E-3或-4），而是一直在1E-2和1E-1附近震荡甚至发散（1E+2），那么意味着后面也不会收敛。此时需要考虑的问题是“电子步不收敛”，见2.3.5节。
+
+EDIFF的取值默认是1E-4 单位是eV，小体系（十个原子以内）可以取到1E-6甚至1E-8；大体系（几十个原子）可以适当放宽，取1E-5或者1E-6.
+
+ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
+
+[https://www.vasp.at/wiki/index.php/ISMEAR](https://www.vasp.at/wiki/index.php/ISMEAR)
+
+对于大部分计算来说，ISMEAR主要取三种：1、0和-5
+
+体系是金属，那在scf和relax时设置为ISMEAR=1，SIGMA=0.2
+
+体系是半导体/绝缘体，那ISMEAR=-5（此时不需要SIGMA）
+
+如果不知道体系是金属还是半导体，那ISMEAR=0，SIGMA=0.05是安全的选择。
+
+对于计算DOS和总能，ISMEAR一律取-5，此时不需要SIGMA。注意，做能带计算时，ISMEAR不取-5，建议取0.
+
+无论如何，当你不确定取什么时，ISMEAR=0和SIGMA=0.05都会是安全的选择。此外，在计算其他性质比如结构优化、DFPT法算声子、AIMD、或者需要考虑磁性、层状材料的vdW、SOC和+U等效应时，会需要设置其它参数。
+
+**附：ISMEAR和SIGMA的补充说明**
+
+我们这里进行的是0K下的基态性质计算，对于真实系统，0K下电子分布是费米狄拉克分布，不会有展宽（如下图最左侧a），但是这会引入一个δ函数难以处理（阶跃函数的导数即为δ函数，也叫Dirac函数）。在实际求解过程都会使用一些smearing方法来避免直接处理δ函数，比如Fermi-Dirac smearing、Guassian smearing、Methfessel Paxton smearing等，于是就有了“展宽”sigma的概念。
+
+<img src="/dft-intro/image31.webp" alt="" width={349} loading="lazy" />
+
+<img src="/dft-intro/image32.webp" alt="" width={521} loading="lazy" />
+
+对于Fermi-Dirac smearing, 对应的就是ISMEAR=-1的情况（自行查阅VASP手册官网中关于ISMEAR参数说明）。但是这通常会需要非常密的Kmesh才能得到可靠的结果，因为在Fermi-Dirac smearing下，T=300K对应的展宽sigma=0.026eV，越小的展宽需要越密的Kmesh来保证收敛。所以大部分计算都不用FD-smearing，更多使用Guassian和MP等。选定一个smearing方法，通过在某一展宽sigma下求解，最后再将结果（一般是能量，扣除掉了电子熵TS之后）对展宽sigma取极限，回归到基态0K的情况。对于一个合理的计算来说，TS部分（电子熵，上面图中的entropy TS）不应该超过1meV/atom，此时free energy，energy without entropy和energy(sigma-0)三者的差值不超过1meV/atom（可能由于计算精度不够会\~10meV/atom）。
+
+注意，对于高温下的金属体系模拟，电子熵的贡献（对能量和力的贡献）可能很重要，此时需要取ISMEAR=-1，以及相应的模拟温度下的SIGMA的值。
+
+关于smearing以及展宽的问题请查阅：
+
+（1）Density Functional Theory(David S. Sholl，中英文版都有)第三章第一节
+
+（2）VASP早期论文*:*Kresse G, Furthmüller J. Efficiency of ab-initio total energy calculations for metals and semiconductors using a plane-wave basis set\[J\]. Computational materials science, 1996, 6(1): 15-50.
+
+### 2.3.4 KPOINTS多种写法
+
+（1）前面我们设置的KPOINTS形式之一为：
+
+<img src="/dft-intro/image11.webp" alt="" width={136} loading="lazy" />
+
+（2）事实上，KPOINTS有很多种输入形式，比如官网给出的：
+
+<img src="/dft-intro/image33.webp" alt="" width={542} loading="lazy" />
+
+这里的444的意义和前面MP的666含义类似，区别在于当第三行取为Gamma时，它在倒空间1BZ布点时会严格在Gamma点上撒一个点（对应在IBZKPT文件第一个点必定为 0 0 0），而MP不一定会取到Gamma点，一般MP下Kmesh的值取奇数时，会采样到Gamma点。
+
+最后一行0 0 0是控制是否在K空间进行shift，其意义如下（左图对应的就是Kmesh555）：
+
+<img src="/dft-intro/image34.webp" alt="" width={283} loading="lazy" />
+
+一定要设置shift=1吗？不一定，遵循剃刀原则，取shift=0计算也是可以的。关键还要看IBZKPT里面有多少个不可约k点。Shift只是一种技术手段，特别的，对于六角晶格，建议k点取奇数+shift=0，而非偶数。
+
+（3）我们前面还用到一种自动布点方案，写法如下：
+
+<img src="/dft-intro/image35.webp" alt="" width={358} loading="lazy" />
+
+这里的10并非在某个倒空间b1方向上撒10个点。物理意义是以$2\pi \times 0.1Å^{- 1}$的密度在三个方向撒点。比如前面提到的$2\pi \times 0.025Å^{- 1}$对应的就是Auto 40
+
+（4）第四种是直接舍弃KPOINTS文件，在INCAR中设置SPACING和KGAMMA参数，对应的就是前面的MP和Gamma两种KPOINTS文件的设置。
+
+（5）第五种，直接在KPOINTS中给出不可约k的坐标以及权重（vaspkit 102 3）
+
+（6）第六种（常用于能带计算），这是给出倒空间1BZ高对称点路径，只计算这些路径上的电子态，当然我们可以随便取路径和点的坐标，不一定非得是高对称点。不过这种格式一般只在计算能带时需要，并且我们更关心高对称点以及路径上的信息，内部区域的较少考虑，这一点会在实操3-5中练习。
+
+<img src="/dft-intro/image36.webp" alt="" width={309} loading="lazy" />
+
+关于KPOINTS文件的内容，请进一步查阅官方手册：
+
+[https://www.vasp.at/wiki/index.php/KPOINTS](https://www.vasp.at/wiki/index.php/KPOINTS)
+
+对于初学者，除了能带计算，以及杂化泛函等对KPOINTS有特殊要求的计算任务，其它计算的KPOINTS建议取下面两种。当然，更建议选择vaspkit-102，指定密度生成KPOINTS。
+
+<img src="/dft-intro/image11.webp" alt="" width={136} loading="lazy" /> <img
+  src="/dft-intro/image37.webp"
+  alt=""
+  width={319}
+  loading="lazy"
+/>
+
+注意，如果是二维体系（石墨烯），一维体系（碳纳米管）或者零维体系（比如孤立原子或者单个分子）时，KPOINTS写法略有不同。一般研究二维体系，会把结构放置在xy平面，z方向设置15-20Å的真空层（以避免周期性带来的层间相互作用）。所以对应在倒空间，只需要设置k1和k2即可，k3设置为1，如下图。当然，设置k3为2或者更大的值也是可以的，但是没有必要（不显著影响计算结果，反而会增加不必要的计算）。
+
+<img src="/dft-intro/image38.webp" alt="" width={552} loading="lazy" />
+
+### 2.3.4 VASP计算输出总结
+
+最后，我们对输出文件简单做一个总结：
+
+1.  确认计算顺利结束：result文件最后没有warning，OUTCAR最后输出了“aborting loop because EDIFF is reached”以及能量信息和末尾的计算时间。
+
+2.  查看电子步收敛情况，看result或者OSZICAR文件；
+
+3.  查看体系的压强和每个原子受力情况，看OUTCAR文件
+
+4.  查看体系的总能量，OSZICAR中的E0
+
+目前为止，你已经走完了一次完整的、从结构到输入文件，再到输出文件的计算过程。这个计算是关于金刚石单质Si的静态自洽计算。静态的含义就是离子不进行移动，即INCAR中NSW=0。现在我们需要回过头来理解，自洽计算是什么，以及我们能从一次自洽计算中得到什么。
+
+这里的自洽含义体现在计算过程中会不断更新电荷密度，参见VASPwiki介绍：
+
+[https://www.vasp.at/wiki/index.php/Self-consistency_cycle](https://www.vasp.at/wiki/index.php/Self-consistency_cycle)
+
+<img src="/dft-intro/image39.webp" alt="" width={326} loading="lazy" />
+与自洽相对的是非自洽计算，对于非自洽计算在计算过程中是不更新电荷密度的：要么只停留在初猜电荷密度（ICHARG=12），要么就是使用已有的电荷密度文件（ICHARG=11）。非自洽计算一般在计算能带和更密k点的dos时会用到。
+
+那么一次SCF可以得到什么信息？总的来说，自洽计算会输出体系当前原子构型下的能量（OSZICAR/OUTCAR）、原子此时受力以及体系压强（OUTCAR）、电子态密度信息和费米能级（DOSCAR）、波函数文件（WAVECAR）和电荷密度文件（CHGCAR）……这些是在后续其他计算需要用到的。比如有了能量就可以比较两个结构之间的相对（能量）稳定性；能量、力、位力等信息，可用于后续拟合机器学习势函数。有了电子态密度信息可以直接判断体系是否为金属/半导体等。
+
+某些情况下我们需要计算孤立原子的能量，此时，需要构建一个边长超过10Å的大胞，里面只放置一个孤立原子。K点只取1x1x1即可，然后做静态自洽计算。单个原子的计算一般需要开磁性参数，INCAR中设置ISPIN=2。详细内容可以查看“大师兄”的教程：[https://www.bigbrosci.com/2017/10/30/ex08/](https://www.bigbrosci.com/2017/10/30/ex08/)
+
+注意，由于晶格的周期性，原子旁边仍有原子，但是该距离超过10Å，一般认为足够。原则上需要测试孤立原子能量随尺寸的收敛情况。
+
+### 2.3.5 静态自洽计算SCF不收敛怎么办
+
+对于某些复杂体系，尤其是含有d/f电子的金属元素，或者考虑DFT+U以及磁性时，很容易遇到SCF不收敛的情况，即OSZICAR文件中第三列dE始终没法小于INCAR中预设的EDIFF。VASP在计算达到最大电子步（NELM参数）时，无论计算是否收敛，最后都会输出体系的能量和原子的力，以及压强等信息。此时这些信息都是不对的，因为计算根本没收敛。如果dE迭代到了1E-3量级，结果或许还有一定可信度。
+
+SCF不收敛分两种情况，一种是已经迭代了60多步了，但是OSZICAR中dE在1E-3或者-2附近变化，却始终无法达到EDIFF，此时增加NELM步数效果不大；一种是dE直接发散，变成了1E+2量级。解决电子步不收敛的思路优先级如下（个人经验）：
+
+1.  检查POSCAR是否合理，比如原子重叠或者距离非常近，可以用vesta画原子之间的bond来找是否有距离很近（比如小于0.3Å）的原子。同时，检查POTCAR的元素顺序是否和POSCAR对应。
+
+2.  确保你没有读取错误或者不合理的初始电荷密度或者波函数，检查ISTART和ICHARG参数，以及被读取的CHGCAR和WAVECAR。
+
+3.  修改INCAR中的ALGO参数，ALGO默认是N，改为F或ALL试试。如果是杂化泛函，考虑Damped。也可以修改IALGO参数，具体见官网。
+
+4.  增加INCAR中的NBANDS参数，默认是价电子数的0.6倍，可以考虑增加到0.7或者0.8；价电子数在vaspkit-103生成POTCAR时会显示。注意，价电子数和元素的POTCAR有关，有的元素有多个不同价电子数的POTCAR，根据自己的需要选择，并得到相应的价电子数。
+
+5.  磁性体系的计算，设置合理的初始磁矩（需要经验）
+
+6.  INCAR中加入AMIX=0.2（默认0.4）；BMIX=0.0001； 磁性体系就在上述两个参数基础上额外添加AMIX MAG=0.8（默认1.6），BMIX MAG=0.0001；或者不断调整这些参数的值，参数具体调整思路可以网上搜索。
+
+7.  查找网上的经验帖：
+
+> 刘锦程博士的blog：[https://blog.shishiruqi.com/2019/05/01/scf/](https://blog.shishiruqi.com/2019/05/01/scf/)
+>
+> “大师兄”的教程：[https://lvaspthw.readthedocs.io/en/latest/TS/TS01/](https://lvaspthw.readthedocs.io/en/latest/TS/TS01/)
+
+8.  最后，找组里师兄师姐寻求建议。

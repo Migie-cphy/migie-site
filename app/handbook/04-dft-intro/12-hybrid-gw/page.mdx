@@ -1,0 +1,94 @@
+export const metadata = {
+  title: '3.9 杂化泛函与 GW 方法',
+  description: '吴泽鹏《DFT 计算入门》第三版 · 3.9 杂化泛函与 GW 方法',
+}
+
+# 3.9 杂化泛函与 GW 方法
+
+前面我们发现，在采用GGA-PBE泛函下计算金刚石Si的能带时，得到的带隙只有0.55eV，与实验1.12eV差很多，而采用LDA-PZ泛函得到的只有0.41eV（如果在LDA下重新结构优化，得到的晶格常数更小，带隙会比0.41eV更小一点），这是LDA/GGA泛函的缺点。为了得到相对准确（和实验相比）的带隙，可以采用杂化泛函（Hybrid functionals），HSE06就是其中一种（HSE是三个人名字母缩写）。
+
+<img src="/dft-intro/image4.webp" alt="" width={322} loading="lazy" />
+
+VASP对杂化泛函介绍：
+
+[https://www.vasp.at/wiki/index.php/Category:Hybrid_functionals](https://www.vasp.at/wiki/index.php/Category:Hybrid_functionals)
+
+DFT计算可能用到的泛函类型及对应文献：
+
+[https://www.tddft.org/programs/libxc/functionals/](https://www.tddft.org/programs/libxc/functionals/)
+
+**HSE06泛函**计算能带流程：
+
+a. PBE泛函下relax计算，得到优化完的原胞POSCAR（有时可以省略）
+
+b. PBE泛函下scf计算，设置LWAVE=.TRUE.得到WAVECAR，用于下一步HSE计算读取（非必须）
+
+c. HSE06泛函下自洽计算，ISTART=1，读取PBE的WAVECAR（帮助收敛）
+
+d. 数据后处理+画图
+
+注意：在HSE下不要做ICHARG=11的非自洽；这一点官方wiki有特别强调：
+
+<img src="/dft-intro/image201.webp" alt="" width={554} loading="lazy" />
+
+[https://www.vasp.at/wiki/index.php/Band-structure_calculation_using_hybrid_functionals](https://www.vasp.at/wiki/index.php/Band-structure_calculation_using_hybrid_functionals)
+
+（1）HSE06计算的INCAR
+
+在常规能带计算INCAR基础上加下面参数。注意，常规能带计算中ICHARG=11，而做杂化泛函计算时，ICHARG=0（表示从读取的WAVECAR中生成初始电荷密度）
+
+<img src="/dft-intro/image202.webp" alt="" width={503} loading="lazy" />
+
+HSE部分参数具体设置可以参照刘锦程博士的blog：
+
+[https://blog.shishiruqi.com/2019/05/20/hse/](https://blog.shishiruqi.com/2019/05/20/hse/)
+
+（2）HSE06计算的KPOINTS
+
+HSE06的band计算不支持line-mode的KPOINTS格式。下面是HSE计算能带时的KPOINTS范例，除了要给出布里渊区内部的k点之外（红色），还需要给出高对称点路径的k点（蓝色，权重为0）
+
+<img src="/dft-intro/image203.webp" alt="" width={492} loading="lazy" />
+
+HSE计算的KPOINTS可以借助vaspkit分两步生成，先用303得到KPATH.in文件，再用251命令根据KPATH.in生成用于HSE计算的KPOINTS文件。
+
+[https://blog.shishiruqi.com/2019/05/22/vaspkit-hse-band/](https://blog.shishiruqi.com/2019/05/22/vaspkit-hse-band/)
+
+KPATH.in文件是直接控制HSE计算的能带路径的。有些体系的能带路径不是非得采用KPATH.in里面的路径，可以人为选取一些重要的路径，见3.5.5（1）的说明，以减少HSE计算时的k点数量和计算所需内存。有些体系的能带路径特殊选取方式可以从相关文献中学习。
+
+HSE计算非常耗时，计算时间约比普通PBE计算高3\~4个数量级，k点密度可以适当比PBE低一些。PBE通常0.025（或者0.03），HSE可以0.04\~0.05。
+
+查看result和OUTCAR文件确认HSE计算成功后，采用vaspkit-25提取HSE的band数据。最后对比HSE06和PBE泛函算得的金刚石Si的能带：
+
+<img src="/dft-intro/image204.webp" alt="" width={426} loading="lazy" />
+
+一般来说，相比于PBE，HSE不显著改变费米面附近的能带形状，而是主要影响带隙大小。另外，HSE06泛函只是杂化泛函的其中一种，其它杂化泛函(比如PBE0，HSE03等)得到的带隙可能又不一样。通常情况下HSE06得到的带隙会比PBE的带隙更可信（与实验符合得更好）。
+
+<img src="/dft-intro/image205.webp" alt="" width={434} loading="lazy" />
+
+[https://www.vasp.at/mmars/day2.pdf#opennewwindow](https://www.vasp.at/mmars/day2.pdf#opennewwindow)
+
+杂化泛函主要影响带隙，对晶格常数影响很小，因此一般不需要需要采用HSE06做结构优化。结构优化一般用PBE，LDA，PBEsol，SCAN等。如果有兴趣，可以自行采用HSE06做一个小体系的结构优化，并与PBE结果对比。只需要在PBE-relax的INCAR中加入HSE那些参数，其余参数包括KPOINTS都与PBE-relax一样
+
+<img src="/dft-intro/image71.webp" alt="" width={485} loading="lazy" />
+
+The Journal of chemical physics, 2012, 136(13): 134704.
+
+除了杂化泛函之外，GW方法也会用来计算带隙。GW方法的计算量比HSE还大。以下是网上看到的一段话：
+
+“HSE和PBE基于密度泛函理论，GW则基于多体格林函数理论；GW本质上要更加ab initio一些，HSE的中屏蔽杂化项是经验性的，GW中的W的屏蔽则是基于RPA，介电函数的结果HSE不如GW；GW难于完全自洽，计算量很大，往往都是通过DFT计算波函数获取波函数和电荷密度，然后基于此算格林函数G0和屏蔽势W0，如果完全自洽的话，那就是GW0；GW因为不是完全自洽的，通常作为post修正带隙的，HSE甚至可以用于离子弛豫。” ([http://muchong.com/t-10559893-1](http://muchong.com/t-10559893-1)[)]\{.underline\}
+
+PBE，杂化泛函以及GW方法得到的带隙对比：
+
+<img src="/dft-intro/image206.webp" alt="" width={583} loading="lazy" />
+
+Physical Review B, 2007, 75(23): 235102.
+
+Physical Review B, 2014, 90(16): 165133.
+
+如何进行GW计算可以自行查阅VASPwiki说明
+
+[https://www.vasp.at/wiki/index.php/Bandgap_of_Si_in_GW](https://www.vasp.at/wiki/index.php/Bandgap_of_Si_in_GW)
+
+[https://www.vasp.at/wiki/index.php/Practical_guide_to_GW_calculations](https://www.vasp.at/wiki/index.php/Practical_guide_to_GW_calculations)
+
+[https://www.vasp.at/wiki/index.php/GW_approximation_of_Hedin%27s_equations](https://www.vasp.at/wiki/index.php/GW_approximation_of_Hedin%27s_equations)
