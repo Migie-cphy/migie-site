@@ -188,13 +188,13 @@ export const TUTORIAL_PHASES: Array<{
       },
       {
         slug: '04-dft-intro/02-theory',
-        title: '一、DFT 计算的理论框架',
+        title: '1 DFT 计算的理论框架',
         summary: 'Kohn-Sham 方程、SCF 迭代求解，以及从 DFT 到 TD-DFT。',
         phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
       },
       {
         slug: '04-dft-intro/03-vasp-io',
-        title: '二、VASP 计算的输入输出文件',
+        title: '2 VASP 计算的输入输出文件',
         summary: '四个输入文件、金刚石 Si 静态自洽计算的完整流程与输出文件。',
         phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
       },
@@ -278,7 +278,7 @@ export const TUTORIAL_PHASES: Array<{
       },
       {
         slug: '04-dft-intro/17-references',
-        title: '四、参考资料与总结',
+        title: '4 参考资料与总结',
         summary: '进一步学习的网站、教程，以及手册总结。',
         phase: 'Phase 4 · DFT 计算入门（吴泽鹏）',
       },
