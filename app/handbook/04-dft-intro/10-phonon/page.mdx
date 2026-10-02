@@ -43,7 +43,18 @@ Reviews of modern Physics, 2001, 73(2): 515.
 
 （1）首先准备一个relax好的结构的Si的原胞，用vaspkit-602命令寻找标准原胞，并将生成的PRIMCELL.vasp命名为POSCAR，如下
 
-<img src="/dft-intro/image175.webp" alt="" width={554} loading="lazy" />
+```
+Primitive Cell
+  1.000000
+    0.00000000000000    2.73613957608858    2.73613957608858
+    2.73613957608858    0.00000000000000    2.73613957608858
+    2.73613957608858    2.73613957608858    0.00000000000000
+  Si
+   2
+DIRECT
+    0.2500000000000000    0.2500000000000000    0.2500000000000000    Si1
+    0.0000000000000000    0.0000000000000000    0.0000000000000000    Si2
+```
 
 注意，VASP在计算时实际是通过POTCAR文件来标定原子类型的。换句话说，POSCAR中原子名字是什么对于VASP来说不重要。但是在使用phonopy处理数据时，phonopy会读取POSCAR中的元素符号来赋予其相应的质量以用于后续处理声子频率。因此，强烈建议要确认POSCAR中元素符号是否正确。
 
@@ -51,7 +62,9 @@ Reviews of modern Physics, 2001, 73(2): 515.
 
 （2）phonopy扩胞至三个轴长度接近或者超过10Å
 
-<img src="/dft-intro/image176.webp" alt="" width={333} loading="lazy" />
+```
+phonopy -d --dim=" 3 3 3" -c POSCAR
+```
 
 此时会生成一个3x3x3方式扩胞的SPOSCAR超胞文件和在超胞基础上做原子位移的一系列POSCAR-xxx文件。
 
@@ -69,7 +82,9 @@ KPOINTS在超胞的基础上取Auto40或者2πx0.025密度（也可以Auto30或�
 
 （5）当所有POSCAR-xxx的静态计算成功收敛时（超胞计算通常比较慢），开始提取力常数数据。
 
-<img src="/dft-intro/image177.webp" alt="" width={310} loading="lazy" />
+```
+phonopy -f disp*/vasprun.xml
+```
 
 此时会生成一个FORCE_SETS文件
 
@@ -87,7 +102,9 @@ BAND_CONNECTION=TRUE时，不同声子曲线会用颜色区分，
 
 （7）处理声子谱并自动画图
 
-<img src="/dft-intro/image179.webp" alt="" width={386} loading="lazy" />
+```
+phonopy -c POSCAR KPATH.phonopy -p -s
+```
 
 声子态密度数据在total_dos.dat和projected_dos.dat（如果设置了PDOS）文件中。
 
@@ -97,13 +114,31 @@ BAND_CONNECTION=TRUE时，不同声子曲线会用颜色区分，
 
 （8）为了得到方便画图的声子谱数据，运行命令，得到phband.dat文件，第一行就是高对称q点坐标。声子谱的画图方式和能带图一样。
 
-<img src="/dft-intro/image180.webp" alt="" width={414} loading="lazy" />
+```
+phonopy-bandplot --gnuplot > phband.dat
+```
 
 ## 3.7.2 密度泛函微扰法（DFPT）
 
 （1）INCAR（可以用vaspkit101-DT生成，但是vaspkit生成的INCAR需要自己稍加修改，尤其是ENCUT）。IBRION=8控制DFPT计算，DFPT方法不能设置NCORE为非默认参数1，否则会报错。如果你的体系需要考虑磁性或者+U等，INCAR中需要加入相应的参数，否则力常数就算不对。
 
-<img src="/dft-intro/image181.webp" alt="" width={554} loading="lazy" />
+```
+#for DFPT phonopy
+ISMEAR =  0            (Gaussian smearing)
+SIGMA  =  0.05         (Smearing value in eV)
+IBRION =  8            (determines the Hessian matrix using DFPT)
+EDIFF  =  1E-08        (SCF energy convergence, in eV)
+PREC   =  Accurate     (Precision level)
+ENCUT  =  400          (Cut-off energy for plane wave basis set, in eV)
+
+IALGO  =  38           (Davidson block iteration scheme)
+KPAR   = 4
+
+LREAL  = .FALSE.       (Projection operators: false)
+LWAVE  = .FALSE.       (Write WAVECAR or not)
+LCHARG = .FALSE.       (Write CHGCAR or not)
+ADDGRID= .TRUE.        (Increase grid, helps GGA convergence)
+```
 
 （2）超胞POSCAR，生成方式与前面3.7.1一样，记得把phonopy生成的SPOSCAR直接命名为POSCAR；
 
@@ -115,7 +150,9 @@ BAND_CONNECTION=TRUE时，不同声子曲线会用颜色区分，
 
 （5）从vasprun.xml中提取FORCE_CONSTANTS文件，（此时会生成一个力常数文件），注意，提取命令和有限位移法不一样。
 
-<img src="/dft-intro/image182.webp" alt="" width={235} loading="lazy" />
+```
+phonopy --fc vasprun.xml
+```
 
 （6）准备KPATH.phonopy文件（名字不重要）
 
@@ -125,15 +162,19 @@ KPATH.phonopy与有限位移法的文件唯一区别在于：
 
 （7）计算声子色散与态密度
 
-<img src="/dft-intro/image183.webp" alt="" width={377} loading="lazy" />
+```
+phonopy -c ucell KPATH.phonopy -p -s
+```
 
 这里需要提供一开始用于333扩胞时的标准原胞，命名为ucell（名字可任意）
 
 （8）为了得到方便画图的声子谱数据，运行命令，得到phband.dat文件，第一行就是高对称q点坐标，画图方式和能带图一样。
 
-<img src="/dft-intro/image180.webp" alt="" width={414} loading="lazy" />
+```
+phonopy-bandplot --gnuplot > phband.dat
+```
 
-讨论
+### 讨论
 
 （1）算声子时，有限位移法（Finite Displacement，FD）和密度泛函微扰（DFPT）两种方法该选哪个？
 
@@ -149,7 +190,7 @@ KPATH.phonopy与有限位移法的文件唯一区别在于：
 
 同时，实测发现，有些体系频率对扩胞大小和扩胞方式十分敏感；扩胞方式指的是221，222，332这种扩胞方式，这可能还需要更多的测试研究。
 
-（3）在DFPT方法和Finit-Displacement方法时，KPOINTS该取多少？
+（3）在DFPT方法和Finite-Displacement方法时，KPOINTS该取多少？
 
 原则上做超胞的能量-k点收敛性测试，想偷懒的话，取0.025\~0.04的密度会是不错的选择。特别强调，有些时候只取Gamma点是不够的。
 
@@ -175,13 +216,18 @@ $$
 F(V,T) = F_{elec}(V,T) + F_{vib}(V,T)
 $$
 
-其中$F_{elec}(V,T)$可以直接从OUTCAR的能量中的Free energy部分获得，即OSZICAR中的F（注意，不是E0）。DFT直接做relax可以获得0K下的体积（没有原子热振动效应），如果假设体积不随温度膨胀的话，那么用该体积算一次声子，得到声子态密度；并且假设不考虑电子熵，再结合上面的公式就可以得到体系的自由能随温度的变化。这一“体积不随温度变化”的假设就是简谐近似，Harmonic Approximate（HA）。更严格一点的是准谐近似Qusia-Harmonic Approximate（QHA）；QHA考虑了晶格热膨胀效应，但是忽略了温度对力常数（频率）的修正。QHA常用于计算固态物质的热膨胀系数、或是高温高压下的相图。
+其中$F_{elec}(V,T)$可以直接从OUTCAR的能量中的Free energy部分获得，即OSZICAR中的F（注意，不是E0）。DFT直接做relax可以获得0K下的体积（没有原子热振动效应），如果假设体积不随温度膨胀的话，那么用该体积算一次声子，得到声子态密度；并且假设不考虑电子熵，再结合上面的公式就可以得到体系的自由能随温度的变化。这一“体积不随温度变化”的假设就是简谐近似，Harmonic Approximation（HA）。更严格一点的是准谐近似Quasi-Harmonic Approximation（QHA）；QHA考虑了晶格热膨胀效应，但是忽略了温度对力常数（频率）的修正。QHA常用于计算固态物质的热膨胀系数、或是高温高压下的相图。
 
 现在我们用phonopy来获得给定体积V下，体系的晶格振动的自由能数据：
 
 只需要在前面的KPATH.phonopy基础上，加上如下参数：
 
-<img src="/dft-intro/image185.webp" alt="" width={150} loading="lazy" />
+```
+TPROP = .TRUE.
+TMIN  = 0
+TMAX  = 1000
+TSTEP = 100
+```
 
 然后运行phonopy -c xxx KPATH.phonopy那一串命令即可。此时band相关的参数不起作用并且运行过程中屏幕会输出当前体积下晶格振动自由能随温度的变化，如下图。第二列F就是晶格振动自由能，E是晶格振动的内能，S是晶格振动熵，F=E-TS。0K下晶格振动内能不为0，因为谐振子存在零点能，具体内容请复习固体物理。并且这里的mol是以原胞为单元的，并非每原子，可以从thermal_properties.yaml文件前几行中了解这一点。
 
@@ -245,7 +291,7 @@ a.对于第一种情况，只需要(ENCUT=2\*ENMAX):
 
 结构优化时提高精度，EDIFFG=-0.001，Kmesh=2πx0.025，EDIFF=1E-8；
 
-在做超胞计算时（DFPT/Finit Disp），扩更大的胞（有时甚至需要超过15A）并且取适当大的k点，EIDFF=1E-8。特别强调，对超胞只采样Gamma点一般都是不合理的。
+在做超胞计算时（DFPT/Finite Disp），扩更大的胞（有时甚至需要超过15A）并且取适当大的k点，EDIFF=1E-8。特别强调，对超胞只采样Gamma点一般都是不合理的。
 
 b.对于第二种情况，原理就是移动某些原子，构造新的结构，重新计算声子谱。但“移动哪些原子，移动多少距离”是不太好确定的。针对虚频出现的地方不同，有不同的解决办法。主要有两种方法：扩胞重新结构优化；根据软模移动原子。
 

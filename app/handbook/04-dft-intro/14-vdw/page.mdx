@@ -41,7 +41,14 @@ VASP中控制vdW的参数是IVDW：[https://www.vasp.at/wiki/index.php/IVDW](htt
 
 （3）采用vdW-DF2泛函，ISIF=2，INCAR中注释掉IVDW参数，加入下面参数（POTCAR和前面一样）：
 
-<img src="/dft-intro/image212.webp" alt="" width={288} loading="lazy" />
+```
+#for vdW
+GGA      = ML
+AGGAC    = 0.0
+LUSE_VDW = .TRUE.
+ZAB_VDW  = -1.8867  # the default is -0.8491
+LASPH    = .TRUE.
+```
 
 此时会看到result文件中有如下信息：
 

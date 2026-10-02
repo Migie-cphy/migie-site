@@ -37,7 +37,24 @@ export const metadata = {
 
 将其写成POSCAR文件内容如下：
 
-<img src="/dft-intro/image7.webp" alt="" width={438} loading="lazy" />
+```
+Si8
+1.0
+       5.4687280655         0.0000000000         0.0000000000
+       0.0000000000         5.4687280655         0.0000000000
+       0.0000000000         0.0000000000         5.4687280655
+   Si
+    8
+Direct
+     0.250000000         0.250000000         0.250000000
+     0.000000000         0.500000000         0.500000000
+     0.250000000         0.750000000         0.750000000
+     0.000000000         0.000000000         0.000000000
+     0.750000000         0.250000000         0.750000000
+     0.500000000         0.500000000         0.000000000
+     0.750000000         0.750000000         0.250000000
+     0.500000000         0.000000000         0.500000000
+```
 
 **在刚刚新建的test文件夹里面，用vim命令创建一个名为POSCAR，内容如上的文件。注意，文件名需严格为POSCAR，不能小写或其它字母。创建成功之后下载到本地windows并用vesta查看。**
 
@@ -57,7 +74,24 @@ export const metadata = {
 
 第九行开始是原子坐标信息，和第八行配套。在这里，第八行开头是D，表示分数坐标，所以第九行0.25 0.25 0.25意思就是以a1 a2 a3为基矢，在(0.25 0.25 0.25)坐标上放置一个Si原子，其余类似；如果是Cartesian，表示笛卡尔坐标，是以xyz为基矢的绝对坐标。D和C只是两种表示方法而已，他们可以相互转换。比如同样是刚才的结构，现在以Cartesian坐标给出如下：
 
-<img src="/dft-intro/image8.webp" alt="" width={486} loading="lazy" />
+```
+Si8
+   1.000
+    5.4687280654999997    0.0000000000000000    0.0000000000000000
+    0.0000000000000000    5.4687280654999997    0.0000000000000000
+    0.0000000000000000    0.0000000000000000    5.4687280654999997
+   Si
+    8
+Cartesian
+    1.3671820163749999    1.3671820163749999    1.3671820163749999
+    0.0000000000000000    2.7343640327499998    2.7343640327499998
+    1.3671820163749999    4.1015460491250000    4.1015460491250000
+    0.0000000000000000    0.0000000000000000    0.0000000000000000
+    4.1015460491250000    1.3671820163749999    4.1015460491250000
+    2.7343640327499998    2.7343640327499998    0.0000000000000000
+    4.1015460491250000    4.1015460491250000    1.3671820163749999
+    2.7343640327499998    0.0000000000000000    2.7343640327499998
+```
 
 因此这个POSCAR表示了一个晶格常数为5.4687Å的cubic结构，里面特定位置处有8个Si原子。如果在Direct坐标下，把第二行的1改成2，其余不变，就相对于把整个体系边长扩大2倍，体积扩大了8倍。但如果你是在Cart下把第二行改成了2，那情况就不一样。可以自行尝试，并用vesta可视化。
 
@@ -65,13 +99,46 @@ export const metadata = {
 
 如果结构里有多种元素，比如4个Si，4个C，写法如下图。这表示Direct下面开始的前4行是Si原子，之后的4行是C原子的坐标。因此，你很容易知道更多原子类型的POSCAR应该怎么写了。
 
-<img src="/dft-intro/image9.webp" alt="" width={465} loading="lazy" />
+```
+Si8
+1.0
+       5.4687280655         0.0000000000         0.0000000000
+       0.0000000000         5.4687280655         0.0000000000
+       0.0000000000         0.0000000000         5.4687280655
+   Si   C
+   4   4
+Direct
+     0.250000000         0.250000000         0.250000000
+     0.000000000         0.500000000         0.500000000
+     0.250000000         0.750000000         0.750000000
+     0.000000000         0.000000000         0.000000000
+     0.750000000         0.250000000         0.750000000
+     0.500000000         0.500000000         0.000000000
+     0.750000000         0.750000000         0.250000000
+     0.500000000         0.000000000         0.500000000
+```
 
 （2） INCAR：控制计算参数，做scf/relax/band……
 
 **在Linux下用vim创建一个名为INCAR的文件，里面内容如下（右边#后面的内容不写）**。
 
-<img src="/dft-intro/image10.webp" alt="" width={421} loading="lazy" />
+```
+ISTART = 0        # job   : 0-new  1-cont  2-samecut
+ICHARG = 2        # obtain eigenvalues for band structure (ICHARG = 11)
+LCHARG = .TRUE.   # write down charge densities or not
+LWAVE  = .TRUE.   # write down wavefunctions or not
+ENCUT  = 400      # kinetic energy cutoff, default = ENMAX in POTCAR
+ISPIN  = 1        # (1 = off, 2 =on spin polarization)
+LREAL  = Auto     ## False or Auto
+
+## for static
+NSW    = 0        # max number of geometry steps, 0 for static calculation
+ISMEAR = 0        # -1: Fermi smearing, 0: Gaussian smearing, 1: Methfessel-Paxton
+SIGMA  = 0.05     # broadening in eV
+NELM   = 60
+EDIFF  = 1E-06    # stopping-criterion for ELM, default 1E-4
+#LORBIT = 11
+```
 
 INCAR的内容取决于计算任务，比如静态计算、结构优化、分子动力学模拟的INCAR就各有不同。上面是一个用于我们稍后的静态自洽计算对应的INCAR。
 
@@ -89,17 +156,28 @@ d\. 提升计算效率的参数：NCORE，NPAR等
 
 这些参数的含义在2.3.3节中解释，在这一步中，你只需要写出这个一个INCAR文件，然后跟着教程往下走即可。
 
-\(3\) KPOINTS：直接决定了计算精度和时长
+（3） KPOINTS：直接决定了计算精度和时长
 
 **用vim创建一个名为KPOINTS的文件，里面内容如下：**
 
-<img src="/dft-intro/image11.webp" alt="" width={118} loading="lazy" />
+```
+K-point
+0
+Auto
+20
+```
 
-KPOINTS写法有很多种，并且针对不同计算需要用不同的写法。对于常规的静态自洽计算和结构优化计算，上面是一种比较好用的KPOINTS的写法。这种格式的KPOINTS适用于不同晶格类型的3D体系的静态自洽计算和结构优化计算。第一行随便写内容，不能没有；第二行用0就行；第三行写Auto；核心在第四行的数字（整数）。这个数字越大，计算精度通常越高，计算所需时间越长，内存越大。其物理含义是在倒空间的第一布里渊区中，在三个倒格基矢b1 b2 b3方向上自动布点。20代表了在每个倒格矢上布点间隔为$2\pi \times 0.05\mathring{\mathrm{A}}^{- 1}$（其中0.05是20的倒数）。比如在我们的8原子的Si结构中，由固体物理知识，对于这种abc三条轴夹角90°的特殊结构，很容易计算三条倒格矢长度都是$2\pi \times 0.183\mathring{\mathrm{A}}^{- 1}$，其中0.183是晶格常数5.469的倒数。因此在每条基矢方向撒点的数目就约等于$\frac{2\pi \times 0.183}{2\pi \times 0.05} \approx 4$，所以撒点网格就是4x4x4，一共有64个点。这个撒点的目的是为了将连续积分离散化，变成求和，离散程度越高，对应的网格划分约密，求和值理论上就越接近积分值。但并不意味着21一定比20好，这涉及到一个k点收敛的问题。
+KPOINTS写法有很多种，并且针对不同计算需要用不同的写法。对于常规的静态自洽计算和结构优化计算，上面是一种比较好用的KPOINTS的写法。这种格式的KPOINTS适用于不同晶格类型的3D体系的静态自洽计算和结构优化计算。第一行随便写内容，不能没有；第二行用0就行；第三行写Auto；核心在第四行的数字（整数）。这个数字越大，计算精度通常越高，计算所需时间越长，内存越大。其物理含义是在倒空间的第一布里渊区中，在三个倒格基矢b1 b2 b3方向上自动布点。20代表了在每个倒格矢上布点间隔为$2\pi \times 0.05\mathring{\mathrm{A}}^{- 1}$（其中0.05是20的倒数）。比如在我们的8原子的Si结构中，由固体物理知识，对于这种abc三条轴夹角90°的特殊结构，很容易计算三条倒格矢长度都是$2\pi \times 0.183\mathring{\mathrm{A}}^{- 1}$，其中0.183是晶格常数5.469的倒数。因此在每条基矢方向撒点的数目就约等于$\frac{2\pi \times 0.183}{2\pi \times 0.05} \approx 4$，所以撒点网格就是4x4x4，一共有64个点。这个撒点的目的是为了将连续积分离散化，变成求和，离散程度越高，对应的网格划分越密，求和值理论上就越接近积分值。但并不意味着21一定比20好，这涉及到一个k点收敛的问题。
 
 与之等价的另外一种KPOINTS的写法如下：
 
-<img src="/dft-intro/image12.webp" alt="" width={410} loading="lazy" />
+```
+K-Spacing Value to Generate K-Mesh: 0.050
+0
+Monkhorst-Pack
+   4   4   4
+0.0  0.0  0.0
+```
 
 这样撒点的目的是在自洽计算中对整个第一布里渊区进行采样，计算每个k点的能量Ek。在这里，你只需要写出这样的KPOINTS文件即可。在真正做计算面对不同的体系时，我们借助vaspkit来自动生成这样格式的KPOINTS文件。如果是2D或者1D材料，建议采用这种写法的KPOINTS。具体取法在后面2.3.4节中介绍。
 
@@ -141,13 +219,33 @@ cat xxx/Si/POTCAR xxx/C/POTCAR \> POTCAR （注意空格,xxx是赝势路径）
 
 **（1）找课题组的师兄师姐或者超算管理员要一个用于向服务器提交VASP计算任务的脚本。**
 
-一般用VASP做DFT计算时，都是借助超算服务器实现（个人电脑算力不太够），所以需要一个脚本来告诉服务器，我需要调用多少算力（节点、核数），做什么任务的计算（运行VASP或者QE）。以下是PBS作业管理系统的提交脚本示意：
+一般用VASP做DFT计算时，都是借助超算服务器实现（个人电脑算力不太够），所以需要一个脚本来告诉服务器，我需要调用多少算力（节点、核数），做什么任务的计算（运行VASP或者QE）。以下是SLURM作业管理系统的提交脚本示意：
 
-<img src="/dft-intro/image14.webp" alt="" width={554} loading="lazy" />
+```
+#!/bin/bash
+#SBATCH --output=%j.out
+#SBATCH --error=%j.err
+#SBATCH -N 1
+#SBATCH -p small_s
+#SBATCH --ntasks-per-node=32
+#SBATCH --job-name=vasp
+#SBATCH -t 48:00:00
+#SBATCH --mem-per-cpu=4G
 
-前两个红框意思是：调用用1个节点，32个核。这个文件直接决定了做VASP计算时可以调用的cpu计算资源（核数和内存），核数越多一般内存越大。核数设置一般需要经验，常见服务器单节点可以用的核数一般是20/24/32/48/64这样的数字，需要咨询服务器的管理员。在不跨节点的情况下，一般核数越多，计算速度越快，并且可以调用的内存也越多。所以对于大体系（原子数多）或者类似杂化泛函的计算，建议使用更多的核数。常规的计算任务，核数接近原子数是比较有性价比的选择。不同服务器的情况不一样，因此对于初学者来说，该脚本中涉及的的节点、核数选取请务必咨询课题组师兄/师姐或者超算工程师。
+module load oneapi/2023.2
+module load gcc/12.1
+#source /public/software/intel/oneapi2021/setvars.sh
 
-后两个红框意思是：运行vasp_std程序开始计算，并把主要结果输出到result文件中。
+vasp=/public/software/vasp/vasp-6.4.1-gam-ncl-std/bin/vasp_std
+#vasp=/public/software/vasp/vasp-6.4.1-gam-ncl-std/bin/vasp_gam
+#vasp=/public/software/vasp/vasp-6.4.1-gam-ncl-std/bin/vasp_ncl
+
+mpirun  -np $SLURM_NTASKS $vasp  > result
+```
+
+`-N 1` 和 `--ntasks-per-node=32` 的意思是：调用1个节点，32个核。这个文件直接决定了做VASP计算时可以调用的cpu计算资源（核数和内存），核数越多一般内存越大。核数设置一般需要经验，常见服务器单节点可以用的核数一般是20/24/32/48/64这样的数字，需要咨询服务器的管理员。在不跨节点的情况下，一般核数越多，计算速度越快，并且可以调用的内存也越多。所以对于大体系（原子数多）或者类似杂化泛函的计算，建议使用更多的核数。常规的计算任务，核数接近原子数是比较有性价比的选择。不同服务器的情况不一样，因此对于初学者来说，该脚本中涉及的的节点、核数选取请务必咨询课题组师兄/师姐或者超算工程师。
+
+`vasp=.../vasp_std` 和最后一行的 `$vasp` 意思是：运行vasp_std程序开始计算，并把主要结果输出到result文件中。
 
 注意：当你有了任务提交脚本之后，**你需要确保前面的四个文件INCAR，POSCAR，KPOINTS和POTCAR，以及任务脚本一共4+1个文件处于同一目录下**
 
@@ -273,7 +371,23 @@ VASP的全部计算信息都会在这个文件显示。输入cat OUTCAR并回车
 
 下面我们将详细介绍静态自洽计算时INCAR中的常用参数，并对主要用到的参数如何取值做一些说明
 
-<img src="/dft-intro/image10.webp" alt="" width={424} loading="lazy" />
+```
+ISTART = 0        # job   : 0-new  1-cont  2-samecut
+ICHARG = 2        # obtain eigenvalues for band structure (ICHARG = 11)
+LCHARG = .TRUE.   # write down charge densities or not
+LWAVE  = .TRUE.   # write down wavefunctions or not
+ENCUT  = 400      # kinetic energy cutoff, default = ENMAX in POTCAR
+ISPIN  = 1        # (1 = off, 2 =on spin polarization)
+LREAL  = Auto     ## False or Auto
+
+## for static
+NSW    = 0        # max number of geometry steps, 0 for static calculation
+ISMEAR = 0        # -1: Fermi smearing, 0: Gaussian smearing, 1: Methfessel-Paxton
+SIGMA  = 0.05     # broadening in eV
+NELM   = 60
+EDIFF  = 1E-06    # stopping-criterion for ELM, default 1E-4
+#LORBIT = 11
+```
 
 ISTART=1或者0，如果是1就是读取当前目录下已有的WAVECAR开始计算，0就是从头开始生成波函数。（在用有限位移法算声子谱时，合理利用这个参数可以节省计算时间）
 
@@ -311,13 +425,13 @@ ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
 
 **附：ISMEAR和SIGMA的补充说明**
 
-我们这里进行的是0K下的基态性质计算，对于真实系统，0K下电子分布是费米狄拉克分布，不会有展宽（如下图最左侧a），但是这会引入一个δ函数难以处理（阶跃函数的导数即为δ函数，也叫Dirac函数）。在实际求解过程都会使用一些smearing方法来避免直接处理δ函数，比如Fermi-Dirac smearing、Guassian smearing、Methfessel Paxton smearing等，于是就有了“展宽”sigma的概念。
+我们这里进行的是0K下的基态性质计算，对于真实系统，0K下电子分布是费米狄拉克分布，不会有展宽（如下图最左侧a），但是这会引入一个δ函数难以处理（阶跃函数的导数即为δ函数，也叫Dirac函数）。在实际求解过程都会使用一些smearing方法来避免直接处理δ函数，比如Fermi-Dirac smearing、Gaussian smearing、Methfessel Paxton smearing等，于是就有了“展宽”sigma的概念。
 
 <img src="/dft-intro/image31.webp" alt="" width={349} loading="lazy" />
 
 <img src="/dft-intro/image32.webp" alt="" width={521} loading="lazy" />
 
-对于Fermi-Dirac smearing, 对应的就是ISMEAR=-1的情况（自行查阅VASP手册官网中关于ISMEAR参数说明）。但是这通常会需要非常密的Kmesh才能得到可靠的结果，因为在Fermi-Dirac smearing下，T=300K对应的展宽sigma=0.026eV，越小的展宽需要越密的Kmesh来保证收敛。所以大部分计算都不用FD-smearing，更多使用Guassian和MP等。选定一个smearing方法，通过在某一展宽sigma下求解，最后再将结果（一般是能量，扣除掉了电子熵TS之后）对展宽sigma取极限，回归到基态0K的情况。对于一个合理的计算来说，TS部分（电子熵，上面图中的entropy TS）不应该超过1meV/atom，此时free energy，energy without entropy和energy(sigma-0)三者的差值不超过1meV/atom（可能由于计算精度不够会\~10meV/atom）。
+对于Fermi-Dirac smearing, 对应的就是ISMEAR=-1的情况（自行查阅VASP手册官网中关于ISMEAR参数说明）。但是这通常会需要非常密的Kmesh才能得到可靠的结果，因为在Fermi-Dirac smearing下，T=300K对应的展宽sigma=0.026eV，越小的展宽需要越密的Kmesh来保证收敛。所以大部分计算都不用FD-smearing，更多使用Gaussian和MP等。选定一个smearing方法，通过在某一展宽sigma下求解，最后再将结果（一般是能量，扣除掉了电子熵TS之后）对展宽sigma取极限，回归到基态0K的情况。对于一个合理的计算来说，TS部分（电子熵，上面图中的entropy TS）不应该超过1meV/atom，此时free energy，energy without entropy和energy(sigma-0)三者的差值不超过1meV/atom（可能由于计算精度不够会\~10meV/atom）。
 
 注意，对于高温下的金属体系模拟，电子熵的贡献（对能量和力的贡献）可能很重要，此时需要取ISMEAR=-1，以及相应的模拟温度下的SIGMA的值。
 
@@ -331,11 +445,22 @@ ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
 
 （1）前面我们设置的KPOINTS形式之一为：
 
-<img src="/dft-intro/image11.webp" alt="" width={136} loading="lazy" />
+```
+K-point
+0
+Auto
+20
+```
 
 （2）事实上，KPOINTS有很多种输入形式，比如官网给出的：
 
-<img src="/dft-intro/image33.webp" alt="" width={542} loading="lazy" />
+```
+Regular k-point mesh
+0              ! 0 -> determine number of k points automatically
+Gamma          ! generate a Gamma centered mesh
+4  4  4        ! subdivisions N_1, N_2 and N_3 along the reciprocal lattice vectors
+0  0  0        ! optional shift of the mesh (s_1, s_2, s_3)
+```
 
 这里的444的意义和前面MP的666含义类似，区别在于当第三行取为Gamma时，它在倒空间1BZ布点时会严格在Gamma点上撒一个点（对应在IBZKPT文件第一个点必定为 0 0 0），而MP不一定会取到Gamma点，一般MP下Kmesh的值取奇数时，会采样到Gamma点。
 
@@ -347,7 +472,12 @@ ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
 
 （3）我们前面还用到一种自动布点方案，写法如下：
 
-<img src="/dft-intro/image35.webp" alt="" width={358} loading="lazy" />
+```
+Fully automatic mesh
+0             ! 0 -> automatic generation scheme
+Auto          ! fully automatic
+  10          ! length (R_k)
+```
 
 这里的10并非在某个倒空间b1方向上撒10个点。物理意义是以$2\pi \times 0.1Å^{- 1}$的密度在三个方向撒点。比如前面提到的$2\pi \times 0.025Å^{- 1}$对应的就是Auto 40
 
@@ -357,7 +487,20 @@ ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
 
 （6）第六种（常用于能带计算），这是给出倒空间1BZ高对称点路径，只计算这些路径上的电子态，当然我们可以随便取路径和点的坐标，不一定非得是高对称点。不过这种格式一般只在计算能带时需要，并且我们更关心高对称点以及路径上的信息，内部区域的较少考虑，这一点会在实操3-5中练习。
 
-<img src="/dft-intro/image36.webp" alt="" width={309} loading="lazy" />
+```
+k points along high symmetry lines
+ 40              ! number of points per line
+line mode
+fractional
+  0    0    0     Γ
+  0.5  0.5  0     X
+
+  0.5  0.5  0     X
+  0.5  0.75 0.25  W
+
+  0.5  0.75 0.25  W
+  0    0    0     Γ
+```
 
 关于KPOINTS文件的内容，请进一步查阅官方手册：
 
@@ -365,18 +508,26 @@ ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
 
 对于初学者，除了能带计算，以及杂化泛函等对KPOINTS有特殊要求的计算任务，其它计算的KPOINTS建议取下面两种。当然，更建议选择vaspkit-102，指定密度生成KPOINTS。
 
-<img src="/dft-intro/image11.webp" alt="" width={136} loading="lazy" /> <img
-  src="/dft-intro/image37.webp"
-  alt=""
-  width={319}
-  loading="lazy"
-/>
+```
+K-point
+0
+Auto
+20
+```
+
+```
+K-Spacing Value to Generate K-Mesh: 0.030
+0
+Monkhorst-Pack
+   6   6   6
+0.0  0.0  0.0
+```
 
 注意，如果是二维体系（石墨烯），一维体系（碳纳米管）或者零维体系（比如孤立原子或者单个分子）时，KPOINTS写法略有不同。一般研究二维体系，会把结构放置在xy平面，z方向设置15-20Å的真空层（以避免周期性带来的层间相互作用）。所以对应在倒空间，只需要设置k1和k2即可，k3设置为1，如下图。当然，设置k3为2或者更大的值也是可以的，但是没有必要（不显著影响计算结果，反而会增加不必要的计算）。
 
 <img src="/dft-intro/image38.webp" alt="" width={552} loading="lazy" />
 
-### 2.3.4 VASP计算输出总结
+### 2.3.5 VASP计算输出总结
 
 最后，我们对输出文件简单做一个总结：
 
@@ -403,7 +554,7 @@ ISMEAR和SIGMA，这两个参数是配套的，不同体系有不同的取法。
 
 注意，由于晶格的周期性，原子旁边仍有原子，但是该距离超过10Å，一般认为足够。原则上需要测试孤立原子能量随尺寸的收敛情况。
 
-### 2.3.5 静态自洽计算SCF不收敛怎么办
+### 2.3.6 静态自洽计算SCF不收敛怎么办
 
 对于某些复杂体系，尤其是含有d/f电子的金属元素，或者考虑DFT+U以及磁性时，很容易遇到SCF不收敛的情况，即OSZICAR文件中第三列dE始终没法小于INCAR中预设的EDIFF。VASP在计算达到最大电子步（NELM参数）时，无论计算是否收敛，最后都会输出体系的能量和原子的力，以及压强等信息。此时这些信息都是不对的，因为计算根本没收敛。如果dE迭代到了1E-3量级，结果或许还有一定可信度。
 

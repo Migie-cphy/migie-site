@@ -9,13 +9,16 @@ export const metadata = {
 
 为什么需要做收敛性测试？原则上ENCUT和KPOINTS越多越好，但我们需要在有限的计算时间和资源下找到一个尽可能符合计算精度的设置，因此需要通过做收敛性测试，找到一组合适的ENCUT和KPOINTS，在满足计算精度的同时尽量减少计算量。
 
-**（1）K-mesh测试**
+## （1）K-mesh测试
 
 在前面关于单质Si的静态自洽计算中，我们在KPOINTS中设置了auto20，对应kmesh为4 4 4。但是，4 4 4 的Kmesh够吗？这随之带来的另外一个问题是：多少的Kmesh算够？原则上Kmesh无穷大即可，但不现实。因此需要对Kmesh进行收敛性测试，即选取某一个量，测试该量对Kmesh变化的依赖，当随着Kmesh增加，该量不再明显继续增加时，可以认为此时的Kmesh合理。通常我们选取体系的“总能”作为这个量，即前面OSZICAR中的E0。有时也会选取体系的压强。
 
 首先确认INCAR中ENCUT的合理值：grep命令查看Si的POTCAR中的ENMAX
 
-<img src="/dft-intro/image40.webp" alt="" width={441} loading="lazy" />
+```
+$ grep ENMAX POTCAR
+   ENMAX  =  245.345; ENMIN  =  184.009 eV
+```
 
 这里给出了POTCAR的ENMAX参数，通常INCAR中设置的ENCUT要是这个值的1.3倍以上比较安全，所以在这里我们设置INCAR=400eV（一般来说，400\~600eV是绝大部分元素的POTCAR所需要的合适的截断能，部分POTCAR可能需要高达1000eV，比如Fe_sv）
 
@@ -27,7 +30,7 @@ export const metadata = {
 
 比较不同kmesh下的计算速度：在任意一个Kmesh的计算目录下输入grep LOOP OUTCAR，查看不同k点数量下电子步所需时间，自行体会计算速度与k点的关系。
 
-**（2）ENCUT测试**
+## （2）ENCUT测试
 
 > 与Kmesh测试一样，之前的计算中，INCAR的ENCUT参数取的是400eV，现在分别从200eV到500eV以50eV为步长（为什么从200开始？因为POTCAR的ENMAX=245，ENMIN=184，我们选取高于ENMIN开始测试），统一在kmesh=5x5x5下分别在不同ENCUT下做静态自洽计算，并画出能量E0随ENCUT的图像
 >

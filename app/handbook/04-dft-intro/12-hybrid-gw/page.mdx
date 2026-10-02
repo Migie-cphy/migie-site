@@ -37,7 +37,14 @@ d. 数据后处理+画图
 
 在常规能带计算INCAR基础上加下面参数。注意，常规能带计算中ICHARG=11，而做杂化泛函计算时，ICHARG=0（表示从读取的WAVECAR中生成初始电荷密度）
 
-<img src="/dft-intro/image202.webp" alt="" width={503} loading="lazy" />
+```
+#HSE
+LHFCALC = .TRUE.
+AEXX  = 0.25         (0.25 default; 0 for PBE)
+HFSCREEN = 0.2       (0.2 for HSE06; 0.3 for HSE03; 0 for PBE0)
+TIME  = 0.4          (default)
+ALGO  = Damped
+```
 
 HSE部分参数具体设置可以参照刘锦程博士的blog：
 

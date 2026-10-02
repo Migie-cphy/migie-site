@@ -29,7 +29,24 @@ Download下载Conventional Cell（晶胞），可以自行下载晶胞和原胞�
 
 随后用vesta导出为vasp的POSCAR格式并上传到服务器的工作目录
 
-<img src="/dft-intro/image80.webp" alt="" width={401} loading="lazy" />
+```
+Si8
+1.0
+       5.4687280655         0.0000000000         0.0000000000
+       0.0000000000         5.4687280655         0.0000000000
+       0.0000000000         0.0000000000         5.4687280655
+   Si
+    8
+Direct
+     0.750000000         0.750000000         0.250000000
+     0.500000000         0.000000000         0.500000000
+     0.750000000         0.250000000         0.750000000
+     0.500000000         0.500000000         0.000000000
+     0.250000000         0.750000000         0.750000000
+     0.000000000         0.000000000         0.000000000
+     0.250000000         0.250000000         0.250000000
+     0.000000000         0.500000000         0.500000000
+```
 
 原则上需要对数据库中下载的结构再做一次结构优化（常压），我们这里省略这一步。
 
@@ -37,9 +54,12 @@ Download下载Conventional Cell（晶胞），可以自行下载晶胞和原胞�
 
 POTCAR中ENMAX=245，所以在INCAR中设置ENCUT=500是可以的
 
-<img src="/dft-intro/image81.webp" alt="" width={347} loading="lazy" />
+```
+$ grep ENMAX POTCAR
+   ENMAX  =  245.345; ENMIN  =  184.009 eV
+```
 
-基于先验知识，我们知道Si-金刚石结构是半导体，所以ISMAER最好取-5，取0也不会有太大问题（但是不能取1）。这里EDIFF取的是1E-6（对于静态计算足够），默认1E-4
+基于先验知识，我们知道Si-金刚石结构是半导体，所以ISMEAR最好取-5，取0也不会有太大问题（但是不能取1）。这里EDIFF取的是1E-6（对于静态计算足够），默认1E-4
 
 （3）检查完四个文件确认无误之后，通过脚本向服务器提交任务，等计算成功完成之后（查看result、OUTCAR和OSZICAR，确认计算成功收敛），把CHGCAR文件下载到自己电脑，直接拖进vesta里面查看。
 
@@ -65,7 +85,18 @@ POTCAR中ENMAX=245，所以在INCAR中设置ENCUT=500是可以的
 
 （1）手动写一个POSCAR文件：先构建一个大胞（晶格大于10Å，尽可能减弱周期性带来的分子之间相互作用），在合适的位置放置C和O原子各一个，并且保证它们的距离合适。网上查找CO实验键长1.1283Å，所以建模型时键长也取1.128Å（取Cartesian坐标比较方便）。POSCAR内容如下
 
-<img src="/dft-intro/image84.webp" alt="" width={153} loading="lazy" />
+```
+CO
+1
+10 0 0
+0 10 0
+0 0 10
+C O
+1 1
+Cartesian
+5 5 5
+5 5 6.128
+```
 
 （2）（这一步结构优化可以省略）再做ISIF=2的结构优化（固定晶格，只优化原子位置）来得到理论键长（PBE泛函）。其中，KPOINTS只取111即可，ENCUT=520eV（C的ENMAX=400，这里取1.3倍比较安全）。POTCAR中C考虑了4个价电子，O考虑了6个价电子。基于先验知识，CO分子没有孤立电子，所以应该没有磁性，ISPIN=1即可。为了检验磁性，也可以在结构优化完，自己设置ISPIN=2（为简单起见，不额外设置初始磁矩，让程序自动设置）做一次scf计算，看OSZICAR中是否有磁矩来初步简单地判断是否有磁性。
 
@@ -110,7 +141,19 @@ POTCAR中ENMAX=245，所以在INCAR中设置ENCUT=500是可以的
 
 另外一个例子是MgB2（层状材料，常压下超导转变温度39K的超导体）。可以作为差分电荷密度的练习。MgB2的晶体结构数据如下：
 
-<img src="/dft-intro/image91.webp" alt="" width={476} loading="lazy" />
+```
+magnesium diboride
+1.0
+   3.068802008  -0.000000000   0.000000000
+  -1.534401004   2.657660498  -0.000000000
+  -0.000000000  -0.000000000   3.525151116
+   Mg    B
+    1    2
+Direct
+     0.000000000         0.000000000         0.000000000
+     0.333333343         0.666666687         0.500000000
+     0.666666627         0.333333313         0.500000000
+```
 
 这里直接给出差分电荷结果（橙色小球为Mg原子）：
 
@@ -159,7 +202,19 @@ chmod +x chgsum.pl
 
 MgB2的POSCAR
 
-<img src="/dft-intro/image91.webp" alt="" width={476} loading="lazy" />
+```
+magnesium diboride
+1.0
+   3.068802008  -0.000000000   0.000000000
+  -1.534401004   2.657660498  -0.000000000
+  -0.000000000  -0.000000000   3.525151116
+   Mg    B
+    1    2
+Direct
+     0.000000000         0.000000000         0.000000000
+     0.333333343         0.666666687         0.500000000
+     0.666666627         0.333333313         0.500000000
+```
 
 INCAR文件在普通的静态自洽计算的基础上再加上LAECHG=.TRUE.和LCHARG=.TRUE. 即可。POTCAR和KPOINTS采用vaspkit生成，取2πx0.025的密度。计算完成时，会输出三个后续bader电荷涉及到的文件：CHGCAR，AECCAR0，AECCAR2
 
@@ -221,7 +276,31 @@ ELF的取值在0\~1之间，ELF=1对应的是该处的电子完全局域化，EL
 
 在SCF计算的INCAR参数基础上加入LELF=TRUE。KPOINTS采用k111，POTCAR用vaspkit-103生成
 
-<img src="/dft-intro/image99.webp" alt="" width={387} loading="lazy" />
+```
+Global Parameters
+ISTART =  1            (Read existing wavefunction, if there)
+ICHARG =  2            (2 for scf, 11 for nscf)
+ISPIN  =  1            (Non-Spin polarised DFT)
+ENCUT  =  500          (Cut-off energy for plane wave basis set, in eV)
+LELF   = .TRUE.        (  for ELF)
+LWAVE  = .TRUE.        (Write WAVECAR or not)
+LCHARG = .TRUE.        (Write CHGCAR or not)
+ADDGRID= .TRUE.        (Increase grid, helps GGA convergence)
+PREC   =  Accurate     (Precision level)
+NCORE  = 4
+
+Lattice Relaxation
+NSW    =  0            (number of ionic steps)
+POTIM  = 0.1
+IBRION =  2            (Algorithm: 0-MD, 1-Quasi-New, 2-CG)
+ISIF   =  2            (optimize atomic coordinates and lattice parameters)
+EDIFFG = -0.005        (Ionic convergence, eV/A)
+
+Electron Scf
+EDIFF  = 1E-6
+ISMEAR =  0            (gaussian smearing method )
+SIGMA  =  0.02         (please check the width of the smearing)
+```
 
 通过查看result和OUTCAR文件确认计算收敛并成功结束。此时会输出一个ELFCAR文件，可以自己打开查看，格式和CHGCAR类似。
 
@@ -229,7 +308,7 @@ ELFCAR文件可以直接拖进vesta可视化：左图是直接拖进去得到的
 
 <img src="/dft-intro/image100.webp" alt="" width={354} loading="lazy" />
 
-Silice设置如下（确保CO分子所在直线能穿过所选中的平面）：
+Slice设置如下（确保CO分子所在直线能穿过所选中的平面）：
 
 <img src="/dft-intro/image101.webp" alt="" width={391} loading="lazy" />
 
@@ -241,12 +320,22 @@ ELF的值是严格在0-1之间的（也可能是0.01-0.98这种情况，可能�
 
 POSCAR如下（可以自行数据库下载），右边是示意图（vesta）
 
-<img src="/dft-intro/image102.webp" alt="" width={386} loading="lazy" /> <img
-  src="/dft-intro/image103.webp"
-  alt=""
-  width={160}
-  loading="lazy"
-/>
+```
+Graphene
+   1.00000000000000
+     2.4604399203999998    0.0000000000000000    0.0000000000000000
+    -1.2302199601999999    2.1308034756000001    0.0000000000000000
+     0.0000000000000000    0.0000000000000000   10.0000000000000000
+   C
+     2
+Direct
+  0.0000000000000000  0.0000000000000000  0.0000000000000000
+  0.6666700239999983  0.3333300050000005  0.0000000000000000
+```
+
+{' '}
+
+<img src="/dft-intro/image103.webp" alt="" width={160} loading="lazy" />
 
 <img src="/dft-intro/image104.webp" alt="" width={451} loading="lazy" />
 
@@ -288,7 +377,7 @@ POSCAR如下（可以自行数据库下载），右边是示意图（vesta）
 
 计算ELF时，为了进行数值分析，需要精细的网格；此时INCAR里面要设置NGX三个参数，可以自行查看OUTCAR中这个参数，一般取的是默认值。ELFCAR的网格密度可以用NGX参数直接控制；网格上的值就是ELF的值。
 
-CHG和ELFCAR文件格式完全一样。CHG的网格密度用NGFX参数控制；CHG文件网格上的值是电荷密度与Vgrid的乘积；因此后续读取电荷密度时要除以Vgrid；换句话说，如果对格点上所有数字求和，并除以Vgrid值，得到的数字就是体系的价电子数，即NELECT或者OUTCAR中的“number of electron”。
+CHG和ELFCAR文件格式完全一样。CHG的网格密度用NGXF参数控制；CHG文件网格上的值是电荷密度与Vgrid的乘积；因此后续读取电荷密度时要除以Vgrid；换句话说，如果对格点上所有数字求和，并除以Vgrid值，得到的数字就是体系的价电子数，即NELECT或者OUTCAR中的“number of electron”。
 
 CHGCAR文件比CHG文件多了一些附加信息。
 

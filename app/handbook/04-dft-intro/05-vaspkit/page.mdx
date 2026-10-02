@@ -7,7 +7,7 @@ export const metadata = {
 
 在这里我们安装VASP的辅助工具vaspkit，在后续生成INCAR和数据后处理中会用到该软件。
 
-**（1）官网下载并安装vaspkit**
+## （1）官网下载并安装vaspkit
 
 网上直接搜索“Vaspkit”，进入官网，找到左侧的Installation（安装）
 
@@ -15,7 +15,14 @@ export const metadata = {
 
 按照里面的操作下载-解压-配置环境（第一次做这个都会摸不着头脑，这是正常现象，需要耐心看官网慢慢习惯）。在vim \~/.vaspkit这一步时，需要我们提供我们自己的赝势库路径（自己找组里的师兄师姐要到VASP的POTCAR压缩包，并自行上传到服务器的自己的目录下），比如我这里的路径如下（注意要用绝对路径，用pwd命令可以显示当前的绝对路径）：
 
-<img src="/dft-intro/image44.webp" alt="" width={551} loading="lazy" />
+```
+VASP5                         .TRUE.            # .TRUE. or .FALSE.; Set .FALSE. if using VASP.4.x
+LDA_PATH                      ~/POTCAR/LDA      #  Path of LDA potential
+PBE_PATH                      /public/home/zpwu/VASP/PBE-pseudopotential
+GGA_PATH                      ~/POTCAR/GGA      #  Path of PW91 potential
+POTCAR_TYPE                    PBE              #  PBE, PW91 or LDA
+GW_POTCAR                     .FALSE.           # .TRUE. or .FALSE.; use GW potentials or not
+```
 
 后面我们会使用Vaspkit帮我们从这个路径中复制POTCAR到计算目录下。
 
@@ -23,15 +30,17 @@ export const metadata = {
 
 <img src="/dft-intro/image45.webp" alt="" width={554} loading="lazy" />
 
-最后一句replace the absolute path……意思是要我们对/home/vaspkit.1.00/bin这部分内容替换成自己服务器下安转的vaspkit路径。可以通过cd命令进入vaspkit的文件夹，用pwd命令显示当前（vaspkit）的绝对路径。最后记得要source，让\~/.bashrc文件生效。
+最后一句replace the absolute path……意思是要我们对/home/vaspkit.1.00/bin这部分内容替换成自己服务器下安装的vaspkit路径。可以通过cd命令进入vaspkit的文件夹，用pwd命令显示当前（vaspkit）的绝对路径。最后记得要source，让\~/.bashrc文件生效。
 
 当你跟着官网的安装以及配置步骤走完，输入vim \~/.bashrc并回车会看到里面有一条这样的信息：
 
-<img src="/dft-intro/image46.webp" alt="" width={635} loading="lazy" />
+```
+export PATH=/public/home/zpwu/software/vaspkit.1.3.3/bin:$PATH
+```
 
 接下来我们学习使用vaspkit来基于POSCAR文件，辅助生成INCAR，KPOINTS和POTCAR. 首先建立一个工作目录，并准备一个POSCAR文件，用前面的金刚石单质Si即可。
 
-**（2）vaspkit生成INCAR：输入vaspkit并回车**
+## （2）vaspkit生成INCAR：输入vaspkit并回车
 
 <img src="/dft-intro/image47.webp" alt="" width={554} loading="lazy" />
 
@@ -49,15 +58,66 @@ export const metadata = {
 
 说明vaspkit帮我们生成了INCAR，用cat命令查看INCAR
 
-<img src="/dft-intro/image51.webp" alt="" width={363} loading="lazy" />
+```
+$ cat INCAR
+Global Parameters
+ISTART =  1            (Read existing wavefunction, if there)
+ISPIN  =  1            (Non-Spin polarised DFT)
+# ICHARG =  11         (Non-self-consistent: GGA/LDA band structures)
+LREAL  = .FALSE.       (Projection operators: automatic)
+# ENCUT  =  400        (Cut-off energy for plane wave basis set, in eV)
+# PREC   =  Accurate   (Precision level: Normal or Accurate, set Accurate when perform structure lattice relaxation calculation)
+LWAVE  = .TRUE.        (Write WAVECAR or not)
+LCHARG = .TRUE.        (Write CHGCAR or not)
+ADDGRID= .TRUE.        (Increase grid, helps GGA convergence)
+# LVTOT  = .TRUE.      (Write total electrostatic potential into LOCPOT or not)
+# LVHAR  = .TRUE.      (Write ionic + Hartree electrostatic potential into LOCPOT or not)
+# NELECT =             (No. of electrons: charged cells, be careful)
+# LPLANE = .TRUE.      (Real space distribution, supercells)
+# NWRITE = 2           (Medium-level output)
+# KPAR   = 2           (Divides k-grid into separate groups)
+# NGXF    = 300        (FFT grid mesh density for nice charge/potential plots)
+# NGYF    = 300        (FFT grid mesh density for nice charge/potential plots)
+# NGZF    = 300        (FFT grid mesh density for nice charge/potential plots)
+
+Static Calculation
+ISMEAR =  0            (gaussian smearing method)
+SIGMA  =  0.05         (please check the width of the smearing)
+LORBIT =  11           (PAW radii for projected DOS)
+NEDOS  =  2001         (DOSCAR points)
+NELM   =  60           (Max electronic SCF steps)
+EDIFF  =  1E-08        (SCF energy convergence, in eV)
+```
 
 这里有很多参数，注意，vaspkit生成的INCAR默认把ENCUT注释掉了，意味着VASP计算时会默认取POTCAR中的ENMAX的最大值，这通常是不太够的。所以我们需要对这份INCAR文件手动修改，并且参照下面的内容，使用dd命令把Vaspkit生成的INCAR中多余的行删除（请自行搜索vim编辑器下dd命令的使用），最后得到一个干净的INCAR：
 
-<img src="/dft-intro/image52.webp" alt="" width={422} loading="lazy" />
+```
+Global Parameters
+ISTART =  1            (Read existing wavefunction, if there)
+ISPIN  =  1            (Non-Spin polarised DFT)
+# ICHARG =  11         (Non-self-consistent: GGA/LDA band structures)
+LREAL  = .FALSE.       (Projection operators: automatic)
+ENCUT  =  400          (Cut-off energy for plane wave basis set, in eV)
+# PREC   =  Accurate   (Precision level: Normal or Accurate, set Accurate when perform structure lattice relaxation calculation)
+LWAVE  = .TRUE.        (Write WAVECAR or not)
+LCHARG = .TRUE.        (Write CHGCAR or not)
+ADDGRID= .TRUE.        (Increase grid, helps GGA convergence)
+
+Static Calculation
+ISMEAR =  0            (gaussian smearing method)
+SIGMA  =  0.05         (please check the width of the smearing)
+LORBIT =  11           (PAW radii for projected DOS)
+NEDOS  =  2001         (DOSCAR points)
+NELM   =  60           (Max electronic SCF steps)
+EDIFF  =  1E-06        (SCF energy convergence, in eV)
+
+NCORE  = 4
+KPAR   = 2
+```
 
 必须非常强调的一点是，vaspkit自动生成的INCAR不一定足够合理，尤其是ENCUT，你必须明确知道vaspkit帮你生成的INCAR中的每一个参数代表的含义（查VASP的wiki网页）。
 
-**（3）vaspkit生成KPOINTS和POTCAR**
+## （3）vaspkit生成KPOINTS和POTCAR
 
 类似前面生成INCAR步骤，运行vaspkit，输入1并回车，再输入102并回车
 

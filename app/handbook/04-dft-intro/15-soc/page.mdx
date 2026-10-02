@@ -7,7 +7,7 @@ export const metadata = {
 
 自旋轨道耦合（spin-orbit coupling，SOC）是一种相对论效应，在含有重元素的体系中比较显著，比如原子序数大于40或者50（比如MoS2，Mo的序数为42）。因此一般当体系含有一些原子序数较大的元素时，需要考虑SOC。但有时候在类似石墨烯这样的材料中也会考虑SOC来研究能带性质。它对很多性质都有影响，比如传统半导体中的重轻空穴质量；某些系统的Rashba分裂，拓扑绝缘体和Berry相位，声子性质等。Physical Review Materials, 2017, 1(3): 033803.
 
-1.  **SOC对能带结构的影响**
+## 1. SOC对能带结构的影响
 
 SOC对材料最直接的影响体现在能带结构上：考虑SOC时，能带简并部分解除，如下图。注意，SOC造成的劈裂和自旋劈裂是两回事。在没有磁性的体系，此时能带仍然保持自旋简并，即上下自旋的能带仍然是完全重合的。可以理解为SOC使得哈密顿量对称性降低，于是某些能级简并解除。既然SOC会使得能带劈裂，那就可能影响半导体的能隙，尤其是某些在费米面上有Dirac点的材料。
 
@@ -17,7 +17,13 @@ SOC对材料最直接的影响体现在能带结构上：考虑SOC时，能带�
 
 先计算金属Au-fcc的不考虑SOC的能带（记得取标准原胞）；再计算SOC能带。SOC能带的计算流程和普通band计算一致，只需要在scf和band计算的INCAR中加入以下参数：
 
-<img src="/dft-intro/image217.webp" alt="" width={454} loading="lazy" />
+```
+#for SOC
+LSORBIT = .TRUE.       ( for SOC)
+ISPIN  =  1            (1 for no-spin; 2 for spin)
+SAXIS =  0 0 1        ( default, direction of magnetic field)
+LMAXMIX =  4          ( 4 for d ; 6 for f)
+```
 
 并且在调用vasp计算时，需要采用vasp_ncl版本。要确保你的服务器安装VASP时有安装vasp_ncl版本，可以去安装VASP的bin文件夹确认。
 
@@ -47,7 +53,7 @@ Physical Review B, 2009, 80(23): 235431.
 
 是否需要考虑SOC做结构优化？一般不用，SOC对晶格常数影响不是特别大；建议可自行测试自己的体系
 
-**2.SOC对声子谱的影响**
+## 2. SOC对声子谱的影响
 
 SOC还可能对声子频率有影响。以$\alpha$-Hg为例，$\alpha$-Hg是Hg在低温下的结构，超导转变温度是4.2K，SOC效应对其声子色散结构有显著影响，如下图：只有考虑了SOC效应，计算得到的声子谱才是没有虚频的。但是考虑SOC计算声子谱时，计算时长比SR计算多了约1\~2个数量级。
 

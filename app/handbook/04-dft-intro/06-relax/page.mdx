@@ -5,11 +5,11 @@ export const metadata = {
 
 # 3.3 结构优化
 
-**什么是结构优化（relaxation）？**
+## 什么是结构优化（relaxation）？
 
 一句话概括就是：寻找当前结构对应势能面所在位置附近的局域最小值。结构优化的目的是为了在给定限制（压强、是否固定晶格等条件）下得到合适的晶格常数和原子位置。
 
-**什么是势能面？**
+## 什么是势能面？
 
 当一个体系的元素以及原子个数确定时，想象一个由原子坐标（对于复杂体系还有磁矩等参数）和体系能量构成的高维空间，体系能量完全取决于原子坐标。所以不同的原子坐标（以及磁矩等）就会对应不一样的能量，如果遍历全部的坐标可能，就得到了能量-坐标的一个高维曲面，即势能面（PES，Potential Energy Surface），下图：
 
@@ -21,7 +21,7 @@ export const metadata = {
 
 [https://www.vasp.at/wiki/index.php/IBRION](https://www.vasp.at/wiki/index.php/IBRION)
 
-**结构优化算法流程：**
+## 结构优化算法流程
 
 <img src="/dft-intro/image57.webp" alt="" width={245} loading="lazy" />
 这其实是QE的结构优化流程，懒得重新画，就直接拿来用了.VASP的区别就在于右侧的算法用的不是BFGS，而是前面IBRION提到的那些。实际上就是“离子步”和scf嵌套在一起的for循环：每移动一次离子，做一次scf计算得到每个原子的受力和体系的能量（这一过程称为离子步）。再借助算法得到下一个离子位置，进入下一次scf计算，直到达到收敛阈值。
@@ -30,13 +30,58 @@ export const metadata = {
 
 （1）首先你需要一个POSCAR，内容如下：
 
-<img src="/dft-intro/image58.webp" alt="" width={439} loading="lazy" />
+```
+Si8
+1.0
+5 0 0
+0 5 0
+0 0 5
+Si
+    8
+Direct
+     0.250000000         0.250000000         0.250000000
+     0.000000000         0.500000000         0.500000000
+     0.250000000         0.750000000         0.750000000
+     0.000000000         0.000000000         0.000000000
+     0.750000000         0.250000000         0.750000000
+     0.500000000         0.500000000         0.000000000
+     0.750000000         0.750000000         0.250000000
+     0.500000000         0.000000000         0.500000000
+```
 
 注意，这里的晶格常数是人为随意取的一个较为合理的值（为了演示用）。
 
 （2）结构优化采用的INCAR内容如下：
 
-<img src="/dft-intro/image59.webp" alt="" width={554} loading="lazy" />
+```
+ISTART  =    0        # job   : 0-new  1-cont  2-same basis set
+ICHARG  =    2        # obtain eigenvalues for band or the DOS
+LCHARG  =    .FALSE.  # write down charge densities or not
+LWAVE   =    .FALSE.  # write down wavefunctions or not! to restart copy CONTCAR to POSCAR
+#PREC   =    Accurate # A or Normal
+ENCUT   =    400      # kinetic energy cutoff, default is taken from POTCAR file
+ISPIN   =    1        # (1 = off, 2 =on spin polarization)
+LREAL   =    A
+
+# Ionic Relaxation
+IBRION  =    2        # ionic relax: 0=MD, 1=quasi-Newton, 2=CG,5=phonon
+ISIF    =    3        # (2:force=y stress=y ions=y shape=n volume=n), default is 2
+PSTRESS =    0
+POTIM   =    0.3      # default 0.5; sometimes 0.2 or 0.1
+NSW     =    100      # max number of geometry steps, default 0
+EDIFFG  =   -0.01
+
+# DOS Related values
+ISMEAR  =   0         # -1: Fermi smearing, 0: Gaussian smearing, 1..N: Methfessel-Paxton
+SIGMA   =   0.05      # broadening in eV
+NEDOS   =   2000
+NELM    =   60
+EDIFF   =   1E-06     # stopping-criterion for ELM, default is 1E-04
+#LORBIT =   11
+
+NCORE   =   4
+KPAR    =   4
+```
 
 相比于前面的静态自洽计算，结构优化多了IBRION，ISIF，NSW，POTIM，EDIFFG，PSTRESS等参数。
 
@@ -68,9 +113,17 @@ EDIFFG= -0.01，单位是eV/Å，当每个原子在xyz方向的受力都小于�
 
 （3）KPOINTS采用vaspkit-102生成，密度取0.025
 
-> <img src="/dft-intro/image60.webp" alt="" width={333} loading="lazy" />
+>
 
-（4）POTCAR用vaspki-103生成。
+```
+K-Spacing Value to Generate K-Mesh: 0.025
+0
+Monkhorst-Pack
+   8   8   8
+0.0  0.0  0.0
+```
+
+（4）POTCAR用vaspkit-103生成。
 
 然后确保这四个文件以及任务提交脚本在同一个路径下，通过脚本提交计算任务。
 
@@ -116,9 +169,26 @@ XDATCAR文件里面有每一次离子步的结构信息，可以自行打开查�
 
 现在我们构造一个这样的POSCAR
 
-<img src="/dft-intro/image67.webp" alt="" width={480} loading="lazy" />
+```
+Si8
+1.0
+5 0 0
+0 5 0
+0 0 5
+Si
+    8
+Direct
+     0.2550000000        0.250000000         0.250000000
+     0.000000000         0.500000000         0.500000000
+     0.250000000         0.750000000         0.750000000
+     0.000000000         0.000000000         0.000000000
+     0.750000000         0.2550000000        0.750000000
+     0.500000000         0.500000000         0.000000000
+     0.750000000         0.750000000         0.250000000
+     0.500000000         0.000000000         0.500000000
+```
 
-注意，我们修改了红框里原子坐标，使得这两个原子偏离了规整的金刚石格点。
+注意，我们把第1个原子的x坐标和第5个原子的y坐标从0.25改成了0.255，使得这两个原子偏离了规整的金刚石格点。
 
 其它INCAR，KPOINTS和POTCAR不变，提交任务，做relax计算。
 
@@ -140,23 +210,41 @@ XDATCAR文件里面有每一次离子步的结构信息，可以自行打开查�
 
 前面我们涉及到的结构优化主要是“所有原子坐标和三条轴全放开”或者“原子移动，轴固定”的结构优化。有些特殊的结构优化，可能需要固定住某些原子，或者固定住某些轴。这时候就需要在一定限制条件下做relax计算。
 
-**（1）固定POSCAR中某些原子的结构优化？**
+### （1）固定POSCAR中某些原子的结构优化？
 
 有些时候，我们需要研究一个气体分子在某个材料表面的扩散、吸附或表面重构问题时，此时的POSCAR结构原子很多，事实上只有表面附近的原子会移动（前提是你已经单独对材料表面、衬底优化过了）。因此为了减小计算量我们可以对远离表面的原子固定，只优化表面附近几层的原子位置。此时POSCAR写法如下：
 
-<img src="/dft-intro/image70.webp" alt="" width={556} loading="lazy" />
+```
+Si8
+   1.000
+    5.0000000000000000    0.0000000000000000    0.0000000000000000
+    0.0000000000000000    5.0000000000000000    0.0000000000000000
+    0.0000000000000000    0.0000000000000000    5.0000000000000000
+   Si
+    8
+Selective Dynamics
+Direct
+    0.2500000000000000    0.2500000000000000    0.2500000000000000   F   F   F
+    0.0000000000000000    0.5000000000000000    0.5000000000000000   T   T   T
+    0.2500000000000000    0.7500000000000000    0.7500000000000000   T   T   T
+    0.0000000000000000    0.0000000000000000    0.0000000000000000   T   T   T
+    0.7500000000000000    0.2500000000000000    0.7500000000000000   T   T   T
+    0.5000000000000000    0.5000000000000000    0.0000000000000000   T   T   T
+    0.7500000000000000    0.7500000000000000    0.2500000000000000   T   T   T
+    0.5000000000000000    0.0000000000000000    0.5000000000000000   T   T   T
+```
 
-注意看红框重点，首先多了一行Selective Dynamics内容；其次，每一个原子坐标的右边多了F和T，F表示固定。第一个F对应该原子的坐标的第一个值。这里这个POSCAR表示：在relax过程中，固定住第一个(0.25,0.25,0.25)原子，剩下七个原子的坐标在relax过程中可以移动。可用手动设置T和F，或者借助vaspkit-402功能实现。
+注意看两个重点：首先多了一行Selective Dynamics内容；其次，每一个原子坐标的右边多了F和T，F表示固定。第一个F对应该原子的坐标的第一个值。这里这个POSCAR表示：在relax过程中，固定住第一个(0.25,0.25,0.25)原子，剩下七个原子的坐标在relax过程中可以移动。可用手动设置T和F，或者借助vaspkit-402功能实现。
 
 如果固定的原子不合理，可能会导致有些原子受力始终没法低于EDIFFG，此时需要适当放开更多的原子继续优化。
 
-**（2）固定c轴的结构优化？（二维材料）**
+### （2）固定c轴的结构优化？（二维材料）
 
 当我们研究二维材料时，通常在第三个维度Z方向加上15-20Å的真空层，来避免Z方向上周期性所导致的层与层之间的相互影响（这带来的后果就是在相同ENCUT下，有了真空层就需要更多的平面波数量）。在优化过程中我们只需要对该胞做固定c轴（放开ab轴）的结构优化，VASP目前本身不支持这一点，需要人为另外编译。请自行搜索“VASP固定c轴的结构优化”。
 
 ## 3.3.4 结构优化计算总结
 
-（1）结构优化本质就是一系列依次进行的静态自洽计算，所以它相比于静态自洽计算（scf），就是多了一些控制离子步的参数，主要是这五个NSW，IBRION，POTIM，EIDFFG，PSTRESS。
+（1）结构优化本质就是一系列依次进行的静态自洽计算，所以它相比于静态自洽计算（scf），就是多了一些控制离子步的参数，主要是这五个NSW，IBRION，POTIM，EDIFFG，PSTRESS。
 
 （2）首先要确保初始结构合理，比如不能出现某些原子距离很近的情况，可以用原子的经验半径去判断，这个数据可查[https://ptable.com/](https://ptable.com/)，一般两个原子距离不会小于0.8Å（除了一些特殊的分子，比如H2的键长0.74Å）；
 
@@ -186,11 +274,11 @@ XDATCAR文件里面有每一次离子步的结构信息，可以自行打开查�
 
 ## 3.3.6 补充内容
 
-**（1）另外一种寻找晶格常数的结构优化方法——做状态方程拟合**
+### （1）另外一种寻找晶格常数的结构优化方法——做状态方程拟合
 
 思路就是不断改变晶胞体积，做ISIF=2的计算，得到不同体积下的能量，拟合出一条关于体系能量-体积的曲线即E-V曲线，该曲线在常压体积附近是类似二次曲线，原则上要用Birch-Murnaghan方程拟合。通过拟合+解析函数求导，寻找该曲线最小值，即为平衡体积。一般来说，这种方法得到的晶格常数和ISIF=3直接优化得到的晶格常数差别不大，感兴趣的可以自行作为练习尝试。[https://www.bigbrosci.com/2018/02/02/ex33/](https://www.bigbrosci.com/2018/02/02/ex33/)
 
-**（2）泛函类型对结构优化结果的影响**
+### （2）泛函类型对结构优化结果的影响
 
 选用不同泛函优化得到的晶格常数会不一样，一般最常用的泛函是LDA和PBE（GGA下的最常用的泛函类型）。相对于实验值，LDA得到的晶格常数会偏小，PBE一般偏大。二者各有优点，很难直接说明谁更优。VASP提供PBE和LDA两套泛函下的POTCAR文件，请向组里师兄师姐寻求。或者你可以采用PBE下的POTCAR，然后在INCAR中设置GGA=CA，即可实现LDA泛函的计算；
 
@@ -198,7 +286,7 @@ XDATCAR文件里面有每一次离子步的结构信息，可以自行打开查�
 
 The Journal of chemical physics, 2012, 136(13): 134704.
 
-**（3）高压下的结构优化？**
+### （3）高压下的结构优化？
 
 前面是在0GPa下做的结构优化，如果我想得到10GPa下的的晶格常数该怎么办呢？只需要在INCAR中设置PSTRESS=100即可（100就是100kbar，10GPa=100kbar），其余参数不变。但注意，此时OSZICAR中的E0和F就包含了压强体积的能量项，即E0=U+pV（称为焓，Enthalpy，物理符号为H），比如这是bcc-Li在10GPa下的情况：
 
@@ -216,15 +304,26 @@ The Journal of chemical physics, 2012, 136(13): 134704.
 
 在做高压的结构优化时，由于relax过程中体积变化。而kmesh是基于原始poscar产生的。如果优化前后的晶格常数变大很大，可能会导致后面的晶格常数与kmesh不匹配（精度变化）。此时，最好基于优化成功的CONTCAR做二次relax或者静态计算以得到能量/焓。
 
-**（4）结构优化选原胞还是晶胞？**
+### （4）结构优化选原胞还是晶胞？
 
 前面我们对金刚石Si做结构优化时，为了直观确认结构，取的是一个cubic的晶胞，里面有8个原子，这并非标准原胞。金刚石结构的标准原胞只有2个原子，借助vaspkit的602命令，它会读取当前路径下的POSCAR文件，并生成一个PRIMCELL.vasp文件，即为原胞。金刚石Si的原胞如下：
 
-<img src="/dft-intro/image75.webp" alt="" width={554} loading="lazy" />
+```
+Primitive Cell
+  1.000000
+    0.00000000000000    2.73536078266694    2.73536078266694
+    2.73536078266694    0.00000000000000    2.73536078266694
+    2.73536078266694    2.73536078266694    0.00000000000000
+  Si
+   2
+DIRECT
+    0.7500000000000000    0.7500000000000000    0.7500000000000000    Si1
+    0.5000000000000000    0.5000000000000000    0.5000000000000000    Si2
+```
 
 如果我们拿这个结构在0GPa下做结构优化（注意要重新生成KPOINTS，用0.025密度），得到的晶格常数是否会和前面用晶胞（8个原子）得到的结果一致？可以自行测试（此时应该比较平均单原子体积）。除以，此时k点密度要保持一致。如果你的KPOINTS采用的是Auto写法，那保持不变即可。如果是用vaspkit-102生成的类似7x7x7的写法，那需要重新对原胞生成相同密度下的Kmesh。
 
-**（5）晶格常数的温度依赖？**
+### （5）晶格常数的温度依赖？
 
 前面提到过，VASP在做DFT计算时，是不考虑温度对原子的激发的（热振动），所以我们优化得出的晶格常数是0K下的结果。那么如何得到有限温度下的晶格常数呢？目前主流有两种办法：
 
@@ -234,7 +333,7 @@ The Journal of chemical physics, 2012, 136(13): 134704.
 
 不过对于大部分体系，300K和0K的晶格常数偏差都很小（可能不到0.5%），所以一般都是用DFT的基态0K结果就足以解释实验了。但对于某些高温高压（2000K）的情况，就必须考虑温度带来的效应了，并且对于金属体系，可能还需要考虑电子熵对力和压强的影响。
 
-**（6）结构优化可以自动帮助我们找到势能面全局最小值吗？**
+### （6）结构优化可以自动帮助我们找到势能面全局最小值吗？
 
 比如对于含有8个Si原子的体系，我随意放置这8个Si原子的位置，构建一个任意的胞，让VASP的结构优化算法自动帮我找到它在常压下最稳定的结构可以吗？不行，VASP的结构优化只能找到势能面局域最小值。搜索结构在势能面上的全局最小值事实上一直是一项挑战，由此衍生了“晶体（分子）结构预测”的研究方向。
 
@@ -242,7 +341,7 @@ Nature Reviews Materials, 2019, 4(5): 331-348.
 
 Accounts of Chemical Research, 2022, 55(15): 2068-2076.
 
-**练习**
+### 练习
 
 现在你已经初步掌握结构优化计算的流程，你需要学会的技能是，给定一个初始结构（手动建模或者数据库下载），你可以自己生成合适的INCAR，KPOINTS和POTCAR并进行结构优化计算，通过查看OSZICAR文件和OUTCAR中原子受力以及压强信息，确保结构优化成功结束，并得到relaxed的结构（CONTCAR）以及相应的能量。建议做如下练习：
 
@@ -254,7 +353,34 @@ Accounts of Chemical Research, 2022, 55(15): 2068-2076.
 
 静态自洽计算（SCF）和结构优化计算（relax）几乎是最常遇到的两个计算，因此非常有必要保存一个合适的INCAR。INCAR的写法因个人习惯而异，这里给出一个我个人常用的：
 
-<img src="/dft-intro/image76.webp" alt="" width={554} loading="lazy" />
+```
+ISTART =    0
+ICHARG = 2           # 2 for SCF ; 11/12 for NSCF
+LCHARG =    .FALSE.  # write down charge densities or not
+LWAVE  =    .FALSE.  # write down wavefunctions or not
+ENCUT  =    520      # kinetic energy cutoff, default is taken from POTCAR file
+LREAL  =    Auto
+#PREC  = Accurate
+ISPIN  =    1        # (1 = off, 2 =on spin polarization)
+
+# Ionic Relaxation
+NSW    =   100       # max number of geometry steps, default 0
+IBRION =    2        # ionic relax: 0=MD, 1=quasi-Newton, 2=CG
+ISIF   =    3        #  3 for cell/ionic free; 2 for cell fixed, ionic free
+PSTRESS = 0          # kBar, 1GPa=10kBar
+EDIFFG  = -0.01      # eV/A
+
+# SCF
+ISMEAR =   0         # 0 Gaussian; 1 MP
+SIGMA  =   0.05      # broadening in eV
+NEDOS  = 2000
+NELM   = 60
+EDIFF  = 1E-06       # stopping-criterion for ELM, default is 1E-04
+LORBIT =   11        # for project DOS or band
+
+NCORE    =   4
+KPAR     = 4
+```
 
 这里的参数在教程2.3.3和3.3中几乎都有说明。如果尚不清楚，请务必多浏览vaspwiki的参数介绍，一定要清楚这些常用参数的实际作用。
 

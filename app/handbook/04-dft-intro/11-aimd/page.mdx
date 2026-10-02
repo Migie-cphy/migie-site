@@ -35,7 +35,38 @@ POSCAR：常压下金刚石Si晶胞（8个原子）扩胞222，超胞64个原子
 
 INCAR：
 
-<img src="/dft-intro/image193.webp" alt="" width={554} loading="lazy" />
+```
+Global Parameters
+ISTART =  1            (Read existing wavefunction, if there)
+ISPIN  =  1            (Non-Spin polarised DFT)
+LREAL  =  A            (when A , faster for large system)
+ENCUT  =  400          (Cut-off energy for plane wave basis set, in eV)
+NWRITE =  2            (0,1 For long MD-runs ; else 2)
+
+Electronic Relaxation
+ISMEAR =  0
+SIGMA  =  0.05
+EDIFF  =  1E-05
+
+Molecular Dynamics
+ISYM   =  0            (symmetry turn off for MD )
+IBRION =  0            (Activate MD)
+NSW    =  10000        (Max ionic steps,when high T, more NSW)
+POTIM  =  1            (Timestep in fs  ,0.5 for H atoms, else 1)
+SMASS  =  0            (MD Algorithm: -3-microcanonical ensemble, 0-canonical ensemble)
+TEBEG  =  300          (Start temperature K)
+TEEND  =  300          (Final temperature K)
+
+ISIF = 2                        (3 for NPT , 2 for NVT)
+MDALGO =  2                     (3 Langevin Thermostat for NPT, 2 for NVT)
+#PSTRESS = 0.1                  (in kbar, 10kbar =1GPa)
+#LANGEVIN_GAMMA = 10 10 10      (friction coefficients for Langevin atoms)
+#LANGEVIN_GAMMA_L = 10          (friction coefficients for lattice)
+#PMASS =  1000                  (default)
+
+#ML_LMLFF = TRUE                (for MLFF)
+#ML_MODE  = train               ( train , run or select)
+```
 
 前面两组参数是控制DFT计算的，就是普通的scf计算参数；LREAL=A时可以对大体系计算进行加速，参数具体含义见官网。注意，如果体系需要考虑SOC或者DFT+U，或者需要用其它泛函做AIMD模拟，则INCAR中需要加上相应的参数。
 
@@ -72,7 +103,13 @@ AIMD计算的INCAR文件也可以用vaspkit生成，再自己添加/修改参数
 
 KPOINTS：原则上需要对超胞做能量收敛性测试得到合适的Kmesh；为了演示，我们这里只取Gamma点。
 
-<img src="/dft-intro/image194.webp" alt="" width={354} loading="lazy" />
+```
+K-Spacing Value to Generate K-Mesh: 0.025
+0
+Monkhorst-Pack
+   1  1   1
+0.0  0.0  0.0
+```
 
 POTCAR取默认的4价电子的赝势。
 
@@ -80,7 +117,7 @@ POTCAR取默认的4价电子的赝势。
 
 <img src="/dft-intro/image195.webp" alt="" width={213} loading="lazy" />
 
-分子动力学的计算一般很耗时，因此在有些对精度要求不太高的情况下，通常会降低计算精度。比如ECUT和K点。ECUT一般取到不同元素的ENMAX中最大值多一些，除了Li之外，常见元素的ENAMX＜400。K点只取gamma点。
+分子动力学的计算一般很耗时，因此在有些对精度要求不太高的情况下，通常会降低计算精度。比如ECUT和K点。ECUT一般取到不同元素的ENMAX中最大值多一些，除了Li之外，常见元素的ENMAX＜400。K点只取gamma点。
 
 计算时，每一步的能量和温度信息会输出在OSZICAR文件
 
@@ -92,7 +129,7 @@ POTCAR取默认的4价电子的赝势。
 
 我们一般关注OSZICAR和XDATCAR文件，前者反映温度和能量波动，后者反映结构的动力学演化情况。当然还有包含各种信息的OUTCAR
 
-**（1）OSZICAR中的能量**
+### （1）OSZICAR中的能量
 
 E即为体系总能量，是电子-离子体系的自由能F与离子动能EK的和，再加上恒温器的势能SP与动能SK。其中，离子动能Ek遵循经典统计力学的能量均分定理，等于3/2(N-1)kT（N为原子数），要扣除三个体系平动的自由度，因此要N-1。如果是NPT模拟，那F还包含了体积项pV。
 
@@ -104,13 +141,13 @@ grep E0 OSZICAR \|awk '\{print \$1 , \$3, \$9\}'\> ./Energy.dat
 
 当然，能量信息也可以从OUTCAR中抓取每一次离子步之后的能量。可自行查找。
 
-**（2）模拟过程中的温度波动**
+### （2）模拟过程中的温度波动
 
 AIMD模拟时，最开始20步以内，温度可能会从预设温度（300K）迅速下降到100K，后面又升高到500K，50步以后稳定在300K附近波动。对于2D材料，这个波动幅度可能有±100K；这是正常现象。
 
 但有些体系，初始100步内，温度波动可能非常剧烈，比如预设是5000K，波动可能到9000K，这是因为初始结构原子位置太规整导致，这某些情况下可能会使得体系一开始温度太高而不稳定，比如变形或者融化，说明该模拟是不对的（我们需要的是在5000K附近的模拟，不应该到9000K），需要对初始的原子位置做一些微扰，可以考虑在低温下先NVT跑个100步得到带有原子位置扰动的结构，然后将CONTCAR拿去在高温下模拟；或者用vaspkit或是phonopy的原子位置扰动功能对原子位置做\~0.01Å微小扰动。注意MD模拟过程中体系的对称性几乎都是P1，即完全没有晶格对称性了。
 
-**（3）AIMD模拟中的压强**
+### （3）AIMD模拟中的压强
 
 AIMD模拟过程中的压强有两部分，一部分是电子-离子之间相互作用导致的内压，有的地方称为virial，另一部分是动能带来的压强；后者遵循PV=NRT，两部分压强可以在OUTCAR中找到：
 
@@ -118,7 +155,7 @@ AIMD模拟过程中的压强有两部分，一部分是电子-离子之间相互
 
 因此，如果要读取MD过程中的压强，应该读取这里的total pressure或者Total+kin部分。另外，需要强调的是，in kB部分的内压强本身也和热波动有关，即，它并不等于你用一个完美格点的原子结构做一次静态得到的压强，而是会大一些。
 
-**（4）SMASS参数的影响**
+### （4）SMASS参数的影响
 
 官网对SMASS参数的说明：[https://www.vasp.at/wiki/index.php/SMASS](https://www.vasp.at/wiki/index.php/SMASS)
 
@@ -166,7 +203,10 @@ VASP的机器学习力场与Gaussian approximation potential (GAP) 思路类似�
 
 要在VASP中实现MLFF只需要在原来AIMD的INCAR中加这几个参数：
 
-<img src="/dft-intro/image200.webp" alt="" width={395} loading="lazy" />
+```
+ML_LMLFF = TRUE              (for MLFF)
+ML_MODE = train
+```
 
 ML_MODE参数适用于6.4版本以上，如果是6.3版本，则采用ML_ISTART=0
 

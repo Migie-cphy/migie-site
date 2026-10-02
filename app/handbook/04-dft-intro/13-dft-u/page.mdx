@@ -13,7 +13,7 @@ Correlated Electrons: From Models to Materials Modeling and Simulation, 2012, 2.
 
 [https://www.vasp.at/wiki/index.php/DFT%2BU:\_formalism](https://www.vasp.at/wiki/index.php/DFT%2BU:_formalism)
 
-**（1）强关联效应对电子结构的影响**
+## （1）强关联效应对电子结构的影响
 
 某些体系如果不正确处理强关联效应，则普通的DFT和能带理论可能会把绝缘体处理成金属，或者严重低估半导体的带隙。并且U和J的值对过渡元素半导体的带隙有不小影响（J是Hund exchange）。
 
@@ -21,7 +21,14 @@ Correlated Electrons: From Models to Materials Modeling and Simulation, 2012, 2.
 
 VASP控制+U的参数组是
 
-<img src="/dft-intro/image208.webp" alt="" width={202} loading="lazy" />
+```
+LDAU       = .TRUE.
+LDAUTYPE   = 2
+LDAUL      = 2 -1
+LDAUU      = 8.00 0.00
+LDAUJ      = 0.95 0.00
+LDAUPRINT  = 1
+```
 
 参数具体含义和用法，请自行学习vaspwiki的例子：
 
@@ -31,17 +38,17 @@ VASP控制+U的参数组是
 
 由于U-J的值会直接影响体系的能量和受力，因此对于某些强关联效应显著的体系，需要小心地考虑U-J值。注意：在不同U-J下比较能量是没有意义的。
 
-**（2）哪些体系需要考虑强关联效应？**
+## （2）哪些体系需要考虑强关联效应？
 
 当体系中含有过渡元素中的V/Cr/Mn/Co/Ni，稀土元素中的Ce/Pr/Nd等一系列最外层含d和f电子的元素时，比如它们形成的金属单质/合金、氧/硫化物等一系列化合物，通常都需要考虑强关联效应（DFT+U）。你的体系是否要加U，还需要看前人相关的计算文献。此时这些体系的结构优化，静态计算，能带计算，声子，AIMD等，都要在INCAR中加上+U部分的参数。
 
-**（3）强关联效应对声子性质的影响**
+## （3）强关联效应对声子性质的影响
 
 <img src="/dft-intro/image209.webp" alt="" width={554} loading="lazy" />
 
 Physical Review B, 2011, 84(16): 161102.
 
-**（4）DFT+U时，U和J该取多少？**
+## （4）DFT+U时，U和J该取多少？
 
 取决于元素、化学环境，价态等，一般需要从文献中找值。一种方法是对某个具有实验数据的体系采用不同的U值，寻找能符合实验的U。
 
