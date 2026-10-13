@@ -69,9 +69,19 @@ export function Footer() {
   return (
     <footer className="mt-8 border-t border-zinc-100 px-0 py-4 dark:border-zinc-800">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-zinc-500">
-          © 2026 Meijie Wang. All rights reserved.
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-zinc-500">
+            © 2026 Meijie Wang. All rights reserved.
+          </span>
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            浙ICP备2024065401号-1
+          </a>
+        </div>
         <div className="text-xs text-zinc-400">
           <ThemeSwitch />
         </div>
