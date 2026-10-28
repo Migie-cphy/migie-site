@@ -2,7 +2,12 @@
 
 import { TUTORIAL_PHASES } from '@/app/tutorials'
 import { cn } from '@/lib/utils'
-import { ChevronRightIcon, MenuIcon, XIcon } from 'lucide-react'
+import {
+  ArrowUpRightIcon,
+  ChevronRightIcon,
+  MenuIcon,
+  XIcon,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -165,6 +170,16 @@ function SidebarContent({
           </details>
         )
       })}
+
+      <a
+        href="https://zpwu2026.top"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-between gap-2 rounded-lg px-2 py-1 text-xs font-medium tracking-wide text-zinc-500 transition-colors hover:bg-zinc-200/60 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-100"
+      >
+        <span>DFT 计算入门（吴泽鹏）</span>
+        <ArrowUpRightIcon className="h-3.5 w-3.5 shrink-0" />
+      </a>
     </div>
   )
 }
